@@ -143,7 +143,6 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
     public boolean onOptionsItemSelected(MenuItem item){
          
         switch (item.getItemId()){
-			//TODO Add option to hide completed trophies
         	case R.id.action_secretTrophies:
         		showSecretTrophies = !showSecretTrophies; //Flip boolean value
         		if(showSecretTrophies){ //If the user can now see secret trophies

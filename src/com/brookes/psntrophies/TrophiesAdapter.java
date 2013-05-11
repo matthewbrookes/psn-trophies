@@ -57,8 +57,6 @@ public class TrophiesAdapter extends BaseAdapter {
            name.setText(trophy.getTitle());
            description.setText(trophy.getDescription());
            String date = trophy.getDisplayDate();
-           int j = 1;
-           j = trophy.getId();
            if(date == null){ //If there is no value i.e. it hasn't been earned
         	   earnedLabel.setText("Not Earned Yet!");
         	   trophyDateEarned.setText("");

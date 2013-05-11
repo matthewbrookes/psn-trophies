@@ -124,6 +124,7 @@ public class Game implements Parcelable{
 		
 	}
 	
+	@SuppressWarnings("rawtypes")
 	public static final Parcelable.Creator CREATOR =
 	    	new Parcelable.Creator() {
 	            public Game createFromParcel(Parcel in) {

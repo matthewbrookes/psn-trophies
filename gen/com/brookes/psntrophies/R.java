@@ -92,12 +92,11 @@ public final class R {
     }
     public static final class layout {
         public static final int activity_home=0x7f030000;
-        public static final int activity_home_copy=0x7f030001;
-        public static final int activity_log_in=0x7f030002;
-        public static final int activity_trophies_list=0x7f030003;
-        public static final int copyactivity_home=0x7f030004;
-        public static final int list_item_game=0x7f030005;
-        public static final int list_item_trophy=0x7f030006;
+        public static final int activity_log_in=0x7f030001;
+        public static final int activity_trophies_list=0x7f030002;
+        public static final int copyactivity_home=0x7f030003;
+        public static final int list_item_game=0x7f030004;
+        public static final int list_item_trophy=0x7f030005;
     }
     public static final class menu {
         public static final int home=0x7f070000;

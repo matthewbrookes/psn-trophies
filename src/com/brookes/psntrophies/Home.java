@@ -10,7 +10,6 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,7 +19,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class Home extends Activity implements AsyncTaskListener{
 	String username;
@@ -43,7 +41,6 @@ public class Home extends Activity implements AsyncTaskListener{
 		setContentView(R.layout.activity_home);
 		Intent i = getIntent();
 		username = i.getStringExtra("username");
-		//TODO Add login screen to get PSN ID
 		profileLayout = findViewById(R.id.profileLayout);
 		profileLayout.setVisibility(View.INVISIBLE);
 		profileImage = (ImageView) findViewById(R.id.profilePicture);
@@ -98,9 +95,9 @@ public class Home extends Activity implements AsyncTaskListener{
 			}
 		}
 		gamesList.setOnItemClickListener(new OnItemClickListener() {
-			 public void onItemClick(AdapterView a, View v, int position, long id) {
+			 @SuppressWarnings("rawtypes")
+			public void onItemClick(AdapterView a, View v, int position, long id) {
 			                
-			         String gameId = games.get(position).getId();
 			         Intent trophiesIntent = new Intent(v.getContext(), TrophiesList.class);
 			         trophiesIntent.putExtra("game", games.get(position));
 			         trophiesIntent.putExtra("color",backgroundColor);
