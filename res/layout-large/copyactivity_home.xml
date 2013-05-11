@@ -1,0 +1,47 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".Home" >
+
+    <RelativeLayout
+        android:id="@+id/profileLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="2"
+        android:background="#FF00FF" >
+
+        <ImageView
+            android:id="@+id/profilePicture"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
+
+        <TextView
+            android:id="@+id/psnName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:textColor="#FFFFFF"
+            android:textAppearance="?android:attr/textAppearanceMedium" 
+            android:text="Name" />
+
+       <ProgressBar
+           android:id="@+id/progressToNextLevel"
+           style="?android:attr/progressBarStyleHorizontal"
+           android:layout_width="100dp"
+           android:layout_height="wrap_content"
+           android:max="100" />
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="#FF0000"
+        android:orientation="vertical" 
+        android:layout_weight="1">
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">PSN Trophies</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_logout">Log Out</string>
+    <string name="action_secret_trophies">Toggle Secret Trophies</string>
+    <string name="action_sync">Sync</string>
+    <string name="action_completed_trophies">Toggle Completed Trophies</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_log_in">Log In</string>
+    <string name="title_activity_trophies_list">Trophies</string>
+
+</resources>

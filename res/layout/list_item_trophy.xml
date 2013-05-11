@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" 
+    android:background="@drawable/border" 
+    android:paddingTop="10dip"
+    android:paddingBottom="10dip"
+    android:paddingLeft="10dip">
+
+    <ImageView
+        android:id="@+id/trophyImage"
+        android:layout_width="55dp"
+        android:layout_height="55dp" 
+        android:paddingRight="10dip"
+        android:layout_alignParentLeft="true"
+        android:layout_centerInParent="true" />
+
+    <TextView
+        android:id="@+id/trophyName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/trophyImage"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="#FFFFFF" />
+    
+    <ImageView
+        android:id="@+id/trophyTypeImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerInParent="true"
+        android:layout_below="@id/trophyName"/>
+    
+    <TextView
+        android:id="@+id/trophyDescription"
+        android:layout_below="@id/trophyName"
+        android:layout_toRightOf="@id/trophyImage"
+        android:layout_toLeftOf="@id/trophyTypeImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#FFFFFF" />
+		
+	<TextView
+        android:id="@+id/trophyDateLabel"
+        android:layout_below="@id/trophyDescription"
+        android:layout_toRightOf="@id/trophyImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Earned: "
+        android:textColor="#FFFFFF" />
+	
+	<TextView
+        android:id="@+id/trophyDateEarned"
+        android:layout_below="@id/trophyDescription"
+        android:layout_toRightOf="@id/trophyDateLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#FFFFFF" />
+				       
+    
+        
+</RelativeLayout>
