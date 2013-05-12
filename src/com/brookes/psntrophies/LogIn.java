@@ -22,6 +22,7 @@ public class LogIn extends Activity implements AsyncTaskListener {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_log_in);
+		
 		SharedPreferences savedInformation = getSharedPreferences("com.brookes.psntrophies_preferences", 0);
 		String savedName = savedInformation.getString("username", "");
 		if (!savedName.equals("")){
@@ -51,6 +52,7 @@ public class LogIn extends Activity implements AsyncTaskListener {
 				}
 			}
 		});
+		
 	}
 
 	@Override

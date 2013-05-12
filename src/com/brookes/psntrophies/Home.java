@@ -187,7 +187,6 @@ public class Home extends Activity implements AsyncTaskListener{
         	case R.id.action_settings:
         		Intent j = new Intent(this, SettingsActivity.class);
     	        startActivity(j);
-    	        finish();
         	default:
         		return true;       	
         }

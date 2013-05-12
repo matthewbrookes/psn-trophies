@@ -3,6 +3,7 @@ package com.brookes.psntrophies;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -17,6 +18,7 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
 import android.text.TextUtils;
+import android.view.MenuItem;
 
 import java.util.List;
 
@@ -280,9 +282,16 @@ public class SettingsActivity extends PreferenceActivity {
 		}
 	}
 	
-	public void onBackPressed() {
-    	Intent intent = new Intent(this,Home.class);
-    	
-    	startActivity(intent);
-    }
+	
+	@Override
+    public boolean onOptionsItemSelected(MenuItem item){
+         
+        switch (item.getItemId()){
+        	case android.R.id.home:
+        		finish();
+        		return true;
+        	default:
+        		return true;       	
+        }
+	}
 }
