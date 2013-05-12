@@ -22,11 +22,10 @@ public class LogIn extends Activity implements AsyncTaskListener {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_log_in);
-		SharedPreferences savedInformation = getSharedPreferences("savedInformation", 0);
+		SharedPreferences savedInformation = getSharedPreferences("com.brookes.psntrophies_preferences", 0);
 		String savedName = savedInformation.getString("username", "");
 		if (!savedName.equals("")){
 			Intent i = new Intent(this, Home.class);
-			i.putExtra("username", savedName);
 			startActivity(i);
 			finish();
 		}
@@ -69,7 +68,7 @@ public class LogIn extends Activity implements AsyncTaskListener {
 		}
 		else{
 			//Save username
-			SharedPreferences savedInformation = getSharedPreferences("savedInformation", 0);
+			SharedPreferences savedInformation = getSharedPreferences("com.brookes.psntrophies_preferences", 0);
 	        SharedPreferences.Editor editor = savedInformation.edit();
 	        editor.putString("username", filteredUsername);
 	
@@ -77,7 +76,6 @@ public class LogIn extends Activity implements AsyncTaskListener {
 	        editor.commit();
 	        
 	        Intent i = new Intent(this, Home.class);
-			i.putExtra("username", filteredUsername);
 			startActivity(i);
 			finish();
 		}

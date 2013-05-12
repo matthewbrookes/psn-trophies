@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -42,10 +43,10 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
 		TextView platinumLabel = (TextView) findViewById(R.id.platinumLabel);
 		
 		//Retrieves saved preferences
-		SharedPreferences savedInformation = getSharedPreferences("savedInformation", 0);
+		SharedPreferences savedInformation = getSharedPreferences("com.brookes.psntrophies_preferences", 0);
 		String savedName = savedInformation.getString("username", "");
-		showSecretTrophies = savedInformation.getBoolean("secretTrophies", true);
-		showCompletedTrophies = savedInformation.getBoolean("completedTrophies", true);
+		showSecretTrophies = savedInformation.getBoolean("show_secret_trophies", true);
+		showCompletedTrophies = savedInformation.getBoolean("show_completed_trophies", true);
 		
 		//Retrieve Game Object and Background Color from intent
 		Intent receivedIntent = getIntent();
@@ -64,6 +65,8 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
 		goldLabel.setText("" + Integer.toString(game.getTrophies()[1]));
 		silverLabel.setText("" + Integer.toString(game.getTrophies()[2]));
 		bronzeLabel.setText("" + Integer.toString(game.getTrophies()[3]));
+		
+		SharedPreferences ffdb = PreferenceManager.getDefaultSharedPreferences(this);
 		
 		new GetXML(this).execute("http://www.psnapi.com.ar/ps3/api/psn.asmx/getTrophies?sPSNID="+ savedName + "&sGameId=" + gameId); //Downloads trophies xml for this game
 	}
@@ -152,9 +155,9 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
         		}
 				
 				//Saves new setting
-        		SharedPreferences savedInformation = getSharedPreferences("savedInformation", 0);
+        		SharedPreferences savedInformation = getSharedPreferences("com.brookes.psntrophies_preferences", 0);
     	        SharedPreferences.Editor editor = savedInformation.edit();
-    	        editor.putBoolean("secretTrophies", showSecretTrophies);
+    	        editor.putBoolean("show_secret_trophies", showSecretTrophies);
     	
     	        // Commit the edits!
     	        editor.commit();
@@ -173,9 +176,9 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
         		}
 				
 				//Saves new setting
-        		SharedPreferences savedOptions = getSharedPreferences("savedInformation", 0);
+        		SharedPreferences savedOptions = getSharedPreferences("com.brookes.psntrophies_preferences", 0);
     	        SharedPreferences.Editor optionsEditor = savedOptions.edit();
-    	        optionsEditor.putBoolean("completedTrophies", showCompletedTrophies);
+    	        optionsEditor.putBoolean("show_completed_trophies", showCompletedTrophies);
     	
     	        // Commit the edits!
     	        optionsEditor.commit();

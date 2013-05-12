@@ -35,8 +35,17 @@
         </activity>
         <activity
             android:name="com.brookes.psntrophies.TrophiesList"
-            android:label="@string/title_activity_trophies_list" >
+            android:label="@string/title_activity_trophies_list" 
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name="com.brookes.psntrophies.SettingsActivity"
+            android:label="@string/title_activity_settings" 
             android:screenOrientation="portrait"
+            android:parentActivityName="com.brookes.psntrophies.Home" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.brookes.psntrophies.Home" />
         </activity>
     </application>
 

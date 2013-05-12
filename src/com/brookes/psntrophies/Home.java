@@ -39,8 +39,8 @@ public class Home extends Activity implements AsyncTaskListener{
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_home);
-		Intent i = getIntent();
-		username = i.getStringExtra("username");
+		SharedPreferences savedInformation = getSharedPreferences("com.brookes.psntrophies_preferences", 0);
+		username = savedInformation.getString("username", "");
 		profileLayout = findViewById(R.id.profileLayout);
 		profileLayout.setVisibility(View.INVISIBLE);
 		profileImage = (ImageView) findViewById(R.id.profilePicture);
@@ -171,7 +171,7 @@ public class Home extends Activity implements AsyncTaskListener{
          
         switch (item.getItemId()){
         	case R.id.action_logout:
-        		SharedPreferences savedInformation = getSharedPreferences("savedInformation", 0);
+        		SharedPreferences savedInformation = getSharedPreferences("com.brookes.psntrophies_preferences", 0);
     	        SharedPreferences.Editor editor = savedInformation.edit();
     	        editor.putString("username", "");
     	
@@ -184,6 +184,10 @@ public class Home extends Activity implements AsyncTaskListener{
         	case R.id.action_sync:
         		sync();
         		return true;
+        	case R.id.action_settings:
+        		Intent j = new Intent(this, SettingsActivity.class);
+    	        startActivity(j);
+    	        finish();
         	default:
         		return true;       	
         }
