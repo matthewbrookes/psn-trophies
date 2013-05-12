@@ -21,10 +21,13 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class Home extends Activity implements AsyncTaskListener{
+	//Variables are modifies throughout activity so are defined here
 	String username;
+	String gamesFilter;
 	View profileLayout = null;
 	Profile profile;
 	ArrayList<Game> games;
+	ArrayList<Game> filteredGamesList;
 	ImageView profileImage = null;
 	TextView psnName = null;
 	TextView psnAboutMe = null;
@@ -35,12 +38,18 @@ public class Home extends Activity implements AsyncTaskListener{
 	View profileTable = null;
 	ListView gamesList = null;
 	TextView bronzeLabel, silverLabel, goldLabel, platinumLabel = null;
+	Boolean gamesDownloaded = false;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_home);
+		//Retrieves saved settings
 		SharedPreferences savedInformation = getSharedPreferences("com.brookes.psntrophies_preferences", 0);
 		username = savedInformation.getString("username", "");
+		gamesFilter = savedInformation.getString("filter_games", "all");
+		
+		//Assigns variables to widgets
 		profileLayout = findViewById(R.id.profileLayout);
 		profileLayout.setVisibility(View.INVISIBLE);
 		profileImage = (ImageView) findViewById(R.id.profilePicture);
@@ -54,9 +63,21 @@ public class Home extends Activity implements AsyncTaskListener{
 		platinumLabel = (TextView) findViewById(R.id.platinumLabel);
 		profileTable = findViewById(R.id.profileInformationTable);
 		gamesList = (ListView) findViewById(R.id.gamesList);
-		sync();		
+
+		sync();	//Starts the process	
 	}
-	
+		@Override
+		protected void onResume(){ //When the activity regains focus
+			super.onResume();
+			if(gamesDownloaded){ //If the games have been downloaded
+				//The filter setting is retrieved
+				SharedPreferences savedInformation = getSharedPreferences("com.brookes.psntrophies_preferences", 0);
+				gamesFilter = savedInformation.getString("filter_games", "all");
+				//The list is filtered then drawn
+				filteredGamesList = filterGames(games);
+				gamesList.setAdapter(new GamesAdapter(filteredGamesList, getApplicationContext()));
+			}
+		}
 	private void sync(){
 		new GetXML(this).execute("http://www.psnapi.com.ar/ps3/api/psn.asmx/getPSNID?sPSNID="+username); //Downloads profile
 		new GetXML(this).execute("http://www.psnapi.com.ar/ps3/api/psn.asmx/getGames?sPSNID=" + username); //Downloads games
@@ -65,41 +86,44 @@ public class Home extends Activity implements AsyncTaskListener{
 	@Override
 	public void onProfileDownloaded(String profileXML) {
 		XMLParser parser = new XMLParser();
-		profile = parser.getProfile(profileXML);
+		profile = parser.getProfile(profileXML); //Parses XML into Profile Object
 		setProfilePicture(); //Starts chain of drawing profile
 	}
 	
 	@Override
 	public void onGamesDownloaded(String gamesXML) {
 		XMLParser parser = new XMLParser();
-		games = parser.getGames(gamesXML);
+		games = parser.getGames(gamesXML); //Parses XML into Game Object
 		downloadGameImages(games);
 		
 	}
 	
 	private void downloadGameImages(ArrayList<Game> games){
 		for(int i=0; i<games.size(); i++){
-			new GetImage(this).execute(games.get(i).getImage());
+			new GetImage(this).execute(games.get(i).getImage()); //Download every game image
 		}
 	}
 	
 	@Override
 	public void onGameImageDownloaded(String url, Bitmap image) {
-		// TODO Auto-generated method stub
+		// Attaches image to Object
 		for(int i=0; i<games.size(); i++){
 			if(games.get(i).getImage().equals(url)){
 				games.get(i).setBitmap(image);
 			}
 			if(i == (games.size() - 1)){ //When all images downloaded
-				gamesList.setAdapter(new GamesAdapter(games , this));
+				//List filtered and drawn
+				gamesDownloaded = true;
+				filteredGamesList = filterGames(games);
+				gamesList.setAdapter(new GamesAdapter(filteredGamesList, this));
 			}
 		}
 		gamesList.setOnItemClickListener(new OnItemClickListener() {
 			 @SuppressWarnings("rawtypes")
 			public void onItemClick(AdapterView a, View v, int position, long id) {
-			                
+	                 //When item pressed trophy page is opened
 			         Intent trophiesIntent = new Intent(v.getContext(), TrophiesList.class);
-			         trophiesIntent.putExtra("game", games.get(position));
+			         trophiesIntent.putExtra("game", filteredGamesList.get(position));
 			         trophiesIntent.putExtra("color",backgroundColor);
 			         startActivity(trophiesIntent);
              }
@@ -160,6 +184,30 @@ public class Home extends Activity implements AsyncTaskListener{
 		setProfileColor();
 		setProfileInformation();
 	}
+	
+	private ArrayList<Game> filterGames(ArrayList<Game> oldGamesList){
+		//This function filters the list of games as per the settings
+		ArrayList<Game> newGamesList = new ArrayList<Game>();
+		if (gamesFilter.equals("all")){
+			newGamesList = oldGamesList;
+		} else if (gamesFilter.equals("ps_vita")){
+			for (int i=0;i<oldGamesList.size();i++){
+				if(oldGamesList.get(i).getPlatform().equals("psp2")){
+					//If it's a PS Vita game
+					newGamesList.add(oldGamesList.get(i));
+				}
+			}
+		} else if (gamesFilter.equals("ps3")){
+			for (int i=0;i<oldGamesList.size();i++){
+				if(oldGamesList.get(i).getPlatform().equals("ps3")){
+					//If it's a PS3 game
+					newGamesList.add(oldGamesList.get(i));
+				}
+			}
+		}
+		return newGamesList;
+	}
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
@@ -194,14 +242,7 @@ public class Home extends Activity implements AsyncTaskListener{
 
 	@Override
 	public void onTrophiesDownloaded(String trophiesXML) {
-		// TODO Auto-generated method stub
+		//Unused by necessary method
 		
 	}
-
-	
-	
-
-
-	
-
 }

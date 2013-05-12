@@ -9,6 +9,10 @@ package com.brookes.psntrophies;
 
 public final class R {
     public static final class array {
+        /**  Settings for Games 
+         */
+        public static final int pref_filter_games_titles=0x7f070002;
+        public static final int pref_filter_games_values=0x7f070003;
         public static final int pref_sync_frequency_titles=0x7f070000;
         public static final int pref_sync_frequency_values=0x7f070001;
     }
@@ -119,6 +123,7 @@ public final class R {
         /**  Example settings for Data & Sync 
          */
         public static final int pref_header_data_sync=0x7f06000d;
+        public static final int pref_header_games=0x7f060018;
         /**  Strings related to Settings 
  Example General settings 
          */
@@ -131,6 +136,7 @@ public final class R {
         public static final int pref_header_trophies=0x7f060015;
         public static final int pref_ringtone_silent=0x7f060013;
         public static final int pref_title_display_name=0x7f06000b;
+        public static final int pref_title_filter_games=0x7f060019;
         public static final int pref_title_new_message_notifications=0x7f060011;
         public static final int pref_title_ringtone=0x7f060012;
         public static final int pref_title_show_completed_trophies=0x7f060017;
@@ -172,9 +178,10 @@ public final class R {
     }
     public static final class xml {
         public static final int pref_data_sync=0x7f040000;
-        public static final int pref_general=0x7f040001;
-        public static final int pref_headers=0x7f040002;
-        public static final int pref_notification=0x7f040003;
-        public static final int pref_trophies=0x7f040004;
+        public static final int pref_games=0x7f040001;
+        public static final int pref_general=0x7f040002;
+        public static final int pref_headers=0x7f040003;
+        public static final int pref_notification=0x7f040004;
+        public static final int pref_trophies=0x7f040005;
     }
 }

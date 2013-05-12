@@ -44,4 +44,18 @@
     <string name="pref_header_trophies">Trophies</string>
     <string name="pref_title_show_secret_trophies">Show Secret Trophies</string>
     <string name="pref_title_show_completed_trophies">Show Completed Trophies</string>
+    
+    <!-- Settings for Games -->
+    <string-array name="pref_filter_games_titles">
+        <item>Display only PS Vita Games</item>
+        <item>Display only PS3 Games</item>
+        <item>Display all Games</item>
+    </string-array>
+    <string-array name="pref_filter_games_values">
+        <item>ps_vita</item>
+        <item>ps3</item>
+        <item>all</item>
+    </string-array>
+    <string name="pref_header_games">Games</string>
+    <string name="pref_title_filter_games">Filter Games</string>
 </resources>

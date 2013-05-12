@@ -1,9 +1,9 @@
 package com.brookes.psntrophies;
 
+import java.util.List;
+
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -20,21 +20,8 @@ import android.preference.RingtonePreference;
 import android.text.TextUtils;
 import android.view.MenuItem;
 
-import java.util.List;
 
-
-/**
- * A {@link PreferenceActivity} that presents a set of application settings. On
- * handset devices, settings are presented as a single list. On tablets,
- * settings are split by category, with category headers shown to the left of
- * the list of settings.
- * <p>
- * See <a href="http://developer.android.com/design/patterns/settings.html">
- * Android Design: Settings</a> for design guidelines and the <a
- * href="http://developer.android.com/guide/topics/ui/settings.html">Settings
- * API Guide</a> for more information on developing a Settings UI.
- */
-public class SettingsActivity extends PreferenceActivity {
+public class SettingsActivity extends PreferenceActivity{
 	/**
 	 * Determines whether to always show the simplified settings UI, where
 	 * settings are presented in a single list. When false, settings are shown
@@ -46,7 +33,6 @@ public class SettingsActivity extends PreferenceActivity {
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
-
 		setupSimplePreferencesScreen();
 	}
 
@@ -55,6 +41,7 @@ public class SettingsActivity extends PreferenceActivity {
 	 * device configuration dictates that a simplified, single-pane UI should be
 	 * shown.
 	 */
+	@SuppressWarnings("deprecation")
 	private void setupSimplePreferencesScreen() {
 		if (!isSimplePreferences(this)) {
 			return;
@@ -65,10 +52,14 @@ public class SettingsActivity extends PreferenceActivity {
 
 		// Add 'general' preferences.
 		PreferenceCategory fakeHeader = new PreferenceCategory(this);
-		fakeHeader.setTitle(R.string.pref_header_general);
-		//getPreferenceScreen().addPreference(fakeHeader);
 		addPreferencesFromResource(R.xml.pref_general);
 		
+		// Add 'games' preferences, and a corresponding header.
+		fakeHeader = new PreferenceCategory(this);
+		fakeHeader.setTitle(R.string.pref_header_games);
+		getPreferenceScreen().addPreference(fakeHeader);
+		addPreferencesFromResource(R.xml.pref_games);
+				
 		// Add 'trophies' preferences, and a corresponding header.
 		fakeHeader = new PreferenceCategory(this);
 		fakeHeader.setTitle(R.string.pref_header_trophies);
@@ -91,7 +82,7 @@ public class SettingsActivity extends PreferenceActivity {
 		// their values. When their values change, their summaries are updated
 		// to reflect the new value, per the Android Design guidelines.
 		bindPreferenceSummaryToValue(findPreference("example_text"));
-		//bindPreferenceSummaryToValue(findPreference("example_list"));
+		bindPreferenceSummaryToValue(findPreference("filter_games"));
 		bindPreferenceSummaryToValue(findPreference("notifications_new_message_ringtone"));
 		bindPreferenceSummaryToValue(findPreference("sync_frequency"));
 	}
@@ -99,15 +90,15 @@ public class SettingsActivity extends PreferenceActivity {
 	/** {@inheritDoc} */
 	@Override
 	public boolean onIsMultiPane() {
-		return isXLargeTablet(this) && !isSimplePreferences(this);
+		return isLargeTablet(this) && !isSimplePreferences(this);
 	}
 
 	/**
 	 * Helper method to determine if the device has an extra-large screen. For
 	 * example, 10" tablets are extra-large.
 	 */
-	private static boolean isXLargeTablet(Context context) {
-		return (context.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_XLARGE;
+	private static boolean isLargeTablet(Context context) {
+		return (context.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_LARGE;
 	}
 
 	/**
@@ -120,7 +111,7 @@ public class SettingsActivity extends PreferenceActivity {
 	private static boolean isSimplePreferences(Context context) {
 		return ALWAYS_SIMPLE_PREFS
 				|| Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB
-				|| !isXLargeTablet(context);
+				|| !isLargeTablet(context);
 	}
 
 	/** {@inheritDoc} */
@@ -223,30 +214,27 @@ public class SettingsActivity extends PreferenceActivity {
 			// updated to reflect the new value, per the Android Design
 			// guidelines.
 			bindPreferenceSummaryToValue(findPreference("example_text"));
-			bindPreferenceSummaryToValue(findPreference("example_list"));
 		}
 	}
-	
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	public static class GamesPreferenceFragment extends PreferenceFragment {
+		@Override
+		public void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+			addPreferencesFromResource(R.xml.pref_games);
+			
+			bindPreferenceSummaryToValue(findPreference("filter_games"));
+		}
+	}
+
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public static class TrophiesPreferenceFragment extends PreferenceFragment {
 		@Override
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
-			addPreferencesFromResource(R.xml.pref_general);
-
-			// Bind the summaries of EditText/List/Dialog/Ringtone preferences
-			// to their values. When their values change, their summaries are
-			// updated to reflect the new value, per the Android Design
-			// guidelines.
-			bindPreferenceSummaryToValue(findPreference("example_text"));
-			bindPreferenceSummaryToValue(findPreference("example_list"));
+			addPreferencesFromResource(R.xml.pref_trophies);
 		}
 	}
-
-	/**
-	 * This fragment shows notification preferences only. It is used when the
-	 * activity is showing a two-pane settings UI.
-	 */
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public static class NotificationPreferenceFragment extends
 			PreferenceFragment {
@@ -255,10 +243,6 @@ public class SettingsActivity extends PreferenceActivity {
 			super.onCreate(savedInstanceState);
 			addPreferencesFromResource(R.xml.pref_notification);
 
-			// Bind the summaries of EditText/List/Dialog/Ringtone preferences
-			// to their values. When their values change, their summaries are
-			// updated to reflect the new value, per the Android Design
-			// guidelines.
 			bindPreferenceSummaryToValue(findPreference("notifications_new_message_ringtone"));
 		}
 	}
@@ -274,10 +258,6 @@ public class SettingsActivity extends PreferenceActivity {
 			super.onCreate(savedInstanceState);
 			addPreferencesFromResource(R.xml.pref_data_sync);
 
-			// Bind the summaries of EditText/List/Dialog/Ringtone preferences
-			// to their values. When their values change, their summaries are
-			// updated to reflect the new value, per the Android Design
-			// guidelines.
 			bindPreferenceSummaryToValue(findPreference("sync_frequency"));
 		}
 	}

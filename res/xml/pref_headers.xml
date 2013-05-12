@@ -6,6 +6,9 @@
         android:fragment="com.brookes.psntrophies.SettingsActivity$GeneralPreferenceFragment"
         android:title="@string/pref_header_general" />
     <header
+        android:fragment="com.brookes.psntrophies.SettingsActivity$GamesPreferenceFragment"
+        android:title="@string/pref_header_games" />
+    <header
         android:fragment="com.brookes.psntrophies.SettingsActivity$TrophiesPreferenceFragment"
         android:title="@string/pref_header_trophies" />
     <header
