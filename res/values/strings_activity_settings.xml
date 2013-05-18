@@ -42,20 +42,31 @@
 	
     <!-- Settings for Trophies -->
     <string name="pref_header_trophies">Trophies</string>
-    <string name="pref_title_show_secret_trophies">Show Secret Trophies</string>
-    <string name="pref_title_show_completed_trophies">Show Completed Trophies</string>
+    <string name="pref_title_show_secret_trophies">Show secret trophies</string>
+    <string name="pref_title_show_completed_trophies">Show completed trophies</string>
     
     <!-- Settings for Games -->
     <string-array name="pref_filter_games_titles">
-        <item>Display only PS Vita Games</item>
-        <item>Display only PS3 Games</item>
-        <item>Display all Games</item>
+        <item>Display only PS Vita games</item>
+        <item>Display only PS3 games</item>
+        <item>Display all games</item>
     </string-array>
     <string-array name="pref_filter_games_values">
         <item>ps_vita</item>
         <item>ps3</item>
         <item>all</item>
     </string-array>
+    <string-array name="pref_sort_games_titles">
+        <item>Sort recently played</item>
+        <item>Sort alphabetically</item>
+        <item>Sort platform</item>
+    </string-array>
+    <string-array name="pref_sort_games_values">
+        <item>recent</item>
+        <item>alphabetically</item>
+        <item>platform</item>
+    </string-array>
     <string name="pref_header_games">Games</string>
-    <string name="pref_title_filter_games">Filter Games</string>
+    <string name="pref_title_filter_games">Filter games</string>
+    <string name="pref_title_sort_games">Sort games</string>
 </resources>

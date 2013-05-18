@@ -129,15 +129,15 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.trophies_list, menu);
 		if(showSecretTrophies){ //If the user wants to see secret trophies
-			menu.getItem(0).setTitle("Hide Secret Trophies"); //Set the text to this
+			menu.getItem(0).setTitle("Hide secret trophies"); //Set the text to this
 		} else{
-			menu.getItem(0).setTitle("Show Secret Trophies");
+			menu.getItem(0).setTitle("Show secret trophies");
 		}
 		
 		if(showCompletedTrophies){ //If the user wants to see completed trophies
-			menu.getItem(1).setTitle("Hide Completed Trophies"); //Set the text to this
+			menu.getItem(1).setTitle("Hide completed trophies"); //Set the text to this
 		} else{
-			menu.getItem(1).setTitle("Show Completed Trophies");
+			menu.getItem(1).setTitle("Show completed trophies");
 		}
 		return true;
 	}
@@ -149,9 +149,9 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
         	case R.id.action_secretTrophies:
         		showSecretTrophies = !showSecretTrophies; //Flip boolean value
         		if(showSecretTrophies){ //If the user can now see secret trophies
-        			item.setTitle("Hide Secret Trophies"); //Give user the option to hide them
+        			item.setTitle("Hide secret trophies"); //Give user the option to hide them
         		} else{
-        			item.setTitle("Show Secret Trophies");
+        			item.setTitle("Show secret trophies");
         		}
 				
 				//Saves new setting
@@ -170,9 +170,9 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
         	case R.id.action_completedTrophies:
         		this.showCompletedTrophies = !showCompletedTrophies; //Flip boolean value
         		if(showCompletedTrophies){ //If the user can now see completed trophies
-        			item.setTitle("Hide Completed Trophies"); //Give user the option to hide them
+        			item.setTitle("Hide completed trophies"); //Give user the option to hide them
         		} else{
-        			item.setTitle("Show Completed Trophies");
+        			item.setTitle("Show completed trophies");
         		}
 				
 				//Saves new setting

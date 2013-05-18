@@ -13,6 +13,8 @@ public final class R {
          */
         public static final int pref_filter_games_titles=0x7f070002;
         public static final int pref_filter_games_values=0x7f070003;
+        public static final int pref_sort_games_titles=0x7f070004;
+        public static final int pref_sort_games_values=0x7f070005;
         public static final int pref_sync_frequency_titles=0x7f070000;
         public static final int pref_sync_frequency_values=0x7f070001;
     }
@@ -141,6 +143,7 @@ public final class R {
         public static final int pref_title_ringtone=0x7f060012;
         public static final int pref_title_show_completed_trophies=0x7f060017;
         public static final int pref_title_show_secret_trophies=0x7f060016;
+        public static final int pref_title_sort_games=0x7f06001a;
         public static final int pref_title_sync_frequency=0x7f06000e;
         public static final int pref_title_system_sync_settings=0x7f06000f;
         public static final int pref_title_vibrate=0x7f060014;

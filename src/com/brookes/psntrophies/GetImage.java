@@ -42,7 +42,7 @@ public class GetImage extends AsyncTask <String, Void, Bitmap> {
 		 HttpContext localContext = new BasicHttpContext();
          HttpGet httpGet = new HttpGet(params[0]);
          uri = params[0];
-         if(params[0].contains("http://static-resource.np.community.playstation.net/avatar")){ //If we're downloading a profile
+         if(params[0].contains("avatar")){ //If we're downloading a profile
         	 downloadType = DownloadType.PROFILE;
          }
          else if(params[0].contains("http://trophy01.np.community.playstation.net/trophy/np/")){ //If we're downloading a game image

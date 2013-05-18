@@ -24,6 +24,7 @@ public class Home extends Activity implements AsyncTaskListener{
 	//Variables are modifies throughout activity so are defined here
 	String username;
 	String gamesFilter;
+	String gamesSort;
 	View profileLayout = null;
 	Profile profile;
 	ArrayList<Game> games;
@@ -48,7 +49,7 @@ public class Home extends Activity implements AsyncTaskListener{
 		SharedPreferences savedInformation = getSharedPreferences("com.brookes.psntrophies_preferences", 0);
 		username = savedInformation.getString("username", "");
 		gamesFilter = savedInformation.getString("filter_games", "all");
-		
+		gamesSort = savedInformation.getString("sort_games", "recent");
 		//Assigns variables to widgets
 		profileLayout = findViewById(R.id.profileLayout);
 		profileLayout.setVisibility(View.INVISIBLE);
@@ -73,8 +74,10 @@ public class Home extends Activity implements AsyncTaskListener{
 				//The filter setting is retrieved
 				SharedPreferences savedInformation = getSharedPreferences("com.brookes.psntrophies_preferences", 0);
 				gamesFilter = savedInformation.getString("filter_games", "all");
+				gamesSort = savedInformation.getString("sort_games", "recent");
 				//The list is filtered then drawn
 				filteredGamesList = filterGames(games);
+				
 				gamesList.setAdapter(new GamesAdapter(filteredGamesList, getApplicationContext()));
 			}
 		}
@@ -115,6 +118,7 @@ public class Home extends Activity implements AsyncTaskListener{
 				//List filtered and drawn
 				gamesDownloaded = true;
 				filteredGamesList = filterGames(games);
+				new SortList().sortAlphabetical(filteredGamesList);
 				gamesList.setAdapter(new GamesAdapter(filteredGamesList, this));
 			}
 		}
@@ -205,8 +209,22 @@ public class Home extends Activity implements AsyncTaskListener{
 				}
 			}
 		}
-		return newGamesList;
+		return sortGames(newGamesList);
 	}
+	
+	private ArrayList<Game> sortGames(ArrayList<Game> oldGamesList){
+		SortList sortList = new SortList();
+		if (gamesSort.equals("recent")){
+			return sortList.sortRecent(oldGamesList);
+		}
+		else if(gamesSort.equals("alphabetically")){
+			return sortList.sortAlphabetical(oldGamesList);
+		}
+		else{
+			return sortList.sortPlatform(oldGamesList);
+		}
+	}
+	
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {

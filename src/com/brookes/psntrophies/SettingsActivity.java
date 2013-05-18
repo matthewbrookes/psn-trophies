@@ -83,6 +83,7 @@ public class SettingsActivity extends PreferenceActivity{
 		// to reflect the new value, per the Android Design guidelines.
 		bindPreferenceSummaryToValue(findPreference("example_text"));
 		bindPreferenceSummaryToValue(findPreference("filter_games"));
+		bindPreferenceSummaryToValue(findPreference("sort_games"));
 		bindPreferenceSummaryToValue(findPreference("notifications_new_message_ringtone"));
 		bindPreferenceSummaryToValue(findPreference("sync_frequency"));
 	}
@@ -224,6 +225,7 @@ public class SettingsActivity extends PreferenceActivity{
 			addPreferencesFromResource(R.xml.pref_games);
 			
 			bindPreferenceSummaryToValue(findPreference("filter_games"));
+			bindPreferenceSummaryToValue(findPreference("sort_games"));
 		}
 	}
 
