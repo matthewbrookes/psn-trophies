@@ -118,7 +118,6 @@ public class Home extends Activity implements AsyncTaskListener{
 				//List filtered and drawn
 				gamesDownloaded = true;
 				filteredGamesList = filterGames(games);
-				new SortList().sortAlphabetical(filteredGamesList);
 				gamesList.setAdapter(new GamesAdapter(filteredGamesList, this));
 			}
 		}

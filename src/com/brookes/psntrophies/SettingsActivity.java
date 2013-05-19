@@ -223,7 +223,7 @@ public class SettingsActivity extends PreferenceActivity{
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
 			addPreferencesFromResource(R.xml.pref_games);
-			
+			Preference sort = findPreference("sort_games");
 			bindPreferenceSummaryToValue(findPreference("filter_games"));
 			bindPreferenceSummaryToValue(findPreference("sort_games"));
 		}
