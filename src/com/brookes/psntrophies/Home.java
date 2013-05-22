@@ -21,7 +21,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class Home extends Activity implements AsyncTaskListener{
-	//Variables are modifies throughout activity so are defined here
+	//Variables are modified throughout activity so are defined here
 	String username;
 	String gamesFilter;
 	String gamesSort;
@@ -40,6 +40,7 @@ public class Home extends Activity implements AsyncTaskListener{
 	ListView gamesList = null;
 	TextView bronzeLabel, silverLabel, goldLabel, platinumLabel = null;
 	Boolean gamesDownloaded = false;
+	Boolean downloadImages;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +51,7 @@ public class Home extends Activity implements AsyncTaskListener{
 		username = savedInformation.getString("username", "");
 		gamesFilter = savedInformation.getString("filter_games", "all");
 		gamesSort = savedInformation.getString("sort_games", "recent");
+		downloadImages = savedInformation.getBoolean("download_images", true);
 		//Assigns variables to widgets
 		profileLayout = findViewById(R.id.profileLayout);
 		profileLayout.setVisibility(View.INVISIBLE);
@@ -75,6 +77,7 @@ public class Home extends Activity implements AsyncTaskListener{
 				SharedPreferences savedInformation = getSharedPreferences("com.brookes.psntrophies_preferences", 0);
 				gamesFilter = savedInformation.getString("filter_games", "all");
 				gamesSort = savedInformation.getString("sort_games", "recent");
+				downloadImages = savedInformation.getBoolean("download_images", true);
 				//The list is filtered then drawn
 				filteredGamesList = filterGames(games);
 				
@@ -103,7 +106,16 @@ public class Home extends Activity implements AsyncTaskListener{
 	
 	private void downloadGameImages(ArrayList<Game> games){
 		for(int i=0; i<games.size(); i++){
-			new GetImage(this).execute(games.get(i).getImage()); //Download every game image
+			if(downloadImages){ //If the user wants to download images
+				new GetImage(this).execute(games.get(i).getImage()); //Download every game image
+			}
+			else{
+				gamesDownloaded = true;
+				//Draw list without images
+				filteredGamesList = filterGames(games);
+				gamesList.setAdapter(new GamesAdapter(filteredGamesList, this));
+				setGamesListener();
+			}
 		}
 	}
 	
@@ -121,16 +133,7 @@ public class Home extends Activity implements AsyncTaskListener{
 				gamesList.setAdapter(new GamesAdapter(filteredGamesList, this));
 			}
 		}
-		gamesList.setOnItemClickListener(new OnItemClickListener() {
-			 @SuppressWarnings("rawtypes")
-			public void onItemClick(AdapterView a, View v, int position, long id) {
-	                 //When item pressed trophy page is opened
-			         Intent trophiesIntent = new Intent(v.getContext(), TrophiesList.class);
-			         trophiesIntent.putExtra("game", filteredGamesList.get(position));
-			         trophiesIntent.putExtra("color",backgroundColor);
-			         startActivity(trophiesIntent);
-             }
-	     });
+		setGamesListener();
 	}
 	
 	private void setProfileColor(){
@@ -152,8 +155,15 @@ public class Home extends Activity implements AsyncTaskListener{
 		profileLayout.setBackgroundColor(Color.parseColor(color)); //Set background to this color
 	}
 	private void setProfilePicture(){
-		String uri = profile.getAvatar(); //From downloaded profile
-		new GetImage(this).execute(uri); //Download the image
+		if(downloadImages){ //If the user wants to download images
+			String uri = profile.getAvatar(); //From downloaded profile
+			new GetImage(this).execute(uri); //Download the image
+		}
+		else{
+			//Bypass downloading of image
+			setProfileColor();
+			setProfileInformation();
+		}
 	}
 	private void setProfileInformation(){
 		setProfileColor();
@@ -222,6 +232,19 @@ public class Home extends Activity implements AsyncTaskListener{
 		else{
 			return sortList.sortPlatform(oldGamesList);
 		}
+	}
+	
+	private void setGamesListener(){
+		gamesList.setOnItemClickListener(new OnItemClickListener() {
+			 @SuppressWarnings("rawtypes")
+			public void onItemClick(AdapterView a, View v, int position, long id) {
+	                 //When item pressed trophy page is opened
+			         Intent trophiesIntent = new Intent(v.getContext(), TrophiesList.class);
+			         trophiesIntent.putExtra("game", filteredGamesList.get(position));
+			         trophiesIntent.putExtra("color",backgroundColor);
+			         startActivity(trophiesIntent);
+            }
+	     });
 	}
 	
 	

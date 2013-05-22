@@ -23,6 +23,7 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
 	View gameLayout;
 	Boolean showSecretTrophies;
 	Boolean showCompletedTrophies;
+	Boolean downloadImages;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +46,7 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
 		//Retrieves saved preferences
 		SharedPreferences savedInformation = getSharedPreferences("com.brookes.psntrophies_preferences", 0);
 		String savedName = savedInformation.getString("username", "");
+		downloadImages = savedInformation.getBoolean("download_images", true);
 		showSecretTrophies = savedInformation.getBoolean("show_secret_trophies", true);
 		showCompletedTrophies = savedInformation.getBoolean("show_completed_trophies", true);
 		
@@ -78,8 +80,15 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
 	}
 	
 	private void downloadTrophyImages(ArrayList<Trophy> trophies){
-		for(int i=0; i<trophies.size(); i++){ //For each Trophy Object
-			new GetImage(this).execute(trophies.get(i).getImage()); //Download the image
+		if(downloadImages){
+			for(int i=0; i<trophies.size(); i++){ //For each Trophy Object
+				new GetImage(this).execute(trophies.get(i).getImage()); //Download the image
+			}
+		}
+		else{
+			ArrayList<Trophy> filteredList = hideTrophies(trophies, showSecretTrophies, showCompletedTrophies);
+			
+			trophiesList.setAdapter(new TrophiesAdapter(filteredList, this)); //Draws list based upon new data
 		}
 	}
 	

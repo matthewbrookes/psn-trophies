@@ -16,6 +16,7 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.preference.PreferenceScreen;
 import android.preference.RingtonePreference;
 import android.text.TextUtils;
 import android.view.MenuItem;
@@ -47,11 +48,13 @@ public class SettingsActivity extends PreferenceActivity{
 			return;
 		}
 
-		// In the simplified UI, fragments are not used at all and we instead
-		// use the older PreferenceActivity APIs.
-
-		// Add 'general' preferences.
+		// Add blank list so we can display General header
+		addPreferencesFromResource(R.xml.pref_blank);
+		
+		// Add 'general' preferences and header.
 		PreferenceCategory fakeHeader = new PreferenceCategory(this);
+		fakeHeader.setTitle(R.string.pref_header_general);
+		getPreferenceScreen().addPreference(fakeHeader);
 		addPreferencesFromResource(R.xml.pref_general);
 		
 		// Add 'games' preferences, and a corresponding header.
@@ -81,7 +84,7 @@ public class SettingsActivity extends PreferenceActivity{
 		// Bind the summaries of EditText/List/Dialog/Ringtone preferences to
 		// their values. When their values change, their summaries are updated
 		// to reflect the new value, per the Android Design guidelines.
-		bindPreferenceSummaryToValue(findPreference("example_text"));
+		bindPreferenceSummaryToValue(findPreference("username"));
 		bindPreferenceSummaryToValue(findPreference("filter_games"));
 		bindPreferenceSummaryToValue(findPreference("sort_games"));
 		bindPreferenceSummaryToValue(findPreference("notifications_new_message_ringtone"));
@@ -214,7 +217,7 @@ public class SettingsActivity extends PreferenceActivity{
 			// to their values. When their values change, their summaries are
 			// updated to reflect the new value, per the Android Design
 			// guidelines.
-			bindPreferenceSummaryToValue(findPreference("example_text"));
+			bindPreferenceSummaryToValue(findPreference("username"));
 		}
 	}
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
