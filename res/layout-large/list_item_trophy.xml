@@ -12,7 +12,7 @@
     <ImageView
         android:id="@+id/trophyImage"
         android:layout_width="150dp"
-        android:layout_height="150dp" 
+        android:layout_height="wrap_content" 
         android:paddingRight="10dip"
         android:layout_alignParentLeft="true"
         android:layout_centerInParent="true" />

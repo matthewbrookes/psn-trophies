@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Menu;
@@ -163,6 +164,7 @@ public class Home extends Activity implements AsyncTaskListener{
 			//Bypass downloading of image
 			setProfileColor();
 			setProfileInformation();
+			profileImage.setImageBitmap(drawBlankProfileImage());
 		}
 	}
 	private void setProfileInformation(){
@@ -247,6 +249,22 @@ public class Home extends Activity implements AsyncTaskListener{
 	     });
 	}
 	
+	public Bitmap drawBlankProfileImage(){
+		Bitmap image = Bitmap.createBitmap(240, 240, Bitmap.Config.ARGB_8888);
+		Bitmap scaledImage; //Will hold a scaled image on smaller screens
+		int screenSize = getResources().getConfiguration().screenLayout &
+		        Configuration.SCREENLAYOUT_SIZE_MASK;
+		if(screenSize == Configuration.SCREENLAYOUT_SIZE_NORMAL || 
+				screenSize == Configuration.SCREENLAYOUT_SIZE_SMALL){
+			//On smaller screens the image is scaled down
+			scaledImage = Bitmap.createScaledBitmap(image, 180, 180, false);
+		}
+		else{
+			//On tablets it stays as the original
+			scaledImage = image;
+		}
+		return scaledImage;
+	}
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
