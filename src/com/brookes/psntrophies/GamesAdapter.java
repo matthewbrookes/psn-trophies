@@ -43,7 +43,7 @@ public class GamesAdapter extends BaseAdapter {
             LayoutInflater vi = (LayoutInflater)_c.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             v = vi.inflate(R.layout.list_item_game, null);
          }
- 
+           //Assigns widgets to variables
            ImageView gameImage = (ImageView) v.findViewById(R.id.gameImage);
            TextView name = (TextView)v.findViewById(R.id.gameName);
            TextView totalTrophies = (TextView)v.findViewById(R.id.gameTrophiesAchievable);
@@ -54,6 +54,8 @@ public class GamesAdapter extends BaseAdapter {
            TextView bronzeLabel = (TextView)v.findViewById(R.id.bronzeLabel);
  
            Game game = _data.get(position);
+           
+           //Draws information in widgets
            name.setText(game.getTitle());
            totalTrophies.setText("" + game.getTotalTrophies());
            platinumLabel.setText("" + game.getTrophies()[0]);

@@ -11,8 +11,8 @@ public class Game implements Parcelable{
 	private int ProgresstoCompletion; //Stored as integer but used as percentage
 	private int[] Trophies = new int[4]; //Array of trophies in form (Platinum, Gold, Silver, Bronze)
 	private int trophiesAchievable; //Number of trophies available
-	private int orderPlayed; //How recently game was played (1 being most recent)
 	private String platform; //ps3 or psp2(Vita)
+	private String updated; //Holds time of last update
 	private Bitmap imageBitmap;
 	
 	public Game(){}
@@ -47,13 +47,6 @@ public class Game implements Parcelable{
 	}
 	public void setProgress(int progress){
 		this.ProgresstoCompletion = progress;
-	}
-	
-	public int getOrderPlayed(){
-		return this.orderPlayed;
-	}
-	public void setOrder(int order){
-		this.orderPlayed = order;
 	}
 	
 	public int[] getTrophies(){
@@ -94,6 +87,13 @@ public class Game implements Parcelable{
 	}
 	public void setPlatform(String platform){
 		this.platform = platform;
+	}
+	
+	public String getUpdated(){
+		return this.updated;
+	}
+	public void setUpdated(String time){
+		this.updated = time;
 	}
 	
 	public Bitmap getBitmap(){

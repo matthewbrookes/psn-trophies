@@ -1,6 +1,8 @@
 package com.brookes.psntrophies;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -8,7 +10,6 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,6 +25,8 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
 	Boolean showSecretTrophies;
 	Boolean showCompletedTrophies;
 	Boolean downloadImages;
+	String gameId;
+	String savedName;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +48,7 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
 		
 		//Retrieves saved preferences
 		SharedPreferences savedInformation = getSharedPreferences("com.brookes.psntrophies_preferences", 0);
-		String savedName = savedInformation.getString("username", "");
+		savedName = savedInformation.getString("username", "");
 		downloadImages = savedInformation.getBoolean("download_images", true);
 		showSecretTrophies = savedInformation.getBoolean("show_secret_trophies", true);
 		showCompletedTrophies = savedInformation.getBoolean("show_completed_trophies", true);
@@ -53,10 +56,10 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
 		//Retrieve Game Object and Background Color from intent
 		Intent receivedIntent = getIntent();
 		Game game = receivedIntent.getExtras().getParcelable("game");
-		String gameId = game.getId();
+		gameId = game.getId();
 		String backgroundcolor = receivedIntent.getStringExtra("color");
 		
-		//Sets information in top layout bases upon recieved Game Object and color
+		//Sets information in top layout bases upon received Game Object and color
 		gameLayout.setBackgroundColor(Color.parseColor(backgroundcolor));
 		gameImage.setImageBitmap(game.getBitmap());
 		gameName.setText(game.getTitle());
@@ -67,15 +70,21 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
 		goldLabel.setText("" + Integer.toString(game.getTrophies()[1]));
 		silverLabel.setText("" + Integer.toString(game.getTrophies()[2]));
 		bronzeLabel.setText("" + Integer.toString(game.getTrophies()[3]));
-		
-		SharedPreferences ffdb = PreferenceManager.getDefaultSharedPreferences(this);
-		
-		new GetXML(this).execute("http://www.psnapi.com.ar/ps3/api/psn.asmx/getTrophies?sPSNID="+ savedName + "&sGameId=" + gameId); //Downloads trophies xml for this game
+				
+		new GetXML(this).execute("http://psntrophies.net16.net/getTrophies.php?psnid="+ savedName + "&gameid=" + gameId); //Downloads trophies xml for this game
 	}
 	
 	@Override
-	public void onTrophiesDownloaded(String trophiesXML){
-		trophies = new XMLParser().getTrophies(trophiesXML); //Returns ArrayList of Trophy objects
+	public void onPSNTrophiesDownloaded(String trophiesXML) {
+		trophies = new XMLParser().getPSNAPITrophies(trophiesXML);
+		for(int j=0;j<trophies.size();j++){
+			if(!trophies.get(j).getDateEarned().isEmpty()){
+				Date d = new Date(Long.parseLong(trophies.get(j).getDateEarned()) * 1000L);
+				DateFormat f = DateFormat.getDateInstance();
+				String displayDate = f.format(d); 
+				trophies.get(j).setDisplayDate(displayDate);
+			}
+		}
 		downloadTrophyImages(trophies);
 	}
 	
@@ -203,17 +212,17 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
 	}
 	@Override
 	public void onProfileDownloaded(String profileXML) {
-		//Not used but required due to implementation of AsyncTaskListener		
-	}
-
-	@Override
-	public void onGamesDownloaded(String gamesXML) {
-		//Not used but required due to implementation of AsyncTaskListener		
+		// Not used but is required due to implementations
 	}
 
 	@Override
 	public void onProfileImageDownloaded(Bitmap image) {
-		//Not used but required due to implementation of AsyncTaskListener		
+		// Not used but is required due to implementations
+	}
+
+	@Override
+	public void onPSNGamesDownloaded(String gamesXML) {
+		// Not used but is required due to implementations
 	}
 
 	

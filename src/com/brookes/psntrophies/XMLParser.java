@@ -87,8 +87,7 @@ public class XMLParser{
 	return profile;
 }
 	
-	
-	public ArrayList<Game> getGames(String xmlString){
+	public ArrayList<Game> getPSNAPIGames(String xmlString){
 		ArrayList<Game> games = new ArrayList<Game>();
 		Game game = null;
 		String text = "";
@@ -121,16 +120,14 @@ public class XMLParser{
 		            	if (tagname.equalsIgnoreCase("game")) {
 		                    // add Game object to list
 		                    games.add(game);
-		            	} else if (tagname.equalsIgnoreCase("progress")) {
-		                    game.setProgress(Integer.parseInt(text));
-		                } else if (tagname.equalsIgnoreCase("id")) {
+		            	} else if (tagname.equalsIgnoreCase("id")) {
 		                    game.setId(text);
+		                } else if (tagname.equalsIgnoreCase("total")) {
+		                    game.setTotalTrophies(Integer.parseInt(text));
 		                } else if (tagname.equalsIgnoreCase("image")) {
 		                    game.setImage(text);
 		                } else if (tagname.equalsIgnoreCase("TotalTrophies")) {
 		                    game.setTotalTrophies(Integer.parseInt(text));
-		                } else if (tagname.equalsIgnoreCase("orderPlayed")) {
-		                	game.setOrder(Integer.parseInt(text));
 		                } else if (tagname.equalsIgnoreCase("Platinum")) {
 		                	game.setPlatium(Integer.parseInt(text));
 		                } else if (tagname.equalsIgnoreCase("Gold")) {
@@ -143,7 +140,9 @@ public class XMLParser{
 		                	game.setTitle(text);
 		                } else if (tagname.equalsIgnoreCase("platform")) {
 		                	game.setPlatform(text);
-		                } 
+		                } else if (tagname.equalsIgnoreCase("lastupdated")){
+		                	game.setUpdated(text);
+		                }
 		                break;
 		
 	            	default:
@@ -162,7 +161,7 @@ public class XMLParser{
 		
 	}
 	
-	public ArrayList<Trophy> getTrophies(String xmlString){
+	public ArrayList<Trophy> getPSNAPITrophies(String xmlString){
 		ArrayList<Trophy> trophies = new ArrayList<Trophy>();
 		Trophy trophy = null;
 		String text = "";
@@ -197,14 +196,19 @@ public class XMLParser{
 		                    trophies.add(trophy);
 		            	} else if (tagname.equalsIgnoreCase("id")) {
 		                    trophy.setId(Integer.parseInt(text));
+		                } else if (tagname.equalsIgnoreCase("trophydate")) {
+		                	if(text.contains("false") || text.contains("true")){
+		                		trophy.setDateEarned("");
+		                	}
+		                	else{
+		                		trophy.setDateEarned(text);
+		                	}
 		                } else if (tagname.equalsIgnoreCase("image")) {
 		                    trophy.setImage(text);
 		                } else if (tagname.equalsIgnoreCase("title")) {
 		                	trophy.setTitle(text);
 		                } else if (tagname.equalsIgnoreCase("description")) {
 		                	trophy.setDescription(text);
-		                } else if (tagname.equalsIgnoreCase("DateEarned")) {
-		                	trophy.setDateEarned(text);
 		                } else if (tagname.equalsIgnoreCase("DisplayDate")) {
 		                	trophy.setDisplayDate(text);
 		                } else if (tagname.equalsIgnoreCase("hidden")) {
@@ -214,7 +218,7 @@ public class XMLParser{
 		                	else{
 		                		trophy.setHidden(false);
 		                	}
-		                } else if (tagname.equalsIgnoreCase("TrophyType")){
+		                } else if (tagname.equalsIgnoreCase("type")){
 		                	if(text.equalsIgnoreCase("platinum")){
 		                		trophy.setType(Trophy.Type.PLATINUM);
 		                	} else if(text.equalsIgnoreCase("gold")){
@@ -242,7 +246,5 @@ public class XMLParser{
 		return trophies;
 		
 	}
-	
-	
 }
 

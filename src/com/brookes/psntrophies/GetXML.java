@@ -39,14 +39,14 @@ public class GetXML extends AsyncTask <String, Void, String> {
 		 HttpClient httpClient = new DefaultHttpClient();
 		 HttpContext localContext = new BasicHttpContext();
          HttpGet httpGet = new HttpGet(params[0]);
-         if(params[0].contains("getPSNID")){ //If we're downloading a profile
+         if(params[0].contains("/ps3/api/psn.asmx/getPSNID")){ //If we're downloading a profile
         	 downloadType = DownloadType.PROFILE;
          }
-         else if(params[0].contains("getGames")){ //If we're downloading a profile
-        	 downloadType = DownloadType.GAMES;
+         else if(params[0].contains("http://psntrophies.net16.net/getGames.php")){ 
+        	 downloadType = DownloadType.PSNAPIGAMES;
          }
-         else if(params[0].contains("getTrophies")){ //If we're downloading a profile
-        	 downloadType = DownloadType.TROPHIES;
+         else if(params[0].contains("http://psntrophies.net16.net/getTrophies.php")){ 
+        	 downloadType = DownloadType.PSNAPITROPHIES;
          }
          String result = "";
          try {
@@ -70,15 +70,11 @@ public class GetXML extends AsyncTask <String, Void, String> {
 			case PROFILE:
 				callback.onProfileDownloaded(resultOfComputation); //Returns the profile
 				break;
-			case GAMES:
-				callback.onGamesDownloaded(resultOfComputation);
+			case PSNAPIGAMES:
+				callback.onPSNGamesDownloaded(resultOfComputation);
 				break;
-			case GAME:
-				break;
-			case TROPHIES:
-				callback.onTrophiesDownloaded(resultOfComputation);
-				break;
-			case TROPHY:
+			case PSNAPITROPHIES:
+				callback.onPSNTrophiesDownloaded(resultOfComputation);
 				break;
 			default:
 				break;

@@ -46,6 +46,8 @@ public class TrophiesAdapter extends BaseAdapter {
             v = vi.inflate(R.layout.list_item_trophy, null);
          }
            Object chosenLayout = v.getTag();
+           
+           //Assigns widgets to variables
            ImageView trophyImage = (ImageView) v.findViewById(R.id.trophyImage);
            TextView name = (TextView)v.findViewById(R.id.trophyName);
            TextView earnedLabel = (TextView)v.findViewById(R.id.trophyDateLabel);
@@ -54,6 +56,8 @@ public class TrophiesAdapter extends BaseAdapter {
            TextView trophyDateEarned = (TextView)v.findViewById(R.id.trophyDateEarned);
  
            Trophy trophy = _data.get(position);
+           
+           //Draws information in widgets
            name.setText(trophy.getTitle());
            description.setText(trophy.getDescription());
            String date = trophy.getDisplayDate();
@@ -66,10 +70,10 @@ public class TrophiesAdapter extends BaseAdapter {
            }
            trophyImage.setImageBitmap(trophy.getBitmap());
            
-           if(chosenLayout == null){
+           if(chosenLayout == null){ //If it's the regular layout
         	   switch(trophy.getType()){
 				case BRONZE:
-					trophyTypeImage.setImageResource(R.drawable.bronze);
+					trophyTypeImage.setImageResource(R.drawable.bronze); //Use regular images
 					break;
 				case GOLD:
 					trophyTypeImage.setImageResource(R.drawable.gold);
@@ -84,10 +88,11 @@ public class TrophiesAdapter extends BaseAdapter {
 					break;
         	   }
            }
-           else if(chosenLayout.equals("large_layout")){
+           
+           else if(chosenLayout.equals("large_layout")){ //If it's the large layout
 	           switch(trophy.getType()){
 					case BRONZE:
-						trophyTypeImage.setImageResource(R.drawable.bronze100);
+						trophyTypeImage.setImageResource(R.drawable.bronze100); //Use large images
 						break;
 					case GOLD:
 						trophyTypeImage.setImageResource(R.drawable.gold100);

@@ -45,10 +45,13 @@ public class GetImage extends AsyncTask <String, Void, Bitmap> {
          if(params[0].contains("avatar")){ //If we're downloading a profile
         	 downloadType = DownloadType.PROFILE;
          }
-         else if(params[0].contains("http://trophy01.np.community.playstation.net/trophy/np/")){ //If we're downloading a game image
+         else if(params[0].contains("trophy/np/")){ //If we're downloading a game image
         	 downloadType = DownloadType.GAMESTROPHIES;
          }
          else if(params[0].contains("http://www.psnapi.com.ar/images/sony/newtrophies/")){ //Some trophy images come from here
+        	 downloadType = DownloadType.GAMESTROPHIES;
+         }
+         else{
         	 downloadType = DownloadType.GAMESTROPHIES;
          }
          InputStream result = null;
@@ -69,15 +72,8 @@ public class GetImage extends AsyncTask <String, Void, Bitmap> {
 			case PROFILE:
 				callback.onProfileImageDownloaded(resultOfComputation); //Returns the profile
 				break;
-			case GAMES:
-				callback.onGameImageDownloaded(uri, resultOfComputation);
-				break;
-			case GAME:
-				break;
 			case GAMESTROPHIES:
 				callback.onGameImageDownloaded(uri, resultOfComputation);
-				break;
-			case TROPHY:
 				break;
 			default:
 				break;

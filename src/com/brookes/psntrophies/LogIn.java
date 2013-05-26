@@ -84,27 +84,22 @@ public class LogIn extends Activity implements AsyncTaskListener {
 	}
 
 	@Override
-	public void onGamesDownloaded(String gamesXML) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public void onProfileImageDownloaded(Bitmap image) {
-		// TODO Auto-generated method stub
-		
+		// Not used but is required due to implementations
 	}
 
 	@Override
 	public void onGameImageDownloaded(String url, Bitmap image) {
-		// TODO Auto-generated method stub
-		
+		// Not used but is required due to implementations
 	}
 
 	@Override
-	public void onTrophiesDownloaded(String trophiesXML) {
-		// TODO Auto-generated method stub
-		
+	public void onPSNGamesDownloaded(String gamesXML) {
+		// Not used but is required due to implementations	
 	}
 
+	@Override
+	public void onPSNTrophiesDownloaded(String trophiesXML) {
+		// Not used but is required due to implementations		
+	}
 }

@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Menu;
@@ -87,7 +86,7 @@ public class Home extends Activity implements AsyncTaskListener{
 		}
 	private void sync(){
 		new GetXML(this).execute("http://www.psnapi.com.ar/ps3/api/psn.asmx/getPSNID?sPSNID="+username); //Downloads profile
-		new GetXML(this).execute("http://www.psnapi.com.ar/ps3/api/psn.asmx/getGames?sPSNID=" + username); //Downloads games
+		new GetXML(this).execute("http://psntrophies.net16.net/getGames.php?psnid=" + username); //Downloads games
 	}
 	
 	@Override
@@ -98,19 +97,28 @@ public class Home extends Activity implements AsyncTaskListener{
 	}
 	
 	@Override
-	public void onGamesDownloaded(String gamesXML) {
-		XMLParser parser = new XMLParser();
-		games = parser.getGames(gamesXML); //Parses XML into Game Object
+	public void onPSNGamesDownloaded(String gamesXML) {
+		games = new XMLParser().getPSNAPIGames(gamesXML); //Parses XML into Game Object	
+		//This loop generates the percentage completion and assigns it to game
+		for(int i=0;i<games.size();i++){
+			float progress = 0;
+			for(int j=0;j<games.get(i).getTrophies().length;j++){
+				progress += games.get(i).getTrophies()[j];
+			}
+			int total = games.get(i).getTotalTrophies();
+			float progressPercent = (progress / total) * 100;
+			games.get(i).setProgress((int)progressPercent);
+		}
 		downloadGameImages(games);
-		
 	}
 	
-	private void downloadGameImages(ArrayList<Game> games){
+	private void downloadGameImages(ArrayList<Game> games){ //This function downloads images if required
 		for(int i=0; i<games.size(); i++){
 			if(downloadImages){ //If the user wants to download images
 				new GetImage(this).execute(games.get(i).getImage()); //Download every game image
 			}
 			else{
+				//Does the same thing as onGameImageDownloaded when they've all been downloaded
 				gamesDownloaded = true;
 				//Draw list without images
 				filteredGamesList = filterGames(games);
@@ -132,9 +140,9 @@ public class Home extends Activity implements AsyncTaskListener{
 				gamesDownloaded = true;
 				filteredGamesList = filterGames(games);
 				gamesList.setAdapter(new GamesAdapter(filteredGamesList, this));
+				setGamesListener();
 			}
 		}
-		setGamesListener();
 	}
 	
 	private void setProfileColor(){
@@ -169,7 +177,7 @@ public class Home extends Activity implements AsyncTaskListener{
 	}
 	private void setProfileInformation(){
 		setProfileColor();
-		
+		//Sets the information in widget to reflect downloaded data
 		psnName.setText(profile.getName());
 		psnAboutMe.setText(profile.getAboutMe());
 		psnTrophyLevel.setText(Integer.toString(profile.getLevel()));
@@ -178,8 +186,9 @@ public class Home extends Activity implements AsyncTaskListener{
 		goldLabel.setText(Integer.toString(profile.getTrophies()[1]));
 		silverLabel.setText(Integer.toString(profile.getTrophies()[2]));
 		bronzeLabel.setText(Integer.toString(profile.getTrophies()[3]));
-		profileLayout.setVisibility(View.VISIBLE);
 		
+		//Shows the top layout
+		profileLayout.setVisibility(View.VISIBLE);	
 	}
 	@Override
 	public void onProfileImageDownloaded(Bitmap image) { //When image downloaded
@@ -224,6 +233,7 @@ public class Home extends Activity implements AsyncTaskListener{
 	}
 	
 	private ArrayList<Game> sortGames(ArrayList<Game> oldGamesList){
+		//Sorts list of games depending on saved setting using SortList class
 		SortList sortList = new SortList();
 		if (gamesSort.equals("recent")){
 			return sortList.sortRecent(oldGamesList);
@@ -299,8 +309,9 @@ public class Home extends Activity implements AsyncTaskListener{
 	}
 
 	@Override
-	public void onTrophiesDownloaded(String trophiesXML) {
-		//Unused by necessary method
+	public void onPSNTrophiesDownloaded(String trophiesXML) {
+		// Not used but is required due to implementations
 		
 	}
+	
 }
