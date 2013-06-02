@@ -14,8 +14,8 @@ public class Trophy {
 	private String image; //Holds URL to trophy's image
 	private String title;
 	private String description;
-	private String dateEarned;
-	private String displayDate;
+	private String dateEarned = "";
+	private String displayDate = "";
 	private Type trophyType;
 	private boolean hidden;
 	private Bitmap imageBitmap;

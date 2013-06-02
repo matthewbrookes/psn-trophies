@@ -20,6 +20,7 @@
         android:id="@+id/trophyName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginRight="40px"
         android:layout_toRightOf="@id/trophyImage"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="#FFFFFF" />
@@ -36,6 +37,7 @@
         android:id="@+id/trophyDescription"
         android:layout_below="@id/trophyName"
         android:layout_toRightOf="@id/trophyImage"
+        android:layout_marginRight="40px"
         android:layout_toLeftOf="@id/trophyTypeImage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -54,6 +56,7 @@
         android:id="@+id/trophyDateEarned"
         android:layout_below="@id/trophyDescription"
         android:layout_toRightOf="@id/trophyDateLabel"
+        android:layout_marginRight="40px"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="#FFFFFF" />

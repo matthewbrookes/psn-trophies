@@ -25,6 +25,7 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
 	Boolean showSecretTrophies;
 	Boolean showCompletedTrophies;
 	Boolean downloadImages;
+	Boolean showUnearnedTrophies;
 	String gameId;
 	String savedName;
 
@@ -52,6 +53,7 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
 		downloadImages = savedInformation.getBoolean("download_images", true);
 		showSecretTrophies = savedInformation.getBoolean("show_secret_trophies", true);
 		showCompletedTrophies = savedInformation.getBoolean("show_completed_trophies", true);
+		showUnearnedTrophies = savedInformation.getBoolean("show_unearned_trophies", true);
 		
 		//Retrieve Game Object and Background Color from intent
 		Intent receivedIntent = getIntent();
@@ -95,7 +97,7 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
 			}
 		}
 		else{
-			ArrayList<Trophy> filteredList = hideTrophies(trophies, showSecretTrophies, showCompletedTrophies);
+			ArrayList<Trophy> filteredList = hideTrophies(trophies, showSecretTrophies, showCompletedTrophies, showUnearnedTrophies);
 			
 			trophiesList.setAdapter(new TrophiesAdapter(filteredList, this)); //Draws list based upon new data
 		}
@@ -110,18 +112,18 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
 			}
 			if(i == (trophies.size() - 1)){ //When all images downloaded
 				//Creates a new ArrayList with some trophies hidden depending on settings
-				ArrayList<Trophy> filteredList = hideTrophies(trophies, showSecretTrophies, showCompletedTrophies);
+				ArrayList<Trophy> filteredList = hideTrophies(trophies, showSecretTrophies, showCompletedTrophies, showUnearnedTrophies);
 				
 				trophiesList.setAdapter(new TrophiesAdapter(filteredList, this)); //Draws list based upon new data
 			}
 		}
 	}
-	
-	private ArrayList<Trophy> hideTrophies(ArrayList<Trophy> trophies, boolean showSecretTrophies, boolean showCompletedTrophies){
+	/*
+	private ArrayList<Trophy> hideTrophies(ArrayList<Trophy> trophies, boolean showSecretTrophies, boolean showCompletedTrophies, boolean showUnearnedTrophies){
 		//Will return an ArrayList without items which the user doesn't want to see
 		ArrayList<Trophy> trophyList = new ArrayList<Trophy>(); //List will hold all trophies or only non-hidden ones
 		for(int i = 0;i<trophies.size();i++){ //Iterates over each trophy
-			if(showSecretTrophies && showCompletedTrophies){ //If the user wants to see all trophies
+			if(showSecretTrophies && showCompletedTrophies && showUnearnedTrophies){ //If the user wants to see all trophies
 				trophyList = trophies; //Store all the trophies in new list
 			}
 			else if(showSecretTrophies == false && showCompletedTrophies){ //If secret trophies should be hidden but completed trophies shown
@@ -142,6 +144,73 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
 		}
 		return trophyList;
 	}
+	*/
+	
+	private ArrayList<Trophy> hideTrophies(ArrayList<Trophy> trophies, boolean showSecretTrophies, boolean showCompletedTrophies, boolean showUnearnedTrophies){
+		//Will return an ArrayList without items which the user doesn't want to see
+		ArrayList<Trophy> trophyList = new ArrayList<Trophy>(); //List will hold all trophies or only non-hidden ones
+		ArrayList<Trophy> secretTrophies = new ArrayList<Trophy>(); //List will hold all trophies or only non-hidden ones
+		ArrayList<Trophy> completedTrophies = new ArrayList<Trophy>(); //List will hold all trophies or only non-hidden ones
+		ArrayList<Trophy> unearnedTrophies = new ArrayList<Trophy>(); //List will hold all trophies or only non-hidden ones
+		
+		if(showSecretTrophies && showCompletedTrophies && showUnearnedTrophies){ //If the user wants to see all trophies
+			trophyList = trophies; //Store all the trophies in new list
+		}
+		else{
+			if(!showCompletedTrophies){
+				for(int i = 0;i<trophies.size();i++){ //Iterates over each trophy
+					if(trophies.get(i).getDateEarned().isEmpty()){ 
+						completedTrophies.add(trophies.get(i)); //Are added to list
+					}
+				}	
+			}
+			else if(showCompletedTrophies){
+				completedTrophies = trophies;
+			}
+			
+			if(!showUnearnedTrophies){
+				for(int i = 0;i<completedTrophies.size();i++){ //Iterates over each trophy
+					if(!completedTrophies.get(i).getDateEarned().isEmpty()){ 
+						unearnedTrophies.add(completedTrophies.get(i)); //Are added to list
+					}
+				}
+			}
+			else if(showUnearnedTrophies){
+				unearnedTrophies = completedTrophies;	
+			}
+			
+			if(!showSecretTrophies){
+				for(int i = 0;i<unearnedTrophies.size();i++){ //Iterates over each trophy
+					if(unearnedTrophies.get(i).isHidden() == false || !unearnedTrophies.get(i).getDateEarned().isEmpty()){ //Visible trophies and secret trophies which have been earned
+						trophyList.add(unearnedTrophies.get(i)); //Are added to list
+					}
+				}
+			}
+			else if(showSecretTrophies){
+				trophyList = unearnedTrophies;
+			}
+		}
+		/*
+		for(int i = 0;i<trophies.size();i++){ //Iterates over each trophy
+			if(showSecretTrophies == false && showCompletedTrophies){ //If secret trophies should be hidden but completed trophies shown
+				if(trophies.get(i).isHidden() == false || trophies.get(i).getDisplayDate() != null){ //Visible trophies and secret trophies which have been earned
+					trophyList.add(trophies.get(i)); //Are added to list
+				}
+			}
+			else if(showCompletedTrophies == false && showSecretTrophies == true){ //If completed trophies should be hidden and secret trophies shown
+				if(trophies.get(i).getDisplayDate() == null){ //If Trophy has no completion date
+					trophyList.add(trophies.get(i));
+				}		
+			}
+			else if(showCompletedTrophies == false && showSecretTrophies == false){ //If completed trophies and secret trophies should be hidden
+				if((trophies.get(i).getDisplayDate() == null) && (trophies.get(i).isHidden() == false)){
+					trophyList.add(trophies.get(i));
+				}
+			}
+		}
+		*/
+		return trophyList;
+	}
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
@@ -157,12 +226,22 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
 		} else{
 			menu.getItem(1).setTitle("Show completed trophies");
 		}
+		
+		if(showUnearnedTrophies){ //If the user wants to see completed trophies
+			menu.getItem(2).setTitle("Hide unearned trophies"); //Set the text to this
+		} else{
+			menu.getItem(2).setTitle("Show unearned trophies");
+		}
 		return true;
 	}
 
 	@Override
     public boolean onOptionsItemSelected(MenuItem item){
-         
+		//Saves new setting
+		SharedPreferences savedInformation = getSharedPreferences("com.brookes.psntrophies_preferences", 0);
+		SharedPreferences.Editor editor = savedInformation.edit();
+		ArrayList<Trophy> filteredTrophies;
+		
         switch (item.getItemId()){
         	case R.id.action_secretTrophies:
         		showSecretTrophies = !showSecretTrophies; //Flip boolean value
@@ -172,16 +251,13 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
         			item.setTitle("Show secret trophies");
         		}
 				
-				//Saves new setting
-        		SharedPreferences savedInformation = getSharedPreferences("com.brookes.psntrophies_preferences", 0);
-    	        SharedPreferences.Editor editor = savedInformation.edit();
     	        editor.putBoolean("show_secret_trophies", showSecretTrophies);
     	
     	        // Commit the edits!
     	        editor.commit();
     	        
 				//Create new ArrayList based upon new choice
-    	        ArrayList<Trophy> filteredTrophies = hideTrophies(trophies, showSecretTrophies, showCompletedTrophies);
+    	        filteredTrophies = hideTrophies(trophies, showSecretTrophies, showCompletedTrophies, showUnearnedTrophies);
     	        //Redraw list with new data
     	        trophiesList.setAdapter(new TrophiesAdapter(filteredTrophies , this));
         		return true;
@@ -194,17 +270,34 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
         		}
 				
 				//Saves new setting
-        		SharedPreferences savedOptions = getSharedPreferences("com.brookes.psntrophies_preferences", 0);
-    	        SharedPreferences.Editor optionsEditor = savedOptions.edit();
-    	        optionsEditor.putBoolean("show_completed_trophies", showCompletedTrophies);
+        		editor.putBoolean("show_completed_trophies", showCompletedTrophies);
     	
     	        // Commit the edits!
-    	        optionsEditor.commit();
+    	        editor.commit();
     	        
 				//Create new ArrayList based upon new choice
-    	        ArrayList<Trophy> filteredTrophiesList = hideTrophies(trophies, showSecretTrophies, showCompletedTrophies);
+    	        filteredTrophies = hideTrophies(trophies, showSecretTrophies, showCompletedTrophies, showUnearnedTrophies);
     	        //Redraw list with new data
-    	        trophiesList.setAdapter(new TrophiesAdapter(filteredTrophiesList, this));
+    	        trophiesList.setAdapter(new TrophiesAdapter(filteredTrophies, this));
+        		return true;
+        	case R.id.action_unearnedTrophies:
+        		this.showUnearnedTrophies = !showUnearnedTrophies; //Flip boolean value
+        		if(showUnearnedTrophies){ //If the user can now see completed trophies
+        			item.setTitle("Hide unearned trophies"); //Give user the option to hide them
+        		} else{
+        			item.setTitle("Show unearned trophies");
+        		}
+				
+				//Saves new setting
+        		editor.putBoolean("show_completed_trophies", showCompletedTrophies);
+    	
+    	        // Commit the edits!
+    	        editor.commit();
+    	        
+				//Create new ArrayList based upon new choice
+    	        filteredTrophies = hideTrophies(trophies, showSecretTrophies, showCompletedTrophies, showUnearnedTrophies);
+    	        //Redraw list with new data
+    	        trophiesList.setAdapter(new TrophiesAdapter(filteredTrophies, this));
         		return true;
 			default:
         		return true;       	

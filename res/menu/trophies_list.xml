@@ -10,5 +10,10 @@
         android:title="@string/action_completed_trophies" 
         android:orderInCategory="2">
     </item>
+    <item 
+        android:id="@+id/action_unearnedTrophies" 
+        android:title="@string/action_unearned_trophies" 
+        android:orderInCategory="3">
+    </item>
 
 </menu>

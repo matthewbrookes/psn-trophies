@@ -13,5 +13,10 @@
         android:defaultValue="true"
         android:key="show_completed_trophies"
         android:title="@string/pref_title_show_completed_trophies" />
+    
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="show_unearned_trophies"
+        android:title="@string/pref_title_show_unearned_trophies" />
 
 </PreferenceScreen>

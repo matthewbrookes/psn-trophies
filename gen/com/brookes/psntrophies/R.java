@@ -51,6 +51,7 @@ public final class R {
         public static final int action_secretTrophies=0x7f0a0032;
         public static final int action_settings=0x7f0a0030;
         public static final int action_sync=0x7f0a002f;
+        public static final int action_unearnedTrophies=0x7f0a0034;
         public static final int bronzeLabel=0x7f0a0014;
         public static final int completionPercentageLabel=0x7f0a0021;
         public static final int completionProgressBar1=0x7f0a0022;
@@ -117,37 +118,39 @@ public final class R {
         public static final int action_secret_trophies=0x7f060003;
         public static final int action_settings=0x7f060001;
         public static final int action_sync=0x7f060004;
+        public static final int action_unearned_trophies=0x7f060006;
         public static final int app_name=0x7f060000;
-        public static final int hello_world=0x7f060006;
+        public static final int hello_world=0x7f060007;
         /**  Example settings for Data & Sync 
          */
-        public static final int pref_header_data_sync=0x7f06000d;
-        public static final int pref_header_games=0x7f060018;
+        public static final int pref_header_data_sync=0x7f06000e;
+        public static final int pref_header_games=0x7f06001a;
         /**  Strings related to Settings 
  Example General settings 
          */
-        public static final int pref_header_general=0x7f06000a;
+        public static final int pref_header_general=0x7f06000b;
         /**  Settings for Notifications 
          */
-        public static final int pref_header_notifications=0x7f060010;
+        public static final int pref_header_notifications=0x7f060011;
         /**  Settings for Trophies 
          */
-        public static final int pref_header_trophies=0x7f060015;
-        public static final int pref_ringtone_silent=0x7f060013;
-        public static final int pref_title_download_images=0x7f06000b;
-        public static final int pref_title_filter_games=0x7f060019;
-        public static final int pref_title_new_message_notifications=0x7f060011;
-        public static final int pref_title_ringtone=0x7f060012;
-        public static final int pref_title_show_completed_trophies=0x7f060017;
-        public static final int pref_title_show_secret_trophies=0x7f060016;
-        public static final int pref_title_sort_games=0x7f06001a;
-        public static final int pref_title_sync_frequency=0x7f06000e;
-        public static final int pref_title_system_sync_settings=0x7f06000f;
-        public static final int pref_title_username=0x7f06000c;
-        public static final int pref_title_vibrate=0x7f060014;
-        public static final int title_activity_log_in=0x7f060007;
-        public static final int title_activity_settings=0x7f060009;
-        public static final int title_activity_trophies_list=0x7f060008;
+        public static final int pref_header_trophies=0x7f060016;
+        public static final int pref_ringtone_silent=0x7f060014;
+        public static final int pref_title_download_images=0x7f06000c;
+        public static final int pref_title_filter_games=0x7f06001b;
+        public static final int pref_title_new_message_notifications=0x7f060012;
+        public static final int pref_title_ringtone=0x7f060013;
+        public static final int pref_title_show_completed_trophies=0x7f060018;
+        public static final int pref_title_show_secret_trophies=0x7f060017;
+        public static final int pref_title_show_unearned_trophies=0x7f060019;
+        public static final int pref_title_sort_games=0x7f06001c;
+        public static final int pref_title_sync_frequency=0x7f06000f;
+        public static final int pref_title_system_sync_settings=0x7f060010;
+        public static final int pref_title_username=0x7f06000d;
+        public static final int pref_title_vibrate=0x7f060015;
+        public static final int title_activity_log_in=0x7f060008;
+        public static final int title_activity_settings=0x7f06000a;
+        public static final int title_activity_trophies_list=0x7f060009;
     }
     public static final class style {
         /** 

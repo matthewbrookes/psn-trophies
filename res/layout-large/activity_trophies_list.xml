@@ -16,8 +16,8 @@
 
         <ImageView
             android:id="@+id/gamePicture"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="320px"
+        	android:layout_height="176px"
             android:layout_centerVertical="true"
             android:layout_alignParentLeft="true"
             android:contentDescription="Game Image" />

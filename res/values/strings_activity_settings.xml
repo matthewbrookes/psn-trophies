@@ -44,6 +44,7 @@
     <string name="pref_header_trophies">Trophies</string>
     <string name="pref_title_show_secret_trophies">Show secret trophies</string>
     <string name="pref_title_show_completed_trophies">Show completed trophies</string>
+    <string name="pref_title_show_unearned_trophies">Show unearned trophies</string>
     
     <!-- Settings for Games -->
     <string-array name="pref_filter_games_titles">

@@ -10,8 +10,8 @@
 
     <ImageView
         android:id="@+id/gameImage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" 
+        android:layout_width="320px"
+        android:layout_height="176px" 
         android:paddingRight="10dip"
         android:layout_alignParentLeft="true"
         android:layout_centerInParent="true" />
