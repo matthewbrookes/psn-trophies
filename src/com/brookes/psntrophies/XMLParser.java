@@ -1,8 +1,7 @@
 package com.brookes.psntrophies;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.StringReader;
 import java.util.ArrayList;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -15,7 +14,6 @@ public class XMLParser{
 	Profile profile = null;
 		profile = new Profile();
         String text = "";
-		InputStream xml = new ByteArrayInputStream(xmlString.getBytes()); //Converts string to inputstream
 		XmlPullParserFactory factory = null;
         XmlPullParser parser = null;
         try {
@@ -23,7 +21,7 @@ public class XMLParser{
             factory.setNamespaceAware(true);
             parser = factory.newPullParser();
  
-            parser.setInput(xml, null);
+            parser.setInput(new StringReader(xmlString.replaceAll("&", "&amp;")));
  
             int eventType = parser.getEventType();
             while (eventType != XmlPullParser.END_DOCUMENT) {
@@ -91,7 +89,6 @@ public class XMLParser{
 		ArrayList<Game> games = new ArrayList<Game>();
 		Game game = null;
 		String text = "";
-		InputStream xml = new ByteArrayInputStream(xmlString.getBytes()); //Converts string to inputstream
 		XmlPullParserFactory factory = null;
         XmlPullParser parser = null;
         
@@ -100,7 +97,7 @@ public class XMLParser{
             factory.setNamespaceAware(true);
             parser = factory.newPullParser();
  
-            parser.setInput(xml, null);
+            parser.setInput(new StringReader(xmlString.replaceAll("&", "&amp;")));
 	        int eventType = parser.getEventType();
 	        while (eventType != XmlPullParser.END_DOCUMENT) {
 	            String tagname = parser.getName();
@@ -165,7 +162,6 @@ public class XMLParser{
 		ArrayList<Trophy> trophies = new ArrayList<Trophy>();
 		Trophy trophy = null;
 		String text = "";
-		InputStream xml = new ByteArrayInputStream(xmlString.getBytes()); //Converts string to inputstream
 		XmlPullParserFactory factory = null;
         XmlPullParser parser = null;
         
@@ -173,8 +169,8 @@ public class XMLParser{
             factory = XmlPullParserFactory.newInstance();
             factory.setNamespaceAware(true);
             parser = factory.newPullParser();
- 
-            parser.setInput(xml, null);
+            //Here we give our file object in the form of a stream to the parser
+            parser.setInput(new StringReader(xmlString.replaceAll("&", "&amp;")));
 	        int eventType = parser.getEventType();
 	        while (eventType != XmlPullParser.END_DOCUMENT) {
 	            String tagname = parser.getName();
