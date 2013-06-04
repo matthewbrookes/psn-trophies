@@ -17,7 +17,6 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 
 public class GetImage extends AsyncTask <String, Void, Bitmap> {
-	private ProgressDialog mProgressDialog;
 	private Context context;
 	private AsyncTaskListener callback; //Will be called to tell activity download has finished
 	private DownloadType downloadType;
@@ -25,15 +24,11 @@ public class GetImage extends AsyncTask <String, Void, Bitmap> {
 
 	public GetImage(Context context){
 		this.context = context;
-		mProgressDialog = new ProgressDialog(this.context);
-	    mProgressDialog.setMessage("Downloading image");
-	    mProgressDialog.setIndeterminate(true); //Starts spinning wheel dialog
 	    this.callback = (AsyncTaskListener)context;
 	}
 	@Override
 	protected void onPreExecute() {
 	    super.onPreExecute();
-	    mProgressDialog.show();
 	}
 	@Override
 	protected Bitmap doInBackground(String... params) {
@@ -67,7 +62,6 @@ public class GetImage extends AsyncTask <String, Void, Bitmap> {
          return bitmap;
 	}	
 	protected void onPostExecute(Bitmap resultOfComputation){
-		mProgressDialog.dismiss();
 		switch(downloadType){
 			case PROFILE:
 				callback.onProfileImageDownloaded(resultOfComputation); //Returns the profile

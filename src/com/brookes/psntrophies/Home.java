@@ -5,11 +5,14 @@ package com.brookes.psntrophies;
 import java.util.ArrayList;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -41,6 +44,9 @@ public class Home extends Activity implements AsyncTaskListener{
 	TextView bronzeLabel, silverLabel, goldLabel, platinumLabel = null;
 	Boolean gamesDownloaded = false;
 	Boolean downloadImages;
+	int imagesDownloadedCounter = 0;
+	ProgressDialog pDialog;
+	ArrayList<AsyncTask <String, Void, Bitmap>> imageProcesses = new ArrayList<AsyncTask <String, Void, Bitmap>>();
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -66,8 +72,8 @@ public class Home extends Activity implements AsyncTaskListener{
 		platinumLabel = (TextView) findViewById(R.id.platinumLabel);
 		profileTable = findViewById(R.id.profileInformationTable);
 		gamesList = (ListView) findViewById(R.id.gamesList);
-
-		sync();	//Starts the process	
+		
+		sync(); //Starts the process
 	}
 		@Override
 		protected void onResume(){ //When the activity regains focus
@@ -98,49 +104,84 @@ public class Home extends Activity implements AsyncTaskListener{
 	
 	@Override
 	public void onPSNGamesDownloaded(String gamesXML) {
-		games = new XMLParser().getPSNAPIGames(gamesXML); //Parses XML into Game Object	
-		//This loop generates the percentage completion and assigns it to game
-		for(int i=0;i<games.size();i++){
-			float progress = 0;
-			for(int j=0;j<games.get(i).getTrophies().length;j++){
-				progress += games.get(i).getTrophies()[j];
+		if(!gamesDownloaded){ //If games being downloaded for first time
+			games = new XMLParser().getPSNAPIGames(gamesXML); //Parses XML into Game Object	
+			//This loop generates the percentage completion and assigns it to game
+			for(int i=0;i<games.size();i++){
+				float progress = 0;
+				for(int j=0;j<games.get(i).getTrophies().length;j++){
+					progress += games.get(i).getTrophies()[j];
+				}
+				int total = games.get(i).getTotalTrophies();
+				float progressPercent = (progress / total) * 100;
+				games.get(i).setProgress((int)progressPercent);
 			}
-			int total = games.get(i).getTotalTrophies();
-			float progressPercent = (progress / total) * 100;
-			games.get(i).setProgress((int)progressPercent);
+			downloadGameImages(games);
 		}
-		downloadGameImages(games);
+		else{
+			ArrayList<Game> newGames = new XMLParser().getPSNAPIGames(gamesXML); //Parses XML into Game Object	
+			int difference = newGames.size() - games.size(); //How many new games have been played
+			//This loop generates the percentage completion and assigns it to game
+			for(int i=0;i<newGames.size();i++){
+				float progress = 0;
+				for(int j=0;j<newGames.get(i).getTrophies().length;j++){
+					progress += newGames.get(i).getTrophies()[j];
+				}
+				int total = newGames.get(i).getTotalTrophies();
+				float progressPercent = (progress / total) * 100;
+				newGames.get(i).setProgress((int)progressPercent);
+				
+				newGames.get(i).setBitmap(games.get(i + difference).getBitmap()); //Assign previously downloaded bitmap to game
+			}
+			games = newGames;
+			downloadGameImages(games);
+		}
 	}
 	
 	private void downloadGameImages(ArrayList<Game> games){ //This function downloads images if required
-		for(int i=0; i<games.size(); i++){
-			if(downloadImages){ //If the user wants to download images
-				new GetImage(this).execute(games.get(i).getImage()); //Download every game image
-			}
-			else{
-				//Does the same thing as onGameImageDownloaded when they've all been downloaded
-				gamesDownloaded = true;
-				//Draw list without images
-				filteredGamesList = filterGames(games);
-				gamesList.setAdapter(new GamesAdapter(filteredGamesList, this));
-				setGamesListener();
+		if(downloadImages){ //If the user wants to download images
+			//Resets the progress dialog, the counter and the list of processes
+			imagesDownloadedCounter = 0;
+			imageProcesses.clear();
+			pDialog = createDialog();
+			int newMax = 0;
+			for(int i=0; i<games.size(); i++){
+				if(games.get(i).getBitmap() == null){ //Only download images which haven't been downloaded
+					newMax++;
+					pDialog.setMax(newMax);
+					pDialog.show();
+					imageProcesses.add(new GetImage(this).execute(games.get(i).getImage())); //Download game image and add it to list
+				}
 			}
 		}
+		else{
+			//Does the same thing as onGameImageDownloaded when they've all been downloaded
+			gamesDownloaded = true;
+			//Draw list without images
+			filteredGamesList = filterGames(games);
+			gamesList.setAdapter(new GamesAdapter(filteredGamesList, this));
+			setGamesListener();
+		}
+		
 	}
 	
 	@Override
 	public void onGameImageDownloaded(String url, Bitmap image) {
+		imagesDownloadedCounter++; //Increment counter
+		pDialog.setProgress(imagesDownloadedCounter); //Set the new progress level
 		// Attaches image to Object
 		for(int i=0; i<games.size(); i++){
 			if(games.get(i).getImage().equals(url)){
 				games.get(i).setBitmap(image);
-			}
-			if(i == (games.size() - 1)){ //When all images downloaded
-				//List filtered and drawn
-				gamesDownloaded = true;
-				filteredGamesList = filterGames(games);
-				gamesList.setAdapter(new GamesAdapter(filteredGamesList, this));
-				setGamesListener();
+				if(i == (games.size() - 1)){ //When all images downloaded
+					//Hide progress dialog and change flag
+					pDialog.dismiss();
+					gamesDownloaded = true;
+					//List filtered and drawn
+					filteredGamesList = filterGames(games);
+					gamesList.setAdapter(new GamesAdapter(filteredGamesList, this));
+					setGamesListener();
+				}
 			}
 		}
 	}
@@ -210,6 +251,7 @@ public class Home extends Activity implements AsyncTaskListener{
 	}
 	
 	private ArrayList<Game> filterGames(ArrayList<Game> oldGamesList){
+		pDialog.dismiss(); //Dismiss dialog if it remains
 		//This function filters the list of games as per the settings
 		ArrayList<Game> newGamesList = new ArrayList<Game>();
 		if (gamesFilter.equals("all")){
@@ -244,6 +286,33 @@ public class Home extends Activity implements AsyncTaskListener{
 		else{
 			return sortList.sortPlatform(oldGamesList);
 		}
+	}
+	
+	private ProgressDialog createDialog(){
+		//Creates a horizontal percentage progress dialog
+		ProgressDialog dialog = new ProgressDialog(this);
+        dialog.setMessage("Downloading images...");
+        dialog.setIndeterminate(false);
+        dialog.setMax(0);
+        dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        dialog.setCancelable(false);
+        dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() { //Draw cancel button
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+            	//When cancel button clicked
+            	for(int i=0; i<imageProcesses.size();i++){
+            		imageProcesses.get(i).cancel(true); //Cancel all processes
+            	}
+            	//Filter list and draw it
+            	filteredGamesList = filterGames(games);
+				gamesList.setAdapter(new GamesAdapter(filteredGamesList, getApplicationContext()));
+				setGamesListener();
+				//Hide dialog and change flag
+				gamesDownloaded = true;
+                dialog.dismiss();
+            }
+        });
+        return dialog;
 	}
 	
 	private void setGamesListener(){
@@ -313,5 +382,4 @@ public class Home extends Activity implements AsyncTaskListener{
 		// Not used but is required due to implementations
 		
 	}
-	
 }

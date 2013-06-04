@@ -26,6 +26,7 @@ public class GetXML extends AsyncTask <String, Void, String> {
 		mProgressDialog = new ProgressDialog(this.context);
 	    mProgressDialog.setMessage("Downloading data");
 	    mProgressDialog.setIndeterminate(true); //Starts spinning wheel dialog
+	    mProgressDialog.setCancelable(false);
 	    this.callback = (AsyncTaskListener)context;
 	}
 	@Override

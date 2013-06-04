@@ -5,10 +5,14 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import android.app.Activity;
+import android.app.Dialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -28,6 +32,9 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
 	Boolean showUnearnedTrophies;
 	String gameId;
 	String savedName;
+	int imagesDownloadedCounter = 0;
+	ProgressDialog pDialog;
+	ArrayList<AsyncTask <String, Void, Bitmap>> imageProcesses = new ArrayList<AsyncTask <String, Void, Bitmap>>();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +79,7 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
 		goldLabel.setText("" + Integer.toString(game.getTrophies()[1]));
 		silverLabel.setText("" + Integer.toString(game.getTrophies()[2]));
 		bronzeLabel.setText("" + Integer.toString(game.getTrophies()[3]));
-				
+		
 		new GetXML(this).execute("http://psntrophies.net16.net/getTrophies.php?psnid="+ savedName + "&gameid=" + gameId); //Downloads trophies xml for this game
 	}
 	
@@ -90,96 +97,78 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
 		downloadTrophyImages(trophies);
 	}
 	
+	@SuppressWarnings("deprecation")
 	private void downloadTrophyImages(ArrayList<Trophy> trophies){
 		if(downloadImages){
+			imageProcesses.clear(); //List of processes cleared
+			pDialog = new ProgressDialog(this); //Create a new progress dialog
+			showDialog(0);
 			for(int i=0; i<trophies.size(); i++){ //For each Trophy Object
-				new GetImage(this).execute(trophies.get(i).getImage()); //Download the image
+				if(trophies.get(i).getBitmap() == null){ //If there is no image
+					imageProcesses.add(new GetImage(this).execute(trophies.get(i).getImage())); //Download the image
+				}
 			}
 		}
 		else{
+			//Filter list and draw it
 			ArrayList<Trophy> filteredList = hideTrophies(trophies, showSecretTrophies, showCompletedTrophies, showUnearnedTrophies);
-			
 			trophiesList.setAdapter(new TrophiesAdapter(filteredList, this)); //Draws list based upon new data
 		}
 	}
 	
 	@Override
 	public void onGameImageDownloaded(String url, Bitmap image) {
+	    imagesDownloadedCounter++; //Increment counter
+		pDialog.setProgress(imagesDownloadedCounter); //Update the progress dialog
 		//Saves Bitmap Image to Trophy Object
 		for(int i=0; i<trophies.size(); i++){ //Iterates over each Trophy
 			if(trophies.get(i).getImage().equals(url)){ //If this image matches this Trophy
 				trophies.get(i).setBitmap(image); //Save it
-			}
-			if(i == (trophies.size() - 1)){ //When all images downloaded
-				//Creates a new ArrayList with some trophies hidden depending on settings
-				ArrayList<Trophy> filteredList = hideTrophies(trophies, showSecretTrophies, showCompletedTrophies, showUnearnedTrophies);
 				
-				trophiesList.setAdapter(new TrophiesAdapter(filteredList, this)); //Draws list based upon new data
-			}
-		}
-	}
-	/*
-	private ArrayList<Trophy> hideTrophies(ArrayList<Trophy> trophies, boolean showSecretTrophies, boolean showCompletedTrophies, boolean showUnearnedTrophies){
-		//Will return an ArrayList without items which the user doesn't want to see
-		ArrayList<Trophy> trophyList = new ArrayList<Trophy>(); //List will hold all trophies or only non-hidden ones
-		for(int i = 0;i<trophies.size();i++){ //Iterates over each trophy
-			if(showSecretTrophies && showCompletedTrophies && showUnearnedTrophies){ //If the user wants to see all trophies
-				trophyList = trophies; //Store all the trophies in new list
-			}
-			else if(showSecretTrophies == false && showCompletedTrophies){ //If secret trophies should be hidden but completed trophies shown
-				if(trophies.get(i).isHidden() == false || trophies.get(i).getDisplayDate() != null){ //Visible trophies and secret trophies which have been earned
-					trophyList.add(trophies.get(i)); //Are added to list
-				}
-			}
-			else if(showCompletedTrophies == false && showSecretTrophies == true){ //If completed trophies should be hidden and secret trophies shown
-				if(trophies.get(i).getDisplayDate() == null){ //If Trophy has no completion date
-					trophyList.add(trophies.get(i));
-				}		
-			}
-			else if(showCompletedTrophies == false && showSecretTrophies == false){ //If completed trophies and secret trophies should be hidden
-				if((trophies.get(i).getDisplayDate() == null) && (trophies.get(i).isHidden() == false)){
-					trophyList.add(trophies.get(i));
+				if(i == (trophies.size() - 1)){ //When all images downloaded
+					//Hides progress dialog
+					pDialog.dismiss();
+					//Creates a new ArrayList with some trophies hidden depending on settings
+					ArrayList<Trophy> filteredList = hideTrophies(trophies, showSecretTrophies, showCompletedTrophies, showUnearnedTrophies);
+					trophiesList.setAdapter(new TrophiesAdapter(filteredList, this)); //Draws list based upon new data
 				}
 			}
 		}
-		return trophyList;
 	}
-	*/
 	
 	private ArrayList<Trophy> hideTrophies(ArrayList<Trophy> trophies, boolean showSecretTrophies, boolean showCompletedTrophies, boolean showUnearnedTrophies){
 		//Will return an ArrayList without items which the user doesn't want to see
-		ArrayList<Trophy> trophyList = new ArrayList<Trophy>(); //List will hold all trophies or only non-hidden ones
-		ArrayList<Trophy> secretTrophies = new ArrayList<Trophy>(); //List will hold all trophies or only non-hidden ones
-		ArrayList<Trophy> completedTrophies = new ArrayList<Trophy>(); //List will hold all trophies or only non-hidden ones
-		ArrayList<Trophy> unearnedTrophies = new ArrayList<Trophy>(); //List will hold all trophies or only non-hidden ones
+		ArrayList<Trophy> trophyList = new ArrayList<Trophy>(); //List will hold final trophies to be shown
+		ArrayList<Trophy> completedTrophies = new ArrayList<Trophy>(); //List will hold trophies after first stage
+		ArrayList<Trophy> unearnedTrophies = new ArrayList<Trophy>(); //List will hold trophies after second stage
 		
 		if(showSecretTrophies && showCompletedTrophies && showUnearnedTrophies){ //If the user wants to see all trophies
 			trophyList = trophies; //Store all the trophies in new list
 		}
 		else{
-			if(!showCompletedTrophies){
+			if(!showCompletedTrophies){ //If completed trophies should be hidden
 				for(int i = 0;i<trophies.size();i++){ //Iterates over each trophy
-					if(trophies.get(i).getDateEarned().isEmpty()){ 
+					if(trophies.get(i).getDateEarned().isEmpty()){ //Trophies which haven't been completed
 						completedTrophies.add(trophies.get(i)); //Are added to list
 					}
 				}	
 			}
 			else if(showCompletedTrophies){
-				completedTrophies = trophies;
+				completedTrophies = trophies; //All trophies added
 			}
 			
-			if(!showUnearnedTrophies){
+			if(!showUnearnedTrophies){ //If unearned trophies should be hidden
 				for(int i = 0;i<completedTrophies.size();i++){ //Iterates over each trophy
-					if(!completedTrophies.get(i).getDateEarned().isEmpty()){ 
+					if(!completedTrophies.get(i).getDateEarned().isEmpty()){ //Trophies which have been completed
 						unearnedTrophies.add(completedTrophies.get(i)); //Are added to list
 					}
 				}
 			}
 			else if(showUnearnedTrophies){
-				unearnedTrophies = completedTrophies;	
+				unearnedTrophies = completedTrophies;	//All trophies added
 			}
 			
-			if(!showSecretTrophies){
+			if(!showSecretTrophies){ //If secret trophies should be hidden
 				for(int i = 0;i<unearnedTrophies.size();i++){ //Iterates over each trophy
 					if(unearnedTrophies.get(i).isHidden() == false || !unearnedTrophies.get(i).getDateEarned().isEmpty()){ //Visible trophies and secret trophies which have been earned
 						trophyList.add(unearnedTrophies.get(i)); //Are added to list
@@ -187,28 +176,10 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
 				}
 			}
 			else if(showSecretTrophies){
-				trophyList = unearnedTrophies;
+				trophyList = unearnedTrophies; //All trophies added
 			}
 		}
-		/*
-		for(int i = 0;i<trophies.size();i++){ //Iterates over each trophy
-			if(showSecretTrophies == false && showCompletedTrophies){ //If secret trophies should be hidden but completed trophies shown
-				if(trophies.get(i).isHidden() == false || trophies.get(i).getDisplayDate() != null){ //Visible trophies and secret trophies which have been earned
-					trophyList.add(trophies.get(i)); //Are added to list
-				}
-			}
-			else if(showCompletedTrophies == false && showSecretTrophies == true){ //If completed trophies should be hidden and secret trophies shown
-				if(trophies.get(i).getDisplayDate() == null){ //If Trophy has no completion date
-					trophyList.add(trophies.get(i));
-				}		
-			}
-			else if(showCompletedTrophies == false && showSecretTrophies == false){ //If completed trophies and secret trophies should be hidden
-				if((trophies.get(i).getDisplayDate() == null) && (trophies.get(i).isHidden() == false)){
-					trophyList.add(trophies.get(i));
-				}
-			}
-		}
-		*/
+		
 		return trophyList;
 	}
 	@Override
@@ -303,6 +274,38 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
         		return true;       	
         }
 	}
+	
+	@Override
+    protected Dialog onCreateDialog(int id) {
+        switch(id) {
+	        case 0:
+	        	//Creates the progress dialog for downloading images
+	            pDialog = new ProgressDialog(this);
+	            pDialog.setMessage("Downloading images...");
+	            pDialog.setIndeterminate(false);
+	            pDialog.setMax(trophies.size());
+	            pDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL); //Displays a progress bar
+	            pDialog.setCancelable(false); //The back button will not cancel image download
+	            //Creates a cancel button
+	            pDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
+	                @Override
+	                public void onClick(DialogInterface dialog, int which) {
+	                	for(int i=0; i<imageProcesses.size();i++){
+	                		imageProcesses.get(i).cancel(true); //Cancel each outstanding image process
+	                	}
+	                	ArrayList<Trophy> filteredList = hideTrophies(trophies, showSecretTrophies, showCompletedTrophies, showUnearnedTrophies);
+	        			
+	        			trophiesList.setAdapter(new TrophiesAdapter(filteredList, getApplicationContext())); //Draws list based upon new data
+	                    dialog.dismiss();
+	                }
+	            });
+	            pDialog.show();
+	            return pDialog;
+	        default:
+	            return null;
+        }
+    }
+	
 	@Override
 	public void onProfileDownloaded(String profileXML) {
 		// Not used but is required due to implementations
