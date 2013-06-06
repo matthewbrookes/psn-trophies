@@ -130,8 +130,20 @@ public class Home extends Activity implements AsyncTaskListener{
 				int total = newGames.get(i).getTotalTrophies();
 				float progressPercent = (progress / total) * 100;
 				newGames.get(i).setProgress((int)progressPercent);
-				
-				newGames.get(i).setBitmap(games.get(i + difference).getBitmap()); //Assign previously downloaded bitmap to game
+				if(difference > 0){
+					newGames.get(i).setBitmap(games.get(i + difference).getBitmap()); //Assign previously downloaded bitmap to game
+				}
+				else if(games.get(0).getId().equals(newGames.get(0).getId())){
+					newGames.get(i).setBitmap(games.get(i).getBitmap());
+				}
+				else{
+					for(int j=0;j<games.size();j++){
+						if(newGames.get(i).equals(games.get(j).getId())){
+							newGames.get(i).setBitmap(games.get(j).getBitmap());
+							break;
+						}
+					}
+				}
 			}
 			games = newGames;
 			downloadGameImages(games);
