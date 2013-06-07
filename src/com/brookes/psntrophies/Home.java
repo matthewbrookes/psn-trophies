@@ -91,7 +91,7 @@ public class Home extends Activity implements AsyncTaskListener{
 			}
 		}
 	private void sync(){
-		new GetXML(this).execute("http://www.psnapi.com.ar/ps3/api/psn.asmx/getPSNID?sPSNID="+username); //Downloads profile
+		new GetXML(this).execute("http://psntrophies.net16.net/getProfile.php?psnid=" + username); //Downloads profile
 		new GetXML(this).execute("http://psntrophies.net16.net/getGames.php?psnid=" + username); //Downloads games
 	}
 	

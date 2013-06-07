@@ -48,7 +48,7 @@ public class LogIn extends Activity implements AsyncTaskListener {
 					errorField.setText("Username cannot be empty");
 				}
 				else{
-					new GetXML(v.getContext()).execute("http://www.psnapi.com.ar/ps3/api/psn.asmx/getPSNID?sPSNID="+filteredUsername); //Attempts to download profile with given name
+					new GetXML(v.getContext()).execute("http://psntrophies.net16.net/getProfile.php?psnid="+filteredUsername); //Attempts to download profile with given name
 				}
 			}
 		});
@@ -65,7 +65,7 @@ public class LogIn extends Activity implements AsyncTaskListener {
 	@Override
 	public void onProfileDownloaded(String profileXML) {
 		// TODO Auto-generated method stub
-		if(profileXML.contains("xsi:nil=\"true\" xmlns=\"http://www.psnapi.com.ar/ps3/api\"")){
+		if(profileXML.contains("<level></level>") || profileXML.contains("<level/>")){
 			errorField.setText("Please enter a valid PSN ID");
 		}
 		else{

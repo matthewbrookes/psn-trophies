@@ -54,7 +54,7 @@ public class XMLParser{
                     } else if (tagname.equalsIgnoreCase("Bronze")) {
                     	profile.setBronze(Integer.parseInt(text));
                     } else if (tagname.equalsIgnoreCase("Plus")) {
-                    	if(text.equalsIgnoreCase("true")){
+                    	if(text.equalsIgnoreCase("1")){
                     		profile.setPlus(true);
                     	}
                     	else{
