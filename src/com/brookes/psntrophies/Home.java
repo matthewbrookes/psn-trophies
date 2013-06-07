@@ -124,11 +124,12 @@ public class Home extends Activity implements AsyncTaskListener{
 			//This loop generates the percentage completion and assigns it to game
 			for(int i=0;i<newGames.size();i++){
 				float progress = 0;
-				for(int j=0;j<newGames.get(i).getTrophies().length;j++){
-					progress += newGames.get(i).getTrophies()[j];
-				}
-				int total = newGames.get(i).getTotalTrophies();
-				float progressPercent = (progress / total) * 100;
+				progress += (newGames.get(i).getTrophies()[1] * 90);
+				progress += (newGames.get(i).getTrophies()[2] * 30);
+				progress += (newGames.get(i).getTrophies()[3] * 15);
+				
+				int totalPoints = newGames.get(i).getTotalPoints();
+				float progressPercent = (progress / totalPoints) * 100;
 				newGames.get(i).setProgress((int)progressPercent);
 				if(difference > 0){
 					newGames.get(i).setBitmap(games.get(i + difference).getBitmap()); //Assign previously downloaded bitmap to game

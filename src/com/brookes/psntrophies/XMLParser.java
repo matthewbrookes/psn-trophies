@@ -125,6 +125,8 @@ public class XMLParser{
 		                    game.setImage(text);
 		                } else if (tagname.equalsIgnoreCase("TotalTrophies")) {
 		                    game.setTotalTrophies(Integer.parseInt(text));
+		                } else if (tagname.equalsIgnoreCase("TotalPoints")) {
+		                    game.setTotalPoints(Integer.parseInt(text));
 		                } else if (tagname.equalsIgnoreCase("Platinum")) {
 		                	game.setPlatium(Integer.parseInt(text));
 		                } else if (tagname.equalsIgnoreCase("Gold")) {

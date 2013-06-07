@@ -11,6 +11,7 @@ public class Game implements Parcelable{
 	private int ProgresstoCompletion; //Stored as integer but used as percentage
 	private int[] Trophies = new int[4]; //Array of trophies in form (Platinum, Gold, Silver, Bronze)
 	private int trophiesAchievable; //Number of trophies available
+	private int totalPoints; //How many points needed for 100%
 	private String platform; //ps3 or psp2(Vita)
 	private String updated; //Holds time of last update
 	private Bitmap imageBitmap;
@@ -80,6 +81,13 @@ public class Game implements Parcelable{
 	}
 	public void setTotalTrophies(int total){
 		this.trophiesAchievable = total;
+	}
+	
+	public int getTotalPoints(){
+		return this.totalPoints;
+	}
+	public void setTotalPoints(int total){
+		this.totalPoints = total;
 	}
 	
 	public String getPlatform(){
