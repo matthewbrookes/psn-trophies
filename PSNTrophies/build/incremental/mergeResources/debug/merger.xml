@@ -1,0 +1,402 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merger>
+
+    <dataSet config="main" >
+        <source path="/mnt/ExternalHDD/Matt/Programming/Projects/PSNTrophiesProject/PSNTrophies/src/main/res" >
+            <file
+                name="ic_launcher"
+                path="/mnt/ExternalHDD/Matt/Programming/Projects/PSNTrophiesProject/PSNTrophies/src/main/res/drawable-hdpi/ic_launcher.png"
+                qualifiers="hdpi"
+                type="drawable" />
+            <file
+                name="ic_launcher"
+                path="/mnt/ExternalHDD/Matt/Programming/Projects/PSNTrophiesProject/PSNTrophies/src/main/res/drawable-mdpi/ic_launcher.png"
+                qualifiers="mdpi"
+                type="drawable" />
+            <file
+                name="ic_launcher"
+                path="/mnt/ExternalHDD/Matt/Programming/Projects/PSNTrophiesProject/PSNTrophies/src/main/res/drawable-xhdpi/ic_launcher.png"
+                qualifiers="xhdpi"
+                type="drawable" />
+            <file
+                name="activity_home"
+                path="/mnt/ExternalHDD/Matt/Programming/Projects/PSNTrophiesProject/PSNTrophies/src/main/res/layout/activity_home.xml"
+                qualifiers=""
+                type="layout" />
+            <file
+                name="home"
+                path="/mnt/ExternalHDD/Matt/Programming/Projects/PSNTrophiesProject/PSNTrophies/src/main/res/menu/home.xml"
+                qualifiers=""
+                type="menu" />
+            <file
+                path="/mnt/ExternalHDD/Matt/Programming/Projects/PSNTrophiesProject/PSNTrophies/src/main/res/values/dimens.xml"
+                qualifiers="" >
+                <dimen name="activity_horizontal_margin" >16dp
+                </dimen>
+                <dimen name="activity_vertical_margin" >16dp
+                </dimen>
+            </file>
+            <file
+                path="/mnt/ExternalHDD/Matt/Programming/Projects/PSNTrophiesProject/PSNTrophies/src/main/res/values/strings.xml"
+                qualifiers="" >
+                <string name="action_settings" >Settings
+                </string>
+                <string name="action_secret_trophies" >Toggle Secret Trophies
+                </string>
+                <string name="action_sync" >Sync
+                </string>
+                <string name="action_unearned_trophies" >Toggle Unearned Trophies
+                </string>
+                <string name="app_name" >PSN Trophies
+                </string>
+                <string name="title_activity_trophies_list" >Trophies
+                </string>
+                <string name="action_completed_trophies" >Toggle Completed Trophies
+                </string>
+                <string name="hello_world" >Hello world!
+                </string>
+                <string name="title_activity_log_in" >Log In
+                </string>
+                <string name="action_logout" >Log Out
+                </string>
+            </file>
+            <file
+                path="/mnt/ExternalHDD/Matt/Programming/Projects/PSNTrophiesProject/PSNTrophies/src/main/res/values/styles.xml"
+                qualifiers="" >
+
+                <style
+                    name="AppBaseTheme"
+                    parent="android:Theme.Light" >
+
+                    <!--
+            Theme customizations available in newer API levels can go in
+            res/values-vXX/styles.xml, while customizations related to
+            backward-compatibility can go here.
+                    -->
+                </style>
+
+                <style
+                    name="AppTheme"
+                    parent="AppBaseTheme" >
+
+                    <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+                </style>
+            </file>
+            <file
+                path="/mnt/ExternalHDD/Matt/Programming/Projects/PSNTrophiesProject/PSNTrophies/src/main/res/values-sw600dp/dimens.xml"
+                qualifiers="sw600dp" />
+            <file
+                path="/mnt/ExternalHDD/Matt/Programming/Projects/PSNTrophiesProject/PSNTrophies/src/main/res/values-sw720dp-land/dimens.xml"
+                qualifiers="sw720dp-land" >
+                <dimen name="activity_horizontal_margin" >128dp
+                </dimen>
+            </file>
+            <file
+                path="/mnt/ExternalHDD/Matt/Programming/Projects/PSNTrophiesProject/PSNTrophies/src/main/res/values-v11/styles.xml"
+                qualifiers="v11" >
+
+                <style
+                    name="AppBaseTheme"
+                    parent="android:Theme.Holo.Light" >
+
+                    <!-- API 11 theme customizations can go here. -->
+                </style>
+            </file>
+            <file
+                path="/mnt/ExternalHDD/Matt/Programming/Projects/PSNTrophiesProject/PSNTrophies/src/main/res/values-v14/styles.xml"
+                qualifiers="v14" >
+
+                <style
+                    name="AppBaseTheme"
+                    parent="android:Theme.Holo.Light.DarkActionBar" >
+
+                    <!-- API 14 theme customizations can go here. -->
+                </style>
+            </file>
+            <file
+                name="silver100"
+                path="/mnt/ExternalHDD/Matt/Programming/Projects/PSNTrophiesProject/PSNTrophies/src/main/res/drawable-hdpi/silver100.png"
+                qualifiers="hdpi"
+                type="drawable" />
+            <file
+                name="activity_home"
+                path="/mnt/ExternalHDD/Matt/Programming/Projects/PSNTrophiesProject/PSNTrophies/src/main/res/layout-large/activity_home.xml"
+                qualifiers="large"
+                type="layout" />
+            <file
+                name="ps3"
+                path="/mnt/ExternalHDD/Matt/Programming/Projects/PSNTrophiesProject/PSNTrophies/src/main/res/drawable-mdpi/ps3.png"
+                qualifiers="mdpi"
+                type="drawable" />
+            <file
+                name="pref_blank"
+                path="/mnt/ExternalHDD/Matt/Programming/Projects/PSNTrophiesProject/PSNTrophies/src/main/res/xml/pref_blank.xml"
+                qualifiers=""
+                type="xml" />
+            <file
+                name="silver"
+                path="/mnt/ExternalHDD/Matt/Programming/Projects/PSNTrophiesProject/PSNTrophies/src/main/res/drawable-mdpi/silver.png"
+                qualifiers="mdpi"
+                type="drawable" />
+            <file
+                name="list_item_trophy"
+                path="/mnt/ExternalHDD/Matt/Programming/Projects/PSNTrophiesProject/PSNTrophies/src/main/res/layout/list_item_trophy.xml"
+                qualifiers=""
+                type="layout" />
+            <file
+                name="pref_notification"
+                path="/mnt/ExternalHDD/Matt/Programming/Projects/PSNTrophiesProject/PSNTrophies/src/main/res/xml/pref_notification.xml"
+                qualifiers=""
+                type="xml" />
+            <file
+                name="vita"
+                path="/mnt/ExternalHDD/Matt/Programming/Projects/PSNTrophiesProject/PSNTrophies/src/main/res/drawable-mdpi/vita.png"
+                qualifiers="mdpi"
+                type="drawable" />
+            <file
+                name="largeborder"
+                path="/mnt/ExternalHDD/Matt/Programming/Projects/PSNTrophiesProject/PSNTrophies/src/main/res/drawable-mdpi/largeborder.xml"
+                qualifiers="mdpi"
+                type="drawable" />
+            <file
+                name="list_item_game"
+                path="/mnt/ExternalHDD/Matt/Programming/Projects/PSNTrophiesProject/PSNTrophies/src/main/res/layout-large/list_item_game.xml"
+                qualifiers="large"
+                type="layout" />
+            <file
+                name="gold100"
+                path="/mnt/ExternalHDD/Matt/Programming/Projects/PSNTrophiesProject/PSNTrophies/src/main/res/drawable-hdpi/gold100.png"
+                qualifiers="hdpi"
+                type="drawable" />
+            <file
+                name="gold"
+                path="/mnt/ExternalHDD/Matt/Programming/Projects/PSNTrophiesProject/PSNTrophies/src/main/res/drawable-mdpi/gold.png"
+                qualifiers="mdpi"
+                type="drawable" />
+            <file
+                name="pref_data_sync"
+                path="/mnt/ExternalHDD/Matt/Programming/Projects/PSNTrophiesProject/PSNTrophies/src/main/res/xml/pref_data_sync.xml"
+                qualifiers=""
+                type="xml" />
+            <file
+                name="bronze"
+                path="/mnt/ExternalHDD/Matt/Programming/Projects/PSNTrophiesProject/PSNTrophies/src/main/res/drawable-mdpi/bronze.png"
+                qualifiers="mdpi"
+                type="drawable" />
+            <file
+                name="list_item_trophy"
+                path="/mnt/ExternalHDD/Matt/Programming/Projects/PSNTrophiesProject/PSNTrophies/src/main/res/layout-large/list_item_trophy.xml"
+                qualifiers="large"
+                type="layout" />
+            <file
+                name="activity_trophies_list"
+                path="/mnt/ExternalHDD/Matt/Programming/Projects/PSNTrophiesProject/PSNTrophies/src/main/res/layout/activity_trophies_list.xml"
+                qualifiers=""
+                type="layout" />
+            <file
+                name="bronze100"
+                path="/mnt/ExternalHDD/Matt/Programming/Projects/PSNTrophiesProject/PSNTrophies/src/main/res/drawable-hdpi/bronze100.png"
+                qualifiers="hdpi"
+                type="drawable" />
+            <file
+                name="pref_games"
+                path="/mnt/ExternalHDD/Matt/Programming/Projects/PSNTrophiesProject/PSNTrophies/src/main/res/xml/pref_games.xml"
+                qualifiers=""
+                type="xml" />
+            <file
+                name="pref_general"
+                path="/mnt/ExternalHDD/Matt/Programming/Projects/PSNTrophiesProject/PSNTrophies/src/main/res/xml/pref_general.xml"
+                qualifiers=""
+                type="xml" />
+            <file
+                name="trophies_list"
+                path="/mnt/ExternalHDD/Matt/Programming/Projects/PSNTrophiesProject/PSNTrophies/src/main/res/menu/trophies_list.xml"
+                qualifiers=""
+                type="menu" />
+            <file
+                name="border"
+                path="/mnt/ExternalHDD/Matt/Programming/Projects/PSNTrophiesProject/PSNTrophies/src/main/res/drawable-mdpi/border.xml"
+                qualifiers="mdpi"
+                type="drawable" />
+            <file
+                name="activity_trophies_list"
+                path="/mnt/ExternalHDD/Matt/Programming/Projects/PSNTrophiesProject/PSNTrophies/src/main/res/layout-large/activity_trophies_list.xml"
+                qualifiers="large"
+                type="layout" />
+            <file
+                path="/mnt/ExternalHDD/Matt/Programming/Projects/PSNTrophiesProject/PSNTrophies/src/main/res/values/strings_activity_settings.xml"
+                qualifiers="" >
+                <string name="title_activity_settings" >Settings
+                </string>
+
+                <string-array name="pref_sync_frequency_values" >
+                    <item>
+15
+                    </item>
+                    <item>
+30
+                    </item>
+                    <item>
+60
+                    </item>
+                    <item>
+180
+                    </item>
+                    <item>
+360
+                    </item>
+                    <item>
+-1
+                    </item>
+                </string-array>
+                <string-array name="pref_filter_games_values" >
+                    <item>
+ps_vita
+                    </item>
+                    <item>
+ps3
+                    </item>
+                    <item>
+all
+                    </item>
+                </string-array>
+
+                <string name="pref_ringtone_silent" >Silent
+                </string>
+                <string name="pref_title_sort_games" >Sort games
+                </string>
+
+                <string-array name="pref_sort_games_titles" >
+                    <item>
+Sort recently played
+                    </item>
+                    <item>
+Sort alphabetically
+                    </item>
+                    <item>
+Sort platform
+                    </item>
+                </string-array>
+
+                <string name="pref_title_show_unearned_trophies" >Show unearned trophies
+                </string>
+                <string name="pref_title_download_images" >Download images
+                </string>
+                <string name="pref_title_sync_frequency" >Sync frequency
+                </string>
+                <string name="pref_header_games" >Games
+                </string>
+                <string name="pref_header_trophies" >Trophies
+                </string>
+                <string name="pref_header_general" >General
+                </string>
+
+                <string-array name="pref_sort_games_values" >
+                    <item>
+recent
+                    </item>
+                    <item>
+alphabetically
+                    </item>
+                    <item>
+platform
+                    </item>
+                </string-array>
+
+                <string name="pref_title_filter_games" >Filter games
+                </string>
+                <string name="pref_title_new_message_notifications" >New message notifications
+                </string>
+                <string name="pref_title_vibrate" >Vibrate
+                </string>
+                <string name="pref_title_show_completed_trophies" >Show completed trophies
+                </string>
+                <string name="pref_title_ringtone" >Ringtone
+                </string>
+                <string name="pref_title_username" >Username
+                </string>
+                <string name="pref_title_show_secret_trophies" >Show secret trophies
+                </string>
+
+                <string-array name="pref_filter_games_titles" >
+                    <item>
+Display only PS Vita games
+                    </item>
+                    <item>
+Display only PS3 games
+                    </item>
+                    <item>
+Display all games
+                    </item>
+                </string-array>
+                <string-array name="pref_sync_frequency_titles" >
+                    <item>
+15 minutes
+                    </item>
+                    <item>
+30 minutes
+                    </item>
+                    <item>
+1 hour
+                    </item>
+                    <item>
+3 hours
+                    </item>
+                    <item>
+6 hours
+                    </item>
+                    <item>
+Never
+                    </item>
+                </string-array>
+
+                <string name="pref_header_notifications" >Notifications
+                </string>
+                <string name="pref_title_system_sync_settings" >System sync settings
+                </string>
+                <string name="pref_header_data_sync" >Data &amp; sync
+                </string>
+            </file>
+            <file
+                name="pref_trophies"
+                path="/mnt/ExternalHDD/Matt/Programming/Projects/PSNTrophiesProject/PSNTrophies/src/main/res/xml/pref_trophies.xml"
+                qualifiers=""
+                type="xml" />
+            <file
+                name="activity_log_in"
+                path="/mnt/ExternalHDD/Matt/Programming/Projects/PSNTrophiesProject/PSNTrophies/src/main/res/layout/activity_log_in.xml"
+                qualifiers=""
+                type="layout" />
+            <file
+                name="platinum100"
+                path="/mnt/ExternalHDD/Matt/Programming/Projects/PSNTrophiesProject/PSNTrophies/src/main/res/drawable-hdpi/platinum100.png"
+                qualifiers="hdpi"
+                type="drawable" />
+            <file
+                name="list_item_game"
+                path="/mnt/ExternalHDD/Matt/Programming/Projects/PSNTrophiesProject/PSNTrophies/src/main/res/layout/list_item_game.xml"
+                qualifiers=""
+                type="layout" />
+            <file
+                name="platinum"
+                path="/mnt/ExternalHDD/Matt/Programming/Projects/PSNTrophiesProject/PSNTrophies/src/main/res/drawable-mdpi/platinum.png"
+                qualifiers="mdpi"
+                type="drawable" />
+            <file
+                name="pref_headers"
+                path="/mnt/ExternalHDD/Matt/Programming/Projects/PSNTrophiesProject/PSNTrophies/src/main/res/xml/pref_headers.xml"
+                qualifiers=""
+                type="xml" />
+            <file
+                name="log_in"
+                path="/mnt/ExternalHDD/Matt/Programming/Projects/PSNTrophiesProject/PSNTrophies/src/main/res/menu/log_in.xml"
+                qualifiers=""
+                type="menu" />
+        </source>
+        <source path="/mnt/ExternalHDD/Matt/Programming/Projects/PSNTrophiesProject/PSNTrophies/build/res/rs/debug" />
+    </dataSet>
+    <dataSet config="debug" >
+        <source path="/mnt/ExternalHDD/Matt/Programming/Projects/PSNTrophiesProject/PSNTrophies/src/debug/res" />
+    </dataSet>
+
+</merger>
