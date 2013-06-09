@@ -107,14 +107,15 @@ public class Home extends Activity implements AsyncTaskListener{
 		if(!gamesDownloaded){ //If games being downloaded for first time
 			games = new XMLParser().getPSNAPIGames(gamesXML); //Parses XML into Game Object	
 			//This loop generates the percentage completion and assigns it to game
-			for(int i=0;i<games.size();i++){
-				float progress = 0;
-				for(int j=0;j<games.get(i).getTrophies().length;j++){
-					progress += games.get(i).getTrophies()[j];
-				}
-				int total = games.get(i).getTotalTrophies();
-				float progressPercent = (progress / total) * 100;
-				games.get(i).setProgress((int)progressPercent);
+            for(int i=0;i<games.size();i++){
+                float progress = 0;
+                progress += (games.get(i).getTrophies()[1] * 90);
+                progress += (games.get(i).getTrophies()[2] * 30);
+                progress += (games.get(i).getTrophies()[3] * 15);
+
+                int totalPoints = games.get(i).getTotalPoints();
+                float progressPercent = (progress / totalPoints) * 100;
+                games.get(i).setProgress((int)progressPercent);
 			}
 			downloadGameImages(games);
 		}
