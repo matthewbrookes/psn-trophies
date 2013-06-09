@@ -212,7 +212,6 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
 		SharedPreferences savedInformation = getSharedPreferences("com.brookes.psntrophies_preferences", 0);
 		SharedPreferences.Editor editor = savedInformation.edit();
 		ArrayList<Trophy> filteredTrophies;
-		
         switch (item.getItemId()){
         	case R.id.action_secretTrophies:
         		showSecretTrophies = !showSecretTrophies; //Flip boolean value
@@ -270,6 +269,9 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
     	        //Redraw list with new data
     	        trophiesList.setAdapter(new TrophiesAdapter(filteredTrophies, this));
         		return true;
+            case android.R.id.home:
+                finish();
+                return true;
 			default:
         		return true;       	
         }
