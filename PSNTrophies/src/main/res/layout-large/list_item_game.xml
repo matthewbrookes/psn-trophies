@@ -30,7 +30,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/gameName"
         android:layout_toRightOf="@id/gameImage"
-        android:text="Total Trophies:  "
+        android:text="Total trophies:  "
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="#FFFFFF" />
 		
@@ -44,7 +44,7 @@
 	    android:textColor="#FFFFFF" />
         
 	<LinearLayout
-	    android:id="@+id/trophiesEarntLayout"
+	    android:id="@+id/trophiesEarnedLayout"
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
 	    android:layout_below="@id/trophiesAchievableLabel"
@@ -53,7 +53,7 @@
 	    <TextView
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	        android:text="Trophies Earned: "
+	        android:text="Trophies earned: "
 	        android:textAppearance="?android:attr/textAppearanceMedium"
 	        android:textColor="#FFFFFF" />
 
@@ -108,9 +108,8 @@
 	<ImageView
 	    android:id="@+id/platformImage"
 	    android:layout_width="wrap_content"
-	    android:layout_height="wrap_content" 
+	    android:layout_height="wrap_content"
 	    android:layout_toRightOf="@id/gameImage"
-	    android:layout_below="@id/trophiesEarntLayout"
-	    android:layout_marginLeft="10dp"/>
+	    android:layout_below="@id/trophiesEarnedLayout" />
 
 </RelativeLayout>

@@ -20,7 +20,7 @@
         	android:layout_height="176px"
             android:layout_centerVertical="true"
             android:layout_alignParentLeft="true"
-            android:contentDescription="Game Image" />
+            android:contentDescription="Game image" />
 
         <RelativeLayout
             android:layout_width="wrap_content"
@@ -49,7 +49,7 @@
 	                android:id="@+id/trophyTotalLabel"
 	                android:layout_width="wrap_content"
 	                android:layout_height="wrap_content"
-	                android:text="Total Trophies: "
+	                android:text="Total trophies: "
 	                android:textAppearance="?android:attr/textAppearanceMedium"
 	                android:textColor="#FFFFFF" />
 	
@@ -94,7 +94,7 @@
 	                android:textAppearance="?android:attr/textAppearanceMedium"
 	                android:layout_toRightOf="@id/gamePicture"
 	                android:layout_below="@id/completionTable"
-	                android:text="Already Earned:"
+	                android:text="Already earned:"
 	                android:textColor="#FFFFFF" />
 	        
 	        <LinearLayout

@@ -18,12 +18,16 @@
 
     <TextView
         android:id="@+id/gameName"
+        android:layout_marginRight="2dip"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/gameImage"
         android:gravity="center"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="#FFFFFF" />
+
+
+
     
     <TextView
         android:id="@+id/trophiesAchievableLabel"
@@ -31,7 +35,7 @@
         android:layout_toRightOf="@id/gameImage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Total Trophies:  "
+        android:text="Total trophies:  "
         android:textColor="#FFFFFF" />
 		
 	<TextView
@@ -41,19 +45,13 @@
         android:layout_toRightOf="@id/trophiesAchievableLabel"
         android:layout_alignTop="@id/trophiesAchievableLabel"
         android:textColor="#FFFFFF" /> 
-				       
-        <ImageView
-            android:id="@+id/platformImage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_below="@id/gameName"/>
+
         
 	<LinearLayout
-	    android:id="@+id/trophiesEarntLayout"
+	    android:id="@+id/trophiesEarnedLayout"
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
-	    android:layout_below="@id/platformImage"
+	    android:layout_below="@id/gameTrophiesAchievable"
 	    android:layout_toRightOf="@id/gameImage" >
 					<TextView
 					    android:text="Earned: "
@@ -107,4 +105,12 @@
                         android:layout_height="wrap_content"
                         android:src="@drawable/bronze" />
                 </LinearLayout>
+    <ImageView
+            android:id="@+id/platformImage"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="3dip"
+            android:layout_width="91px"
+            android:layout_height="20px"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/trophiesEarnedLayout" />
 </RelativeLayout>

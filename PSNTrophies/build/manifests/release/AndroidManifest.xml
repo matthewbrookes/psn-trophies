@@ -14,7 +14,8 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:label="@string/title_activity_trophies_list" android:name="com.brookes.psntrophies.TrophiesList" android:screenOrientation="portrait">
+        <activity android:label="@string/title_activity_trophies_list" android:name="com.brookes.psntrophies.TrophiesList" android:parentActivityName="com.brookes.psntrophies.Home" android:screenOrientation="portrait">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.brookes.psntrophies.Home"/>
         </activity>
         <activity android:label="@string/title_activity_settings" android:name="com.brookes.psntrophies.SettingsActivity" android:parentActivityName="com.brookes.psntrophies.Home" android:screenOrientation="portrait">
             <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.brookes.psntrophies.Home"/>

@@ -86,10 +86,11 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
 	@Override
 	public void onPSNTrophiesDownloaded(String trophiesXML) {
 		trophies = new XMLParser().getPSNAPITrophies(trophiesXML);
+        //Iterates through list creating dates in local format without "seconds" information
+        DateFormat f = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT);
 		for(int j=0;j<trophies.size();j++){
 			if(!trophies.get(j).getDateEarned().isEmpty()){
 				Date d = new Date(Long.parseLong(trophies.get(j).getDateEarned()) * 1000L);
-				DateFormat f = DateFormat.getDateInstance();
 				String displayDate = f.format(d); 
 				trophies.get(j).setDisplayDate(displayDate);
 			}
@@ -97,7 +98,6 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
 		downloadTrophyImages(trophies);
 	}
 	
-	@SuppressWarnings("deprecation")
 	private void downloadTrophyImages(ArrayList<Trophy> trophies){
 		if(downloadImages){
 			imageProcesses.clear(); //List of processes cleared

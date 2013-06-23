@@ -9,23 +9,22 @@
         android:id="@+id/profileLayout"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_weight="2"
-        android:background="#FF00FF" >
+        android:layout_weight="2" >
 
         <ImageView
             android:id="@+id/profilePicture"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="180px"
+            android:layout_height="180px"
             android:layout_centerInParent="true"
-            android:layout_alignParentLeft="true"
-            android:paddingLeft="10dp"
-            android:contentDescription="Profile Image" />
+            android:layout_alignParentRight="true"
+            android:paddingRight="10dp"
+            android:contentDescription="Profile image" />
 
         <TableLayout
             android:id="@+id/profileInformationTable"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/profilePicture" 
+            android:layout_toLeftOf="@id/profilePicture"
             android:layout_alignTop="@id/profilePicture"
             android:paddingLeft="10dp">
 
@@ -62,7 +61,27 @@
             </TableRow>
 
             <TableRow
-                android:id="@+id/tableRow3"
+                    android:id="@+id/tableRow3"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center" >
+
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Playstation Plus: "
+                        android:textColor="#FFFFFF" />
+
+                <TextView
+                        android:id="@+id/psnPlus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="#FFFFFF" />
+
+            </TableRow>
+
+            <TableRow
+                android:id="@+id/tableRow4"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center" >
@@ -71,7 +90,7 @@
                     android:id="@+id/textView1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Trophy Level: "
+                    android:text="Trophy level: "
                     android:textColor="#FFFFFF" />
 
                 <TextView
@@ -83,7 +102,7 @@
             </TableRow>
 
             <TableRow
-                android:id="@+id/tableRow4"
+                android:id="@+id/tableRow5"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center">
@@ -92,7 +111,7 @@
                     android:id="@+id/textView2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Level Progress: "
+                    android:text="Level progress: "
                     android:textColor="#FFFFFF" />
                 
                 <TextView
@@ -101,23 +120,13 @@
                     android:layout_height="wrap_content"
                     android:textColor="#FFFFFF" />
             </TableRow>
-
-            <TableRow
-                android:id="@+id/tableRow5"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                >
-
-                
-
-            </TableRow>
-
         </TableLayout>
 		<LinearLayout
                android:layout_width="fill_parent"
                android:layout_height="wrap_content"
-               android:layout_toRightOf="@id/profilePicture"
                android:layout_below="@id/profileInformationTable"
+               android:layout_alignParentLeft="true"
+               android:paddingRight="150px"
                android:gravity="center" >
 
                     <TextView

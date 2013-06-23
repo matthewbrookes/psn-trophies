@@ -34,6 +34,7 @@ public class Home extends Activity implements AsyncTaskListener{
 	ArrayList<Game> filteredGamesList;
 	ImageView profileImage = null;
 	TextView psnName = null;
+    TextView psnPlus = null;
 	TextView psnAboutMe = null;
 	TextView psnTrophyLevel = null;
 	TextView psnTrophyProgress = null;
@@ -64,6 +65,14 @@ public class Home extends Activity implements AsyncTaskListener{
 		profileImage = (ImageView) findViewById(R.id.profilePicture);
 		psnName = (TextView) findViewById(R.id.psnName);
 		psnAboutMe = (TextView) findViewById(R.id.psnAboutMe);
+
+        int screenSize = getResources().getConfiguration().screenLayout &
+                Configuration.SCREENLAYOUT_SIZE_MASK;
+        if(screenSize == Configuration.SCREENLAYOUT_SIZE_NORMAL ||
+                screenSize == Configuration.SCREENLAYOUT_SIZE_SMALL){
+            //On smaller screens the user is given information about PS Plus membership
+            psnPlus = (TextView) findViewById(R.id.psnPlus);
+        }
 		psnTrophyLevel = (TextView) findViewById(R.id.psnTrophyLevel);
 		psnTrophyProgress = (TextView) findViewById(R.id.psnTrophyProgress);
 		bronzeLabel = (TextView) findViewById(R.id.bronzeLabel);
@@ -235,6 +244,14 @@ public class Home extends Activity implements AsyncTaskListener{
 		//Sets the information in widget to reflect downloaded data
 		psnName.setText(profile.getName());
 		psnAboutMe.setText(profile.getAboutMe());
+        if(psnPlus != null){
+            if(profile.isPlus()){
+                psnPlus.setText("Yes!");
+            }
+            else{
+                psnPlus.setText("No");
+            }
+        }
 		psnTrophyLevel.setText(Integer.toString(profile.getLevel()));
 		psnTrophyProgress.setText(Integer.toString(profile.getProgess()) + "%");
 		platinumLabel.setText(Integer.toString(profile.getTrophies()[0]));
@@ -247,19 +264,7 @@ public class Home extends Activity implements AsyncTaskListener{
 	}
 	@Override
 	public void onProfileImageDownloaded(Bitmap image) { //When image downloaded
-		Bitmap scaledImage; //Will hold a scaled image on smaller screens
-		int screenSize = getResources().getConfiguration().screenLayout &
-		        Configuration.SCREENLAYOUT_SIZE_MASK;
-		if(screenSize == Configuration.SCREENLAYOUT_SIZE_NORMAL || 
-				screenSize == Configuration.SCREENLAYOUT_SIZE_SMALL){
-			//On smaller screens the image is scaled down
-			scaledImage = Bitmap.createScaledBitmap(image, 180, 180, false);
-		}
-		else{
-			//On tablets it stays as the original
-			scaledImage = image;
-		}
-		profileImage.setImageBitmap(scaledImage);
+		profileImage.setImageBitmap(image);
 		setProfileColor();
 		setProfileInformation();
 	}
@@ -347,7 +352,7 @@ public class Home extends Activity implements AsyncTaskListener{
 		Bitmap scaledImage; //Will hold a scaled image on smaller screens
 		int screenSize = getResources().getConfiguration().screenLayout &
 		        Configuration.SCREENLAYOUT_SIZE_MASK;
-		if(screenSize == Configuration.SCREENLAYOUT_SIZE_NORMAL || 
+		if(screenSize == Configuration.SCREENLAYOUT_SIZE_NORMAL ||
 				screenSize == Configuration.SCREENLAYOUT_SIZE_SMALL){
 			//On smaller screens the image is scaled down
 			scaledImage = Bitmap.createScaledBitmap(image, 180, 180, false);

@@ -14,7 +14,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="Please enter your PSN ID"
+        android:text="Please enter your PSN username"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="#FFFFFF" />
 
@@ -27,7 +27,7 @@
         android:layout_below="@+id/textView1"
         android:layout_marginTop="38dp"
         android:ems="10"
-        android:hint="PSN Login Name"
+        android:hint="Username"
         android:inputType="textNoSuggestions"
         android:textColor="#FFFFFF" >
 

@@ -2,10 +2,10 @@
 <merger>
 
     <dataSet config="main" >
-        <source path="/mnt/ExternalHDD/Matt/Programming/Projects/PSNTrophiesProject/PSNTrophies/src/main/assets" />
+        <source path="/home/matt/PSN Trophies/PSNTrophiesProject/PSNTrophies/src/main/assets" />
     </dataSet>
     <dataSet config="release" >
-        <source path="/mnt/ExternalHDD/Matt/Programming/Projects/PSNTrophiesProject/PSNTrophies/src/release/assets" />
+        <source path="/home/matt/PSN Trophies/PSNTrophiesProject/PSNTrophies/src/release/assets" />
     </dataSet>
 
 </merger>
