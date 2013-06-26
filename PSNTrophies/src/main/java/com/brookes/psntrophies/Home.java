@@ -95,8 +95,8 @@ public class Home extends Activity implements AsyncTaskListener{
 				downloadImages = savedInformation.getBoolean("download_images", true);
 				//The list is filtered then drawn
 				filteredGamesList = filterGames(games);
-				
-				gamesList.setAdapter(new GamesAdapter(filteredGamesList, getApplicationContext()));
+                gamesList.setAdapter(new GamesAdapter(filteredGamesList, this));
+				setGamesListener();
 			}
 		}
 	private void sync(){
@@ -130,7 +130,6 @@ public class Home extends Activity implements AsyncTaskListener{
 		}
 		else{
 			ArrayList<Game> newGames = new XMLParser().getPSNAPIGames(gamesXML); //Parses XML into Game Object	
-			int difference = newGames.size() - games.size(); //How many new games have been played
 			//This loop generates the percentage completion and assigns it to game
 			for(int i=0;i<newGames.size();i++){
 				float progress = 0;
@@ -141,20 +140,14 @@ public class Home extends Activity implements AsyncTaskListener{
 				int totalPoints = newGames.get(i).getTotalPoints();
 				float progressPercent = (progress / totalPoints) * 100;
 				newGames.get(i).setProgress((int)progressPercent);
-				if(difference > 0){
-					newGames.get(i).setBitmap(games.get(i + difference).getBitmap()); //Assign previously downloaded bitmap to game
-				}
-				else if(games.get(0).getId().equals(newGames.get(0).getId())){
-					newGames.get(i).setBitmap(games.get(i).getBitmap());
-				}
-				else{
-					for(int j=0;j<games.size();j++){
-						if(newGames.get(i).equals(games.get(j).getId())){
-							newGames.get(i).setBitmap(games.get(j).getBitmap());
-							break;
-						}
-					}
-				}
+
+                //This loop iterates through old list to match game images and assign them to new ones
+                for(int j =0; j<games.size(); j++){
+                    if(games.get(j).getId().equals(newGames.get(i).getId())){
+                        newGames.get(i).setBitmap(games.get(j).getBitmap());
+                        break;
+                    }
+                }
 			}
 			games = newGames;
 			downloadGameImages(games);
@@ -175,6 +168,13 @@ public class Home extends Activity implements AsyncTaskListener{
 					pDialog.show();
 					imageProcesses.add(new GetImage(this).execute(games.get(i).getImage())); //Download game image and add it to list
 				}
+                //If no images need downloaded
+                else if(i == (games.size() - 1)){
+                    //Filter and draw games list
+                    filteredGamesList = filterGames(games);
+                    gamesList.setAdapter(new GamesAdapter(filteredGamesList, this));
+                    setGamesListener();
+                }
 			}
 		}
 		else{
