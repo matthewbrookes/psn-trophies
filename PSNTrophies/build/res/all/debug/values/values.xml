@@ -55,6 +55,8 @@
     <string name="pref_header_notifications">Notifications</string>
     <string name="pref_header_trophies">Trophies</string>
     <string name="pref_ringtone_silent">Silent</string>
+    <string name="pref_summary_delete_images">All saved images will be deleted</string>
+    <string name="pref_title_delete_images">Delete images</string>
     <string name="pref_title_download_images">Download images</string>
     <string name="pref_title_filter_games">Filter games</string>
     <string name="pref_title_new_message_notifications">New message notifications</string>

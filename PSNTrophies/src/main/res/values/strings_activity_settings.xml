@@ -8,6 +8,8 @@
     <string name="pref_header_general">General</string>
     <string name="pref_title_download_images">Download images</string>
     <string name="pref_title_save_images">Save images to SD Card</string>
+    <string name="pref_title_delete_images">Delete images</string>
+    <string name="pref_summary_delete_images">All saved images will be deleted</string>
     <string name="pref_title_username">Username</string>
 
     <!-- Example settings for Data & Sync -->

@@ -22,5 +22,10 @@
             android:key="save_images"
             android:title="@string/pref_title_save_images" />
 
+    <Preference
+            android:title="@string/pref_title_delete_images"
+            android:key="delete_button"
+            android:summary="@string/pref_summary_delete_images"/>
+
 
 </PreferenceScreen>

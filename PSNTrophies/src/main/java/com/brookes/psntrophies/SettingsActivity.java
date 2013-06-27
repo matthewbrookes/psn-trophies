@@ -1,5 +1,6 @@
 package com.brookes.psntrophies;
 
+import java.io.File;
 import java.util.List;
 
 import android.annotation.TargetApi;
@@ -9,6 +10,8 @@ import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
+import android.util.Log;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -20,6 +23,7 @@ import android.preference.PreferenceScreen;
 import android.preference.RingtonePreference;
 import android.text.TextUtils;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 
 public class SettingsActivity extends PreferenceActivity{
@@ -30,11 +34,15 @@ public class SettingsActivity extends PreferenceActivity{
 	 * shown on tablets.
 	 */
 	private static final boolean ALWAYS_SIMPLE_PREFS = false;
+    private static Context context;
+    private static File folder;
 
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
 		setupSimplePreferencesScreen();
+        context = getApplicationContext();
+        folder = new File(getExternalFilesDir(null), "/");
 	}
 
 	/**
@@ -56,8 +64,28 @@ public class SettingsActivity extends PreferenceActivity{
 		fakeHeader.setTitle(R.string.pref_header_general);
 		getPreferenceScreen().addPreference(fakeHeader);
 		addPreferencesFromResource(R.xml.pref_general);
-		
-		// Add 'games' preferences, and a corresponding header.
+
+        Preference button = (Preference)findPreference("delete_button");
+        if (button != null) {
+            button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() { //When user clicks button to delete images
+                @Override
+                public boolean onPreferenceClick(Preference arg0) {
+                    boolean deletedImages = deleteImages(); //Try to delete images from SD Card
+                    //Create a successful and error message
+                    Toast errorMsg = Toast.makeText(context, "Unable to access SD Card", Toast.LENGTH_SHORT);
+                    Toast successMsg = Toast.makeText(context, "Images have been deleted", Toast.LENGTH_SHORT);
+                    if(deletedImages){ //If images successfully deleted
+                        successMsg.show(); //Show a success message
+                    }
+                    else{
+                        errorMsg.show(); //Show an error message
+                    }
+                    return true;
+                }
+            });
+        }
+
+        // Add 'games' preferences, and a corresponding header.
 		fakeHeader = new PreferenceCategory(this);
 		fakeHeader.setTitle(R.string.pref_header_games);
 		getPreferenceScreen().addPreference(fakeHeader);
@@ -218,6 +246,25 @@ public class SettingsActivity extends PreferenceActivity{
 			// updated to reflect the new value, per the Android Design
 			// guidelines.
 			bindPreferenceSummaryToValue(findPreference("username"));
+            Preference button = (Preference)findPreference("delete_button");
+            if (button != null) {
+                button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() { //When user clicks button to delete images
+                    @Override
+                    public boolean onPreferenceClick(Preference arg0) {
+                        boolean deletedImages = deleteImages(); //Try to delete images from SD Card
+                        //Create a successful and error message
+                        Toast errorMsg = Toast.makeText(context, "Unable to access SD Card", Toast.LENGTH_SHORT);
+                        Toast successMsg = Toast.makeText(context, "Images have been deleted", Toast.LENGTH_SHORT);
+                        if(deletedImages){ //If images successfully deleted
+                            successMsg.show(); //Show a success message
+                        }
+                        else{
+                            errorMsg.show(); //Show an error message
+                        }
+                        return true;
+                    }
+                });
+            }
 		}
 	}
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -266,7 +313,62 @@ public class SettingsActivity extends PreferenceActivity{
 		}
 	}
 	
-	
+	private static boolean deleteImages(){
+        boolean mExternalStorageAvailable = false;
+        boolean mExternalStorageWriteable = false;
+        String storageState = Environment.getExternalStorageState();
+        //Checks if external storage is mounted and what access rights the app has
+        if (Environment.MEDIA_MOUNTED.equals(storageState)) {
+            // We can read and write the media
+            mExternalStorageAvailable = mExternalStorageWriteable = true;
+        } else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(storageState)) {
+            // We can only read the media
+            mExternalStorageAvailable = true;
+            mExternalStorageWriteable = false;
+        } else {
+            // Something else is wrong. It may be one of many other states, but all we need
+            //  to know is we can neither read nor write
+            mExternalStorageAvailable = mExternalStorageWriteable = false;
+        }
+
+        boolean error = false; //Flag is changed if an error occurs
+
+        if(mExternalStorageAvailable && mExternalStorageWriteable){ //If can read and write to SD Card
+            File[] filesList = folder.listFiles(); //All the files in base directory
+            for(int i=0; i<filesList.length; i++){ //Iterates over each file
+                if(filesList[i].exists()){
+                    if(filesList[i].isDirectory()){
+                        File[] listOfFiles = filesList[i].listFiles(); //List of files inside directory
+                        for(int j=0;j<listOfFiles.length; j++){ //Iterates over each file
+                            boolean success = listOfFiles[j].delete(); //Tries to delete file
+                            if(!success){ //If unable to delete file
+                                error = true; //Change flag
+                            }
+                        }
+                        boolean success = filesList[i].delete(); //Try to delete actual folder
+                        if(!success){
+                            error = true;
+                        }
+                    }
+                    else{
+                        boolean success = filesList[i].delete(); //Try to delete file
+                        if(!success){
+                            error = true;
+                        }
+                    }
+                }
+            }
+            if(!error){ //If no error occurs
+                return true; //Report successful
+            }
+            else{
+                return false; //Report failure
+            }
+        }
+        else{
+            return false; //Report failure
+        }
+    }
 	@Override
     public boolean onOptionsItemSelected(MenuItem item){
          

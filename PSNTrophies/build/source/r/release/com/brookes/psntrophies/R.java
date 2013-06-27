@@ -121,22 +121,24 @@ public final class R {
         public static final int pref_header_notifications=0x7f07000b;
         public static final int pref_header_trophies=0x7f07000c;
         public static final int pref_ringtone_silent=0x7f07000d;
-        public static final int pref_title_download_images=0x7f07000e;
-        public static final int pref_title_filter_games=0x7f07000f;
-        public static final int pref_title_new_message_notifications=0x7f070010;
-        public static final int pref_title_ringtone=0x7f070011;
-        public static final int pref_title_save_images=0x7f070012;
-        public static final int pref_title_show_completed_trophies=0x7f070013;
-        public static final int pref_title_show_secret_trophies=0x7f070014;
-        public static final int pref_title_show_unearned_trophies=0x7f070015;
-        public static final int pref_title_sort_games=0x7f070016;
-        public static final int pref_title_sync_frequency=0x7f070017;
-        public static final int pref_title_system_sync_settings=0x7f070018;
-        public static final int pref_title_username=0x7f070019;
-        public static final int pref_title_vibrate=0x7f07001a;
-        public static final int title_activity_log_in=0x7f07001b;
-        public static final int title_activity_settings=0x7f07001c;
-        public static final int title_activity_trophies_list=0x7f07001d;
+        public static final int pref_summary_delete_images=0x7f07000e;
+        public static final int pref_title_delete_images=0x7f07000f;
+        public static final int pref_title_download_images=0x7f070010;
+        public static final int pref_title_filter_games=0x7f070011;
+        public static final int pref_title_new_message_notifications=0x7f070012;
+        public static final int pref_title_ringtone=0x7f070013;
+        public static final int pref_title_save_images=0x7f070014;
+        public static final int pref_title_show_completed_trophies=0x7f070015;
+        public static final int pref_title_show_secret_trophies=0x7f070016;
+        public static final int pref_title_show_unearned_trophies=0x7f070017;
+        public static final int pref_title_sort_games=0x7f070018;
+        public static final int pref_title_sync_frequency=0x7f070019;
+        public static final int pref_title_system_sync_settings=0x7f07001a;
+        public static final int pref_title_username=0x7f07001b;
+        public static final int pref_title_vibrate=0x7f07001c;
+        public static final int title_activity_log_in=0x7f07001d;
+        public static final int title_activity_settings=0x7f07001e;
+        public static final int title_activity_trophies_list=0x7f07001f;
     }
     public static final class style {
         /** 
