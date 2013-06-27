@@ -2,6 +2,10 @@ package com.brookes.psntrophies;
 
 
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import android.app.Activity;
@@ -11,9 +15,12 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -43,22 +50,47 @@ public class Home extends Activity implements AsyncTaskListener{
 	View profileTable = null;
 	ListView gamesList = null;
 	TextView bronzeLabel, silverLabel, goldLabel, platinumLabel = null;
-	Boolean gamesDownloaded = false;
-	Boolean downloadImages;
+	boolean gamesDownloaded = false;
+	boolean downloadImages;
+    boolean saveImages;
+    boolean mExternalStorageAvailable = false;
+    boolean mExternalStorageWriteable = false;
+    String storageState = Environment.getExternalStorageState();
 	int imagesDownloadedCounter = 0;
 	ProgressDialog pDialog;
 	ArrayList<AsyncTask <String, Void, Bitmap>> imageProcesses = new ArrayList<AsyncTask <String, Void, Bitmap>>();
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_home);
+
+        //Checks if external storage is mounted and what access rights the app has
+        if (Environment.MEDIA_MOUNTED.equals(storageState)) {
+            // We can read and write the media
+            mExternalStorageAvailable = mExternalStorageWriteable = true;
+        } else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(storageState)) {
+            // We can only read the media
+            mExternalStorageAvailable = true;
+            mExternalStorageWriteable = false;
+        } else {
+            // Something else is wrong. It may be one of many other states, but all we need
+            //  to know is we can neither read nor write
+            mExternalStorageAvailable = mExternalStorageWriteable = false;
+        }
+
+        if(mExternalStorageWriteable){ //If can write to SD card
+            //Create the folder where the images for games will be stored
+            File gameImagesFolder = new File(getExternalFilesDir(null), "/gameImages");
+            gameImagesFolder.mkdir();
+        }
 		//Retrieves saved settings
 		SharedPreferences savedInformation = getSharedPreferences("com.brookes.psntrophies_preferences", 0);
 		username = savedInformation.getString("username", "");
 		gamesFilter = savedInformation.getString("filter_games", "all");
 		gamesSort = savedInformation.getString("sort_games", "recent");
 		downloadImages = savedInformation.getBoolean("download_images", true);
+        saveImages = savedInformation.getBoolean("save_images", true);
 		//Assigns variables to widgets
 		profileLayout = findViewById(R.id.profileLayout);
 		profileLayout.setVisibility(View.INVISIBLE);
@@ -93,6 +125,7 @@ public class Home extends Activity implements AsyncTaskListener{
 				gamesFilter = savedInformation.getString("filter_games", "all");
 				gamesSort = savedInformation.getString("sort_games", "recent");
 				downloadImages = savedInformation.getBoolean("download_images", true);
+                saveImages = savedInformation.getBoolean("save_images", true);
 				//The list is filtered then drawn
 				filteredGamesList = filterGames(games);
                 gamesList.setAdapter(new GamesAdapter(filteredGamesList, this));
@@ -125,6 +158,16 @@ public class Home extends Activity implements AsyncTaskListener{
                 int totalPoints = games.get(i).getTotalPoints();
                 float progressPercent = (progress / totalPoints) * 100;
                 games.get(i).setProgress((int)progressPercent);
+
+                if(mExternalStorageAvailable){ //If can read from SD Card
+                    File savedImageFile = new File(getExternalFilesDir(null), "/gameImages/" + games.get(i).getId() + ".png");
+                    if(savedImageFile.exists()){
+                        BitmapFactory.Options options = new BitmapFactory.Options();
+                        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+                        Bitmap bitmap = BitmapFactory.decodeFile(savedImageFile.toString(), options);
+                        games.get(i).setBitmap(bitmap);
+                    }
+                }
 			}
 			downloadGameImages(games);
 		}
@@ -196,16 +239,34 @@ public class Home extends Activity implements AsyncTaskListener{
 		for(int i=0; i<games.size(); i++){
 			if(games.get(i).getImage().equals(url)){
 				games.get(i).setBitmap(image);
-				if(i == (games.size() - 1)){ //When all images downloaded
-					//Hide progress dialog and change flag
-					pDialog.dismiss();
-					gamesDownloaded = true;
-					//List filtered and drawn
-					filteredGamesList = filterGames(games);
-					gamesList.setAdapter(new GamesAdapter(filteredGamesList, this));
-					setGamesListener();
-				}
-			}
+                if(mExternalStorageWriteable && saveImages){ //If can write to SD Card & user wants to save images
+                    //Save image as 'gameid'.png
+                    File gameImage = new File(getExternalFilesDir(null), "/gameImages/" + games.get(i).getId() + ".png");
+                    FileOutputStream fOut = null;
+                    try {
+                        fOut = new FileOutputStream(gameImage);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+
+                    image.compress(Bitmap.CompressFormat.PNG, 0, fOut);
+                    try {
+                        fOut.flush();
+                        fOut.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if(imagesDownloadedCounter == imageProcesses.size()){ //If all images downloaded
+                    //Hide progress dialog and change flag
+                    pDialog.dismiss();
+                    gamesDownloaded = true;
+                    //List filtered and drawn
+                    filteredGamesList = filterGames(games);
+                    gamesList.setAdapter(new GamesAdapter(filteredGamesList, this));
+                    setGamesListener();
+                }
+            }
 		}
 	}
 	
@@ -270,7 +331,9 @@ public class Home extends Activity implements AsyncTaskListener{
 	}
 	
 	private ArrayList<Game> filterGames(ArrayList<Game> oldGamesList){
-		pDialog.dismiss(); //Dismiss dialog if it remains
+        if(pDialog != null){
+		    pDialog.dismiss(); //Dismiss dialog if it remains
+        }
 		//This function filters the list of games as per the settings
 		ArrayList<Game> newGamesList = new ArrayList<Game>();
 		if (gamesFilter.equals("all")){

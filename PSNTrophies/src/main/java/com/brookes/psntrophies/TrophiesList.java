@@ -1,5 +1,9 @@
 package com.brookes.psntrophies;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -11,9 +15,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,10 +32,14 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
 	ArrayList<Trophy> trophies;
 	ListView trophiesList;
 	View gameLayout;
-	Boolean showSecretTrophies;
-	Boolean showCompletedTrophies;
-	Boolean downloadImages;
-	Boolean showUnearnedTrophies;
+	boolean showSecretTrophies;
+	boolean showCompletedTrophies;
+	boolean downloadImages;
+    boolean saveImages;
+	boolean showUnearnedTrophies;
+    boolean mExternalStorageAvailable = false;
+    boolean mExternalStorageWriteable = false;
+    String storageState = Environment.getExternalStorageState();
 	String gameId;
 	String savedName;
 	int imagesDownloadedCounter = 0;
@@ -40,6 +50,20 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_trophies_list);
+
+        //Checks if external storage is mounted and what access rights the app has
+        if (Environment.MEDIA_MOUNTED.equals(storageState)) {
+            // We can read and write the media
+            mExternalStorageAvailable = mExternalStorageWriteable = true;
+        } else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(storageState)) {
+            // We can only read the media
+            mExternalStorageAvailable = true;
+            mExternalStorageWriteable = false;
+        } else {
+            // Something else is wrong. It may be one of many other states, but all we need
+            //  to know is we can neither read nor write
+            mExternalStorageAvailable = mExternalStorageWriteable = false;
+        }
 		//Stores layouts and different editable widgets in variables
 		trophiesList = (ListView) findViewById(R.id.trophiesList);
 		gameLayout = findViewById(R.id.gameLayout);
@@ -58,6 +82,7 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
 		SharedPreferences savedInformation = getSharedPreferences("com.brookes.psntrophies_preferences", 0);
 		savedName = savedInformation.getString("username", "");
 		downloadImages = savedInformation.getBoolean("download_images", true);
+        saveImages = savedInformation.getBoolean("save_images", true);
 		showSecretTrophies = savedInformation.getBoolean("show_secret_trophies", true);
 		showCompletedTrophies = savedInformation.getBoolean("show_completed_trophies", true);
 		showUnearnedTrophies = savedInformation.getBoolean("show_unearned_trophies", true);
@@ -79,7 +104,13 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
 		goldLabel.setText("" + Integer.toString(game.getTrophies()[1]));
 		silverLabel.setText("" + Integer.toString(game.getTrophies()[2]));
 		bronzeLabel.setText("" + Integer.toString(game.getTrophies()[3]));
-		
+
+        if(mExternalStorageWriteable){ //If can write to SD card
+            //Create the folder where the images for the trophies will be stored
+            File trophyImagesFolder = new File(getExternalFilesDir(null), "/" + gameId);
+            trophyImagesFolder.mkdir();
+        }
+
 		new GetXML(this).execute("http://psntrophies.net16.net/getTrophies.php?psnid="+ savedName + "&gameid=" + gameId); //Downloads trophies xml for this game
 	}
 	
@@ -89,24 +120,45 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
         //Iterates through list creating dates in local format without "seconds" information
         DateFormat f = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT);
 		for(int j=0;j<trophies.size();j++){
-			if(!trophies.get(j).getDateEarned().isEmpty()){
+			if(!trophies.get(j).getDateEarned().isEmpty()){ //If the trophy has been earned
+                //Seconds since epoch converted to milliseconds and formatted to a date
 				Date d = new Date(Long.parseLong(trophies.get(j).getDateEarned()) * 1000L);
 				String displayDate = f.format(d); 
 				trophies.get(j).setDisplayDate(displayDate);
 			}
+            if(mExternalStorageAvailable){ //If can read from SD Card
+                File savedImageFile = new File(getExternalFilesDir(null), "/" + gameId + "/" + trophies.get(j).getId() + ".png");
+                if(savedImageFile.exists()){
+                    BitmapFactory.Options options = new BitmapFactory.Options();
+                    options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+                    Bitmap bitmap = BitmapFactory.decodeFile(savedImageFile.toString(), options);
+                    trophies.get(j).setBitmap(bitmap);
+                }
+            }
 		}
 		downloadTrophyImages(trophies);
 	}
 	
 	private void downloadTrophyImages(ArrayList<Trophy> trophies){
 		if(downloadImages){
-			imageProcesses.clear(); //List of processes cleared
-			pDialog = new ProgressDialog(this); //Create a new progress dialog
-			showDialog(0);
+            //Resets the progress dialog, the counter and the list of processes
+            imagesDownloadedCounter = 0;
+            imageProcesses.clear();
+            pDialog = createDialog();
+            int newMax = 0;
 			for(int i=0; i<trophies.size(); i++){ //For each Trophy Object
 				if(trophies.get(i).getBitmap() == null){ //If there is no image
+                    newMax++;
+                    pDialog.setMax(newMax);
+                    pDialog.show();
 					imageProcesses.add(new GetImage(this).execute(trophies.get(i).getImage())); //Download the image
 				}
+                //If no images need downloaded
+                else if(i == (trophies.size() - 1)){
+                    //Filter and draw games list
+                    ArrayList<Trophy> filteredList = hideTrophies(trophies, showSecretTrophies, showCompletedTrophies, showUnearnedTrophies);
+                    trophiesList.setAdapter(new TrophiesAdapter(filteredList, this)); //Draws list based upon new data
+                }
 			}
 		}
 		else{
@@ -124,14 +176,31 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
 		for(int i=0; i<trophies.size(); i++){ //Iterates over each Trophy
 			if(trophies.get(i).getImage().equals(url)){ //If this image matches this Trophy
 				trophies.get(i).setBitmap(image); //Save it
-				
-				if(i == (trophies.size() - 1)){ //When all images downloaded
-					//Hides progress dialog
-					pDialog.dismiss();
-					//Creates a new ArrayList with some trophies hidden depending on settings
-					ArrayList<Trophy> filteredList = hideTrophies(trophies, showSecretTrophies, showCompletedTrophies, showUnearnedTrophies);
-					trophiesList.setAdapter(new TrophiesAdapter(filteredList, this)); //Draws list based upon new data
-				}
+                if(mExternalStorageWriteable && saveImages){ //If can write to SD Card & user wants to save images
+                    //Save image as 'id'.png
+                    File gameImage = new File(getExternalFilesDir(null), "/" + gameId + "/" + trophies.get(i).getId() + ".png");
+                    FileOutputStream fOut = null;
+                    try {
+                        fOut = new FileOutputStream(gameImage);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+
+                    image.compress(Bitmap.CompressFormat.PNG, 0, fOut);
+                    try {
+                        fOut.flush();
+                        fOut.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if(imagesDownloadedCounter == imageProcesses.size()){ //If all images downloaded
+                    //Hide progress dialog and change flag
+                    pDialog.dismiss();
+                    //List filtered and drawn
+                    ArrayList<Trophy> filteredList = hideTrophies(trophies, showSecretTrophies, showCompletedTrophies, showUnearnedTrophies);
+                    trophiesList.setAdapter(new TrophiesAdapter(filteredList, this));
+                }
 			}
 		}
 	}
@@ -276,36 +345,29 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
         		return true;       	
         }
 	}
-	
-	@Override
-    protected Dialog onCreateDialog(int id) {
-        switch(id) {
-	        case 0:
-	        	//Creates the progress dialog for downloading images
-	            pDialog = new ProgressDialog(this);
-	            pDialog.setMessage("Downloading images...");
-	            pDialog.setIndeterminate(false);
-	            pDialog.setMax(trophies.size());
-	            pDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL); //Displays a progress bar
-	            pDialog.setCancelable(false); //The back button will not cancel image download
-	            //Creates a cancel button
-	            pDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
-	                @Override
-	                public void onClick(DialogInterface dialog, int which) {
-	                	for(int i=0; i<imageProcesses.size();i++){
-	                		imageProcesses.get(i).cancel(true); //Cancel each outstanding image process
-	                	}
-	                	ArrayList<Trophy> filteredList = hideTrophies(trophies, showSecretTrophies, showCompletedTrophies, showUnearnedTrophies);
-	        			
-	        			trophiesList.setAdapter(new TrophiesAdapter(filteredList, getApplicationContext())); //Draws list based upon new data
-	                    dialog.dismiss();
-	                }
-	            });
-	            pDialog.show();
-	            return pDialog;
-	        default:
-	            return null;
-        }
+
+    private ProgressDialog createDialog(){
+        //Creates the progress dialog for downloading images
+        pDialog = new ProgressDialog(this);
+        pDialog.setMessage("Downloading images...");
+        pDialog.setIndeterminate(false);
+        pDialog.setMax(0);
+        pDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL); //Displays a progress bar
+        pDialog.setCancelable(false); //The back button will not cancel image download
+        //Creates a cancel button
+        pDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                for(int i=0; i<imageProcesses.size();i++){
+                    imageProcesses.get(i).cancel(true); //Cancel each outstanding image process
+                }
+                ArrayList<Trophy> filteredList = hideTrophies(trophies, showSecretTrophies, showCompletedTrophies, showUnearnedTrophies);
+
+                trophiesList.setAdapter(new TrophiesAdapter(filteredList, getApplicationContext())); //Draws list based upon new data
+                dialog.dismiss();
+            }
+        });
+        return pDialog;
     }
 	
 	@Override

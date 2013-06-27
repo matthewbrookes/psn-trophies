@@ -59,6 +59,7 @@
     <string name="pref_title_filter_games">Filter games</string>
     <string name="pref_title_new_message_notifications">New message notifications</string>
     <string name="pref_title_ringtone">Ringtone</string>
+    <string name="pref_title_save_images">Save images to SD Card</string>
     <string name="pref_title_show_completed_trophies">Show completed trophies</string>
     <string name="pref_title_show_secret_trophies">Show secret trophies</string>
     <string name="pref_title_show_unearned_trophies">Show unearned trophies</string>
