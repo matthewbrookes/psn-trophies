@@ -20,6 +20,24 @@
             android:paddingRight="10dp"
             android:contentDescription="Profile image" />
 
+        <TextView
+            android:id="@+id/updateText"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_alignParentRight="true"
+            android:paddingRight="10dp"
+            android:textColor="#FFFFFF"
+            android:layout_above="@id/profilePicture" />
+        <TextView
+            android:id="@+id/updateLabel"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_toLeftOf="@id/updateText"
+            android:textColor="#FFFFFF"
+            android:layout_alignTop="@id/updateText"
+            android:text="Last updated: "/>
+
+
         <TableLayout
             android:id="@+id/profileInformationTable"
             android:layout_width="fill_parent"

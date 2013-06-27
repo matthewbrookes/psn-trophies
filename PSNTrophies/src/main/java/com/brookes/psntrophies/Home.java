@@ -6,7 +6,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -32,6 +35,10 @@ import android.widget.TextView;
 
 public class Home extends Activity implements AsyncTaskListener{
 	//Variables are modified throughout activity so are defined here
+    SharedPreferences savedInformation;
+    SharedPreferences savedXML;
+    SharedPreferences.Editor savedInformationEditor;
+    SharedPreferences.Editor savedXMLEditor;
 	String username;
 	String gamesFilter;
 	String gamesSort;
@@ -40,6 +47,7 @@ public class Home extends Activity implements AsyncTaskListener{
 	ArrayList<Game> games;
 	ArrayList<Game> filteredGamesList;
 	ImageView profileImage = null;
+    TextView updateText = null;
 	TextView psnName = null;
     TextView psnPlus = null;
 	TextView psnAboutMe = null;
@@ -47,6 +55,8 @@ public class Home extends Activity implements AsyncTaskListener{
 	TextView psnTrophyProgress = null;
 	String textColor = "#FFFFFF";
 	String backgroundColor = "";
+    String gamesXML = "";
+    String profileXML = "";
 	View profileTable = null;
 	ListView gamesList = null;
 	TextView bronzeLabel, silverLabel, goldLabel, platinumLabel = null;
@@ -57,6 +67,7 @@ public class Home extends Activity implements AsyncTaskListener{
     boolean mExternalStorageWriteable = false;
     String storageState = Environment.getExternalStorageState();
 	int imagesDownloadedCounter = 0;
+    long lastUpdated = 0L;
 	ProgressDialog pDialog;
 	ArrayList<AsyncTask <String, Void, Bitmap>> imageProcesses = new ArrayList<AsyncTask <String, Void, Bitmap>>();
 
@@ -84,16 +95,27 @@ public class Home extends Activity implements AsyncTaskListener{
             File gameImagesFolder = new File(getExternalFilesDir(null), "/gameImages");
             gameImagesFolder.mkdir();
         }
-		//Retrieves saved settings
-		SharedPreferences savedInformation = getSharedPreferences("com.brookes.psntrophies_preferences", 0);
+		//Create shared preferences and editor
+		savedInformation = getSharedPreferences("com.brookes.psntrophies_preferences", 0);
+        savedInformationEditor = savedInformation.edit();
+
+        savedXML = getSharedPreferences("com.brookes.psntrophies_xml", 0);
+        savedXMLEditor = savedXML.edit();
+
+        //Retrieves saved settings
 		username = savedInformation.getString("username", "");
 		gamesFilter = savedInformation.getString("filter_games", "all");
 		gamesSort = savedInformation.getString("sort_games", "recent");
 		downloadImages = savedInformation.getBoolean("download_images", true);
         saveImages = savedInformation.getBoolean("save_images", true);
+        lastUpdated = savedInformation.getLong("last_updated", 0L);
+        //Retrieves saved XML
+        gamesXML = savedXML.getString("games_xml", "");
+        profileXML = savedXML.getString("profile_xml", "");
 		//Assigns variables to widgets
 		profileLayout = findViewById(R.id.profileLayout);
 		profileLayout.setVisibility(View.INVISIBLE);
+        updateText = (TextView) findViewById(R.id.updateText);
 		profileImage = (ImageView) findViewById(R.id.profilePicture);
 		psnName = (TextView) findViewById(R.id.psnName);
 		psnAboutMe = (TextView) findViewById(R.id.psnAboutMe);
@@ -113,8 +135,34 @@ public class Home extends Activity implements AsyncTaskListener{
 		platinumLabel = (TextView) findViewById(R.id.platinumLabel);
 		profileTable = findViewById(R.id.profileInformationTable);
 		gamesList = (ListView) findViewById(R.id.gamesList);
-		
-		sync(); //Starts the process
+
+        if(lastUpdated == 0L || gamesXML.isEmpty() || profileXML.isEmpty()){ //If information hasn't been synced or there is no saved XML
+            sync(); //Starts the process
+        }
+        else{
+            //Calculate amount of time since last sync
+            Date currentDate = Calendar.getInstance().getTime();
+            Long currentTime = currentDate.getTime();
+            Long timeSinceSync = currentTime - lastUpdated;
+            if(timeSinceSync > 3600000){ //If information is over an hour old
+                sync(); //Starts the process
+            }
+            else{
+                //Change the update label on home screen
+                DateFormat f = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
+                Date d = new Date(lastUpdated);
+                String displayDate = f.format(d);
+                updateText.setText(displayDate);
+
+                parseGames(gamesXML); //Parse games and download images
+                XMLParser parser = new XMLParser();
+                profile = parser.getProfile(profileXML); //Parses XML into Profile Object
+                //Draw profile
+                setProfileColor();
+                setProfileInformation();
+                setProfilePicture();
+            }
+        }
 	}
 		@Override
 		protected void onResume(){ //When the activity regains focus
@@ -133,6 +181,18 @@ public class Home extends Activity implements AsyncTaskListener{
 			}
 		}
 	private void sync(){
+        //Save new update time
+        Date currentDate = Calendar.getInstance().getTime();
+        Long currentTime = currentDate.getTime();
+        savedInformationEditor.putLong("last_updated", currentTime);
+        savedInformationEditor.commit();
+        lastUpdated = currentTime;
+        //Change label on home screen
+        DateFormat f = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
+        Date d = new Date(lastUpdated);
+        String displayDate = f.format(d);
+        updateText.setText(displayDate);
+
 		new GetXML(this).execute("http://psntrophies.net16.net/getProfile.php?psnid=" + username); //Downloads profile
 		new GetXML(this).execute("http://psntrophies.net16.net/getGames.php?psnid=" + username); //Downloads games
 	}
@@ -141,60 +201,21 @@ public class Home extends Activity implements AsyncTaskListener{
 	public void onProfileDownloaded(String profileXML) {
 		XMLParser parser = new XMLParser();
 		profile = parser.getProfile(profileXML); //Parses XML into Profile Object
-		setProfilePicture(); //Starts chain of drawing profile
+        //Store XML
+        savedXMLEditor.putString("profile_xml", profileXML);
+        savedXMLEditor.commit();
+        //Draw profile
+        setProfileColor();
+        setProfileInformation();
+		setProfilePicture();
 	}
 	
 	@Override
 	public void onPSNGamesDownloaded(String gamesXML) {
-		if(!gamesDownloaded){ //If games being downloaded for first time
-			games = new XMLParser().getPSNAPIGames(gamesXML); //Parses XML into Game Object	
-			//This loop generates the percentage completion and assigns it to game
-            for(int i=0;i<games.size();i++){
-                float progress = 0;
-                progress += (games.get(i).getTrophies()[1] * 90);
-                progress += (games.get(i).getTrophies()[2] * 30);
-                progress += (games.get(i).getTrophies()[3] * 15);
-
-                int totalPoints = games.get(i).getTotalPoints();
-                float progressPercent = (progress / totalPoints) * 100;
-                games.get(i).setProgress((int)progressPercent);
-
-                if(mExternalStorageAvailable){ //If can read from SD Card
-                    File savedImageFile = new File(getExternalFilesDir(null), "/gameImages/" + games.get(i).getId() + ".png");
-                    if(savedImageFile.exists()){
-                        BitmapFactory.Options options = new BitmapFactory.Options();
-                        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-                        Bitmap bitmap = BitmapFactory.decodeFile(savedImageFile.toString(), options);
-                        games.get(i).setBitmap(bitmap);
-                    }
-                }
-			}
-			downloadGameImages(games);
-		}
-		else{
-			ArrayList<Game> newGames = new XMLParser().getPSNAPIGames(gamesXML); //Parses XML into Game Object	
-			//This loop generates the percentage completion and assigns it to game
-			for(int i=0;i<newGames.size();i++){
-				float progress = 0;
-				progress += (newGames.get(i).getTrophies()[1] * 90);
-				progress += (newGames.get(i).getTrophies()[2] * 30);
-				progress += (newGames.get(i).getTrophies()[3] * 15);
-				
-				int totalPoints = newGames.get(i).getTotalPoints();
-				float progressPercent = (progress / totalPoints) * 100;
-				newGames.get(i).setProgress((int)progressPercent);
-
-                //This loop iterates through old list to match game images and assign them to new ones
-                for(int j =0; j<games.size(); j++){
-                    if(games.get(j).getId().equals(newGames.get(i).getId())){
-                        newGames.get(i).setBitmap(games.get(j).getBitmap());
-                        break;
-                    }
-                }
-			}
-			games = newGames;
-			downloadGameImages(games);
-		}
+        //StoreXML
+        savedXMLEditor.putString("games_xml", gamesXML);
+        savedXMLEditor.commit();
+		parseGames(gamesXML); //Parse the games and download images
 	}
 	
 	private void downloadGameImages(ArrayList<Game> games){ //This function downloads images if required
@@ -269,7 +290,57 @@ public class Home extends Activity implements AsyncTaskListener{
             }
 		}
 	}
-	
+	private void parseGames(String gamesXML){
+        if(!gamesDownloaded){ //If games being downloaded for first time
+            games = new XMLParser().getPSNAPIGames(gamesXML); //Parses XML into Game Object
+            //This loop generates the percentage completion and assigns it to game
+            for(int i=0;i<games.size();i++){
+                float progress = 0;
+                progress += (games.get(i).getTrophies()[1] * 90);
+                progress += (games.get(i).getTrophies()[2] * 30);
+                progress += (games.get(i).getTrophies()[3] * 15);
+
+                int totalPoints = games.get(i).getTotalPoints();
+                float progressPercent = (progress / totalPoints) * 100;
+                games.get(i).setProgress((int)progressPercent);
+
+                if(mExternalStorageAvailable){ //If can read from SD Card
+                    File savedImageFile = new File(getExternalFilesDir(null), "/gameImages/" + games.get(i).getId() + ".png");
+                    if(savedImageFile.exists()){
+                        BitmapFactory.Options options = new BitmapFactory.Options();
+                        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+                        Bitmap bitmap = BitmapFactory.decodeFile(savedImageFile.toString(), options);
+                        games.get(i).setBitmap(bitmap);
+                    }
+                }
+            }
+            downloadGameImages(games);
+        }
+        else{
+            ArrayList<Game> newGames = new XMLParser().getPSNAPIGames(gamesXML); //Parses XML into Game Object
+            //This loop generates the percentage completion and assigns it to game
+            for(int i=0;i<newGames.size();i++){
+                float progress = 0;
+                progress += (newGames.get(i).getTrophies()[1] * 90);
+                progress += (newGames.get(i).getTrophies()[2] * 30);
+                progress += (newGames.get(i).getTrophies()[3] * 15);
+
+                int totalPoints = newGames.get(i).getTotalPoints();
+                float progressPercent = (progress / totalPoints) * 100;
+                newGames.get(i).setProgress((int)progressPercent);
+
+                //This loop iterates through old list to match game images and assign them to new ones
+                for(int j =0; j<games.size(); j++){
+                    if(games.get(j).getId().equals(newGames.get(i).getId())){
+                        newGames.get(i).setBitmap(games.get(j).getBitmap());
+                        break;
+                    }
+                }
+            }
+            games = newGames;
+            downloadGameImages(games);
+        }
+    }
 	private void setProfileColor(){
 		String color = "#"; //Creates hex string
 		String red = Integer.toHexString(profile.getBackgroundColor()[0]); //Stores the red component as a hex value in String form
@@ -294,9 +365,19 @@ public class Home extends Activity implements AsyncTaskListener{
 			new GetImage(this).execute(uri); //Download the image
 		}
 		else{
-			//Bypass downloading of image
-			setProfileColor();
-			setProfileInformation();
+            if(mExternalStorageAvailable){ //If can read from SD Card
+                File savedImageFile = new File(getExternalFilesDir(null), "profile.png"); //Path to profile picture
+                if(savedImageFile.exists()){
+                    //Retrieve image
+                    BitmapFactory.Options options = new BitmapFactory.Options();
+                    options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+                    Bitmap bitmap = BitmapFactory.decodeFile(savedImageFile.toString(), options);
+                    //Set image
+                    profileImage.setImageBitmap(bitmap);
+                    return; //Break out of function
+                }
+            }
+			//Set image
 			profileImage.setImageBitmap(drawBlankProfileImage());
 		}
 	}
@@ -326,8 +407,24 @@ public class Home extends Activity implements AsyncTaskListener{
 	@Override
 	public void onProfileImageDownloaded(Bitmap image) { //When image downloaded
 		profileImage.setImageBitmap(image);
-		setProfileColor();
-		setProfileInformation();
+        if(mExternalStorageWriteable && saveImages){ //If can write to SD Card & user wants to save images
+            //Save image as profile.png
+            File imageFile = new File(getExternalFilesDir(null), "profile.png");
+            FileOutputStream fOut = null;
+            try {
+                fOut = new FileOutputStream(imageFile);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+
+            image.compress(Bitmap.CompressFormat.PNG, 0, fOut);
+            try {
+                fOut.flush();
+                fOut.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 	}
 	
 	private ArrayList<Game> filterGames(ArrayList<Game> oldGamesList){
@@ -438,12 +535,20 @@ public class Home extends Activity implements AsyncTaskListener{
          
         switch (item.getItemId()){
         	case R.id.action_logout:
-        		SharedPreferences savedInformation = getSharedPreferences("com.brookes.psntrophies_preferences", 0);
-    	        SharedPreferences.Editor editor = savedInformation.edit();
-    	        editor.putString("username", "");
-    	
+    	        savedInformationEditor.putString("username", ""); //Delete saved username
+    	        savedXMLEditor.clear(); //Delete saved XML
     	        // Commit the edits!
-    	        editor.commit();
+    	        savedInformationEditor.commit();
+                savedXMLEditor.commit();
+
+                if(mExternalStorageWriteable){ //If can write from SD Card
+                    //Delete profile picture
+                    File savedImageFile = new File(getExternalFilesDir(null), "profile.png"); //Path to profile picture
+                    if(savedImageFile.exists()){
+                        savedImageFile.delete();
+                    }
+                }
+                //Return to login screen
     	        Intent i = new Intent(this, LogIn.class);
     	        startActivity(i);
     	        finish();

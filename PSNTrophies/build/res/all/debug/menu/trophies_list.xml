@@ -1,19 +1,24 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
-    <item 
+    <item
+        android:id="@+id/action_sync"
+        android:title="@string/action_sync"
+        android:orderInCategory="1">
+    </item>
+    <item
         android:id="@+id/action_secretTrophies" 
         android:title="@string/action_secret_trophies" 
-        android:orderInCategory="1">
+        android:orderInCategory="2">
     </item>
     <item 
         android:id="@+id/action_completedTrophies" 
         android:title="@string/action_completed_trophies" 
-        android:orderInCategory="2">
+        android:orderInCategory="3">
     </item>
     <item 
         android:id="@+id/action_unearnedTrophies" 
         android:title="@string/action_unearned_trophies" 
-        android:orderInCategory="3">
+        android:orderInCategory="4">
     </item>
 
 </menu>

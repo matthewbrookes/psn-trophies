@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 
 import android.app.Activity;
@@ -29,9 +30,16 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class TrophiesList extends Activity implements AsyncTaskListener{
+    SharedPreferences savedInformation;
+    SharedPreferences savedUpdateTimes;
+    SharedPreferences savedXML;
+    SharedPreferences.Editor savedInformationEditor;
+    SharedPreferences.Editor savedUpdateEditor;
+    SharedPreferences.Editor savedXMLEditor;
 	ArrayList<Trophy> trophies;
 	ListView trophiesList;
 	View gameLayout;
+    TextView updateText = null;
 	boolean showSecretTrophies;
 	boolean showCompletedTrophies;
 	boolean downloadImages;
@@ -67,7 +75,7 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
 		//Stores layouts and different editable widgets in variables
 		trophiesList = (ListView) findViewById(R.id.trophiesList);
 		gameLayout = findViewById(R.id.gameLayout);
-		
+        updateText = (TextView) findViewById(R.id.updateText);
 		TextView gameName = (TextView) findViewById(R.id.gameName);
 		TextView trophyTotal = (TextView) findViewById(R.id.trophyTotal);
 		ProgressBar completionBar = (ProgressBar) findViewById(R.id.completionProgressBar1);
@@ -77,22 +85,33 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
 		TextView silverLabel = (TextView) findViewById(R.id.silverLabel);
 		TextView goldLabel = (TextView) findViewById(R.id.goldLabel);
 		TextView platinumLabel = (TextView) findViewById(R.id.platinumLabel);
-		
-		//Retrieves saved preferences
-		SharedPreferences savedInformation = getSharedPreferences("com.brookes.psntrophies_preferences", 0);
+
+        //Create shared preferences and editor
+        savedInformation = getSharedPreferences("com.brookes.psntrophies_preferences", 0);
+        savedInformationEditor = savedInformation.edit();
+
+        savedXML = getSharedPreferences("com.brookes.psntrophies_xml", 0);
+        savedXMLEditor = savedXML.edit();
+
+        savedUpdateTimes = getSharedPreferences("com.brookes.psntrophies_updates", 0);
+        savedUpdateEditor = savedUpdateTimes.edit();
+
+        //Retrieve Game Object and Background Color from intent
+        Intent receivedIntent = getIntent();
+        Game game = receivedIntent.getExtras().getParcelable("game");
+        gameId = game.getId();
+        String backgroundcolor = receivedIntent.getStringExtra("color");
+
+        //Retrieves saved settings
+        String trophiesXML = savedXML.getString(gameId, "");
+        Long lastUpdated = savedUpdateTimes.getLong(gameId, 0L);
 		savedName = savedInformation.getString("username", "");
 		downloadImages = savedInformation.getBoolean("download_images", true);
         saveImages = savedInformation.getBoolean("save_images", true);
 		showSecretTrophies = savedInformation.getBoolean("show_secret_trophies", true);
 		showCompletedTrophies = savedInformation.getBoolean("show_completed_trophies", true);
 		showUnearnedTrophies = savedInformation.getBoolean("show_unearned_trophies", true);
-		
-		//Retrieve Game Object and Background Color from intent
-		Intent receivedIntent = getIntent();
-		Game game = receivedIntent.getExtras().getParcelable("game");
-		gameId = game.getId();
-		String backgroundcolor = receivedIntent.getStringExtra("color");
-		
+
 		//Sets information in top layout bases upon received Game Object and color
 		gameLayout.setBackgroundColor(Color.parseColor(backgroundcolor));
 		gameImage.setImageBitmap(game.getBitmap());
@@ -111,11 +130,80 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
             trophyImagesFolder.mkdir();
         }
 
-		new GetXML(this).execute("http://psntrophies.net16.net/getTrophies.php?psnid="+ savedName + "&gameid=" + gameId); //Downloads trophies xml for this game
+        //Calculate amount of time since last sync
+        Date currentDate = Calendar.getInstance().getTime();
+        Long currentTime = currentDate.getTime();
+        Long timeSinceSync = currentTime - lastUpdated;
+
+        //Change the update label on home screen
+        DateFormat f = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
+        Date d = new Date(lastUpdated);
+        String displayDate = f.format(d);
+        updateText.setText(displayDate);
+
+        if(lastUpdated == 0L || trophiesXML.isEmpty()){ //If information hasn't been synced or there is no saved XML
+            //Save the new update time
+            savedUpdateEditor.putLong(gameId, currentTime);
+            savedUpdateEditor.commit();
+
+            //Change the update label on home screen
+            d = new Date(currentTime);
+            displayDate = f.format(d);
+            updateText.setText(displayDate);
+
+            new GetXML(this).execute("http://psntrophies.net16.net/getTrophies.php?psnid="+ savedName + "&gameid=" + gameId); //Downloads trophies xml for this game
+        }
+        else{
+            if(timeSinceSync > 3600000){ //If information is over an hour old
+                //Save the new update time
+                savedUpdateEditor.putLong(gameId, currentTime);
+                savedUpdateEditor.commit();
+
+                //Change the update label on home screen
+                d = new Date(currentTime);
+                displayDate = f.format(d);
+                updateText.setText(displayDate);
+
+                new GetXML(this).execute("http://psntrophies.net16.net/getTrophies.php?psnid="+ savedName + "&gameid=" + gameId); //Downloads trophies xml for this game
+            }
+            else{
+                //Change the update label on home screen
+                /*
+                DateFormat f = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
+                Date d = new Date(lastUpdated);
+                String updateDate = f.format(d);
+                updateText.setText(updateDate);
+                */
+                //Create trophies from saved xml
+                trophies = new XMLParser().getPSNAPITrophies(trophiesXML);
+                //Iterates through list creating dates in local format without "seconds" information
+                DateFormat format = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT);
+                for(int j=0;j<trophies.size();j++){
+                    if(!trophies.get(j).getDateEarned().isEmpty()){ //If the trophy has been earned
+                        //Seconds since epoch converted to milliseconds and formatted to a date
+                        Date date = new Date(Long.parseLong(trophies.get(j).getDateEarned()) * 1000L);
+                        String trophyDisplayDate = format.format(date);
+                        trophies.get(j).setDisplayDate(trophyDisplayDate);
+                    }
+                    if(mExternalStorageAvailable){ //If can read from SD Card
+                        File savedImageFile = new File(getExternalFilesDir(null), "/" + gameId + "/" + trophies.get(j).getId() + ".png");
+                        if(savedImageFile.exists()){
+                            BitmapFactory.Options options = new BitmapFactory.Options();
+                            options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+                            Bitmap bitmap = BitmapFactory.decodeFile(savedImageFile.toString(), options);
+                            trophies.get(j).setBitmap(bitmap);
+                        }
+                    }
+                }
+                downloadTrophyImages(trophies);
+            }
+        }
 	}
 	
 	@Override
 	public void onPSNTrophiesDownloaded(String trophiesXML) {
+        savedXMLEditor.putString(gameId, trophiesXML);
+        savedXMLEditor.commit();
 		trophies = new XMLParser().getPSNAPITrophies(trophiesXML);
         //Iterates through list creating dates in local format without "seconds" information
         DateFormat f = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT);
@@ -256,21 +344,21 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.trophies_list, menu);
 		if(showSecretTrophies){ //If the user wants to see secret trophies
-			menu.getItem(0).setTitle("Hide secret trophies"); //Set the text to this
+			menu.getItem(1).setTitle("Hide secret trophies"); //Set the text to this
 		} else{
-			menu.getItem(0).setTitle("Show secret trophies");
+			menu.getItem(1).setTitle("Show secret trophies");
 		}
 		
 		if(showCompletedTrophies){ //If the user wants to see completed trophies
-			menu.getItem(1).setTitle("Hide completed trophies"); //Set the text to this
+			menu.getItem(2).setTitle("Hide completed trophies"); //Set the text to this
 		} else{
-			menu.getItem(1).setTitle("Show completed trophies");
+			menu.getItem(2).setTitle("Show completed trophies");
 		}
 		
 		if(showUnearnedTrophies){ //If the user wants to see completed trophies
-			menu.getItem(2).setTitle("Hide unearned trophies"); //Set the text to this
+			menu.getItem(3).setTitle("Hide unearned trophies"); //Set the text to this
 		} else{
-			menu.getItem(2).setTitle("Show unearned trophies");
+			menu.getItem(3).setTitle("Show unearned trophies");
 		}
 		return true;
 	}
@@ -278,10 +366,25 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
 	@Override
     public boolean onOptionsItemSelected(MenuItem item){
 		//Saves new setting
-		SharedPreferences savedInformation = getSharedPreferences("com.brookes.psntrophies_preferences", 0);
-		SharedPreferences.Editor editor = savedInformation.edit();
 		ArrayList<Trophy> filteredTrophies;
         switch (item.getItemId()){
+            case R.id.action_sync:
+                //Calculate current time
+                Date currentDate = Calendar.getInstance().getTime();
+                Long currentTime = currentDate.getTime();
+
+                //Save current time
+                savedUpdateEditor.putLong(gameId, currentTime);
+                savedUpdateEditor.commit();
+
+                //Change the update label on home screen
+                DateFormat f = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
+                Date d = new Date(currentTime);
+                String displayDate = f.format(d);
+                updateText.setText(displayDate);
+
+                new GetXML(this).execute("http://psntrophies.net16.net/getTrophies.php?psnid="+ savedName + "&gameid=" + gameId); //Downloads trophies xml for this game
+                return true;
         	case R.id.action_secretTrophies:
         		showSecretTrophies = !showSecretTrophies; //Flip boolean value
         		if(showSecretTrophies){ //If the user can now see secret trophies
@@ -290,10 +393,10 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
         			item.setTitle("Show secret trophies");
         		}
 				
-    	        editor.putBoolean("show_secret_trophies", showSecretTrophies);
+    	        savedInformationEditor.putBoolean("show_secret_trophies", showSecretTrophies);
     	
     	        // Commit the edits!
-    	        editor.commit();
+    	        savedInformationEditor.commit();
     	        
 				//Create new ArrayList based upon new choice
     	        filteredTrophies = hideTrophies(trophies, showSecretTrophies, showCompletedTrophies, showUnearnedTrophies);
@@ -309,10 +412,10 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
         		}
 				
 				//Saves new setting
-        		editor.putBoolean("show_completed_trophies", showCompletedTrophies);
+        		savedInformationEditor.putBoolean("show_completed_trophies", showCompletedTrophies);
     	
     	        // Commit the edits!
-    	        editor.commit();
+    	        savedInformationEditor.commit();
     	        
 				//Create new ArrayList based upon new choice
     	        filteredTrophies = hideTrophies(trophies, showSecretTrophies, showCompletedTrophies, showUnearnedTrophies);
@@ -328,10 +431,10 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
         		}
 				
 				//Saves new setting
-        		editor.putBoolean("show_completed_trophies", showCompletedTrophies);
+        		savedInformationEditor.putBoolean("show_completed_trophies", showCompletedTrophies);
     	
     	        // Commit the edits!
-    	        editor.commit();
+    	        savedInformationEditor.commit();
     	        
 				//Create new ArrayList based upon new choice
     	        filteredTrophies = hideTrophies(trophies, showSecretTrophies, showCompletedTrophies, showUnearnedTrophies);
