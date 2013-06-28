@@ -12,6 +12,23 @@
     <string name="pref_summary_delete_images">All saved images will be deleted</string>
     <string name="pref_title_username">Username</string>
 
+    <string name="pref_title_delete_frequency">Delete images automatically</string>
+
+    <string-array name="pref_delete_frequency_titles">
+        <item>After 1 hour</item>
+        <item>After 1 day</item>
+        <item>After 1 week</item>
+        <item>After 30 days</item>
+        <item>Never</item>
+        </string-array>
+    <string-array name="pref_delete_frequency_values">
+        <item>3600000</item>
+        <item>86400000</item>
+        <item>604800000</item>
+        <item>2592000000</item>
+        <item>-1</item>
+        </string-array>
+
     <!-- Example settings for Data & Sync -->
     <string name="pref_header_data_sync">Data &amp; sync</string>
     <string name="pref_title_sync_frequency">Sync frequency</string>

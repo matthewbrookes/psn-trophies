@@ -167,13 +167,6 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
                 new GetXML(this).execute("http://psntrophies.net16.net/getTrophies.php?psnid="+ savedName + "&gameid=" + gameId); //Downloads trophies xml for this game
             }
             else{
-                //Change the update label on home screen
-                /*
-                DateFormat f = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
-                Date d = new Date(lastUpdated);
-                String updateDate = f.format(d);
-                updateText.setText(updateDate);
-                */
                 //Create trophies from saved xml
                 trophies = new XMLParser().getPSNAPITrophies(trophiesXML);
                 //Iterates through list creating dates in local format without "seconds" information

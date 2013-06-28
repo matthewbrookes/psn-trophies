@@ -115,7 +115,8 @@ public class SettingsActivity extends PreferenceActivity{
 		bindPreferenceSummaryToValue(findPreference("username"));
 		bindPreferenceSummaryToValue(findPreference("filter_games"));
 		bindPreferenceSummaryToValue(findPreference("sort_games"));
-		bindPreferenceSummaryToValue(findPreference("notifications_new_message_ringtone"));
+        bindPreferenceSummaryToValue(findPreference("delete_frequency"));
+        bindPreferenceSummaryToValue(findPreference("notifications_new_message_ringtone"));
 		bindPreferenceSummaryToValue(findPreference("sync_frequency"));
 	}
 
@@ -246,6 +247,7 @@ public class SettingsActivity extends PreferenceActivity{
 			// updated to reflect the new value, per the Android Design
 			// guidelines.
 			bindPreferenceSummaryToValue(findPreference("username"));
+            bindPreferenceSummaryToValue(findPreference("delete_frequency"));
             Preference button = (Preference)findPreference("delete_button");
             if (button != null) {
                 button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() { //When user clicks button to delete images
@@ -334,35 +336,12 @@ public class SettingsActivity extends PreferenceActivity{
         boolean error = false; //Flag is changed if an error occurs
 
         if(mExternalStorageAvailable && mExternalStorageWriteable){ //If can read and write to SD Card
-            File[] filesList = folder.listFiles(); //All the files in base directory
-            for(int i=0; i<filesList.length; i++){ //Iterates over each file
-                if(filesList[i].exists()){
-                    if(filesList[i].isDirectory()){
-                        File[] listOfFiles = filesList[i].listFiles(); //List of files inside directory
-                        for(int j=0;j<listOfFiles.length; j++){ //Iterates over each file
-                            boolean success = listOfFiles[j].delete(); //Tries to delete file
-                            if(!success){ //If unable to delete file
-                                error = true; //Change flag
-                            }
-                        }
-                        boolean success = filesList[i].delete(); //Try to delete actual folder
-                        if(!success){
-                            error = true;
-                        }
-                    }
-                    else{
-                        boolean success = filesList[i].delete(); //Try to delete file
-                        if(!success){
-                            error = true;
-                        }
-                    }
-                }
-            }
-            if(!error){ //If no error occurs
-                return true; //Report successful
+            boolean success = new DeleteImages(context).deleteImages(folder.getPath());
+            if(success){
+                return true;
             }
             else{
-                return false; //Report failure
+                return false;
             }
         }
         else{

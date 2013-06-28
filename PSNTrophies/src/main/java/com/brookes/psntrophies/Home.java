@@ -10,6 +10,8 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Map;
+import java.util.Set;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -68,6 +70,7 @@ public class Home extends Activity implements AsyncTaskListener{
     String storageState = Environment.getExternalStorageState();
 	int imagesDownloadedCounter = 0;
     long lastUpdated = 0L;
+    long deleteFrequency;
 	ProgressDialog pDialog;
 	ArrayList<AsyncTask <String, Void, Bitmap>> imageProcesses = new ArrayList<AsyncTask <String, Void, Bitmap>>();
 
@@ -75,7 +78,6 @@ public class Home extends Activity implements AsyncTaskListener{
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_home);
-
         //Checks if external storage is mounted and what access rights the app has
         if (Environment.MEDIA_MOUNTED.equals(storageState)) {
             // We can read and write the media
@@ -109,6 +111,7 @@ public class Home extends Activity implements AsyncTaskListener{
 		downloadImages = savedInformation.getBoolean("download_images", true);
         saveImages = savedInformation.getBoolean("save_images", true);
         lastUpdated = savedInformation.getLong("last_updated", 0L);
+        deleteFrequency = Long.parseLong(savedInformation.getString("delete_frequency", "-1"));
         //Retrieves saved XML
         gamesXML = savedXML.getString("games_xml", "");
         profileXML = savedXML.getString("profile_xml", "");
@@ -136,13 +139,19 @@ public class Home extends Activity implements AsyncTaskListener{
 		profileTable = findViewById(R.id.profileInformationTable);
 		gamesList = (ListView) findViewById(R.id.gamesList);
 
+        //Calculate time now
+        Date currentDate = Calendar.getInstance().getTime();
+        Long currentTime = currentDate.getTime();
+
+        if(deleteFrequency != -1){ //If the user wants images to be deleted automatically
+            automaticDelete(currentTime);
+        }
+
         if(lastUpdated == 0L || gamesXML.isEmpty() || profileXML.isEmpty()){ //If information hasn't been synced or there is no saved XML
             sync(); //Starts the process
         }
         else{
             //Calculate amount of time since last sync
-            Date currentDate = Calendar.getInstance().getTime();
-            Long currentTime = currentDate.getTime();
             Long timeSinceSync = currentTime - lastUpdated;
             if(timeSinceSync > 3600000){ //If information is over an hour old
                 sync(); //Starts the process
@@ -155,6 +164,7 @@ public class Home extends Activity implements AsyncTaskListener{
                 updateText.setText(displayDate);
 
                 parseGames(gamesXML); //Parse games and download images
+
                 XMLParser parser = new XMLParser();
                 profile = parser.getProfile(profileXML); //Parses XML into Profile Object
                 //Draw profile
@@ -219,6 +229,7 @@ public class Home extends Activity implements AsyncTaskListener{
 	}
 	
 	private void downloadGameImages(ArrayList<Game> games){ //This function downloads images if required
+        gamesDownloaded = true;
 		if(downloadImages){ //If the user wants to download images
 			//Resets the progress dialog, the counter and the list of processes
 			imagesDownloadedCounter = 0;
@@ -242,8 +253,6 @@ public class Home extends Activity implements AsyncTaskListener{
 			}
 		}
 		else{
-			//Does the same thing as onGameImageDownloaded when they've all been downloaded
-			gamesDownloaded = true;
 			//Draw list without images
 			filteredGamesList = filterGames(games);
 			gamesList.setAdapter(new GamesAdapter(filteredGamesList, this));
@@ -341,6 +350,25 @@ public class Home extends Activity implements AsyncTaskListener{
             downloadGameImages(games);
         }
     }
+    
+    private void automaticDelete(Long now){
+        //Retrieve all information from saved updates
+        SharedPreferences savedUpdateTimes = getSharedPreferences("com.brookes.psntrophies_updates", 0);
+        Map<String, Long> allUpdates = (Map<String, Long>) savedUpdateTimes.getAll();
+
+        //Create array of keys in update
+        Set<String> savedKeys = allUpdates.keySet();
+        Object[] savedKeysArray = savedKeys.toArray();
+
+        for(int i=0; i<savedKeysArray.length; i++){ //Iterates over each key
+            Long lastUpdateTime = savedUpdateTimes.getLong((String) savedKeysArray[i], 0L); //Retrieves update time from saved preferences
+            Long timeDifference = now - lastUpdateTime; //Difference between time now and time last updated
+            if(timeDifference > deleteFrequency){ //If user wants the images to be deleted at this point
+                File imageFolder = new File(getExternalFilesDir(null), "/" + savedKeysArray[i]); //Create path to image folder
+                new DeleteImages(this).deleteImages(imageFolder.getPath()); //Delete the images
+            }
+        }
+    }
 	private void setProfileColor(){
 		String color = "#"; //Creates hex string
 		String red = Integer.toHexString(profile.getBackgroundColor()[0]); //Stores the red component as a hex value in String form
@@ -428,9 +456,6 @@ public class Home extends Activity implements AsyncTaskListener{
 	}
 	
 	private ArrayList<Game> filterGames(ArrayList<Game> oldGamesList){
-        if(pDialog != null){
-		    pDialog.dismiss(); //Dismiss dialog if it remains
-        }
 		//This function filters the list of games as per the settings
 		ArrayList<Game> newGamesList = new ArrayList<Game>();
 		if (gamesFilter.equals("all")){
@@ -543,10 +568,7 @@ public class Home extends Activity implements AsyncTaskListener{
 
                 if(mExternalStorageWriteable){ //If can write from SD Card
                     //Delete profile picture
-                    File savedImageFile = new File(getExternalFilesDir(null), "profile.png"); //Path to profile picture
-                    if(savedImageFile.exists()){
-                        savedImageFile.delete();
-                    }
+                    new DeleteImages(this).deleteFile(new File(getExternalFilesDir(null), "profile.png").getPath()); //Path to profile picture
                 }
                 //Return to login screen
     	        Intent i = new Intent(this, LogIn.class);

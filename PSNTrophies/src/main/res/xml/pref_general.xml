@@ -27,5 +27,14 @@
             android:key="delete_button"
             android:summary="@string/pref_summary_delete_images"/>
 
+    <ListPreference
+            android:defaultValue="-1"
+            android:entries="@array/pref_delete_frequency_titles"
+            android:entryValues="@array/pref_delete_frequency_values"
+            android:key="delete_frequency"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null"
+            android:title="@string/pref_title_delete_frequency" />
+
 
 </PreferenceScreen>
