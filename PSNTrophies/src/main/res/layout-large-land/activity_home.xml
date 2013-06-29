@@ -1,0 +1,202 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".Home" >
+
+    <RelativeLayout
+        android:id="@+id/profileLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="2" >
+
+        <ImageView
+            android:id="@+id/profilePicture"
+            android:layout_width="240px"
+            android:layout_height="240px"
+            android:layout_centerInParent="true"
+            android:layout_alignParentLeft="true"
+            android:paddingLeft="10dp"
+            android:contentDescription="Profile Image" />
+
+        <TextView
+            android:id="@+id/updateLabel"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_toRightOf="@id/profilePicture"
+            android:textColor="#FFFFFF"
+            android:text="Last updated: "/>
+
+        <TextView
+            android:id="@+id/updateText"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_toRightOf="@id/updateLabel"
+            android:layout_alignTop="@id/updateLabel"
+            android:textColor="#FFFFFF"
+            />
+
+        <TableLayout
+            android:id="@+id/profileInformationTable"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/updateLabel"
+            android:layout_alignTop="@id/profilePicture"
+            android:paddingLeft="10dp" >
+
+            <TableRow
+                android:id="@+id/tableRow1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" 
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/psnName"
+                    android:gravity="center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:textColor="#FFFFFF" />
+
+            </TableRow>
+
+            <TableRow
+                android:id="@+id/tableRow2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center" >
+
+                <TextView
+                    android:id="@+id/psnAboutMe"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#FFFFFF" 
+                    android:gravity="center"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            </TableRow>
+
+            <TableRow
+                android:id="@+id/tableRow3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" 
+                android:gravity="center">
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" >
+
+                    <TextView
+                        android:id="@+id/textView1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Trophy Level: "
+                        android:textColor="#FFFFFF" />
+
+                    <TextView
+                        android:id="@+id/psnTrophyLevel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toRightOf="@id/textView1"
+                        android:textColor="#FFFFFF" />
+
+                    <TextView
+                        android:id="@+id/textView2"
+                        android:layout_marginLeft="20dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Level Progress: "
+                        android:textColor="#FFFFFF" 
+                        android:layout_toRightOf="@id/psnTrophyLevel"
+                        />
+
+                    <TextView
+                        android:id="@+id/psnTrophyProgress"
+                        android:layout_toRightOf="@id/textView2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="#FFFFFF" />
+                </RelativeLayout>
+
+            </TableRow>
+        </TableLayout>
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/profilePicture"
+            android:layout_below="@id/profileInformationTable"
+            android:gravity="center"
+            android:layout_marginLeft="20dp" >
+
+            <TextView
+                android:id="@+id/platinumLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="#FFFFFF" />
+
+            <ImageView
+                android:id="@+id/imageView2"
+                android:layout_width="75px"
+                android:layout_height="wrap_content"
+                android:src="@drawable/platinum100" />
+
+            <TextView
+                android:id="@+id/goldLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="#FFFFFF" />
+
+            <ImageView
+                android:id="@+id/gameImage"
+                android:layout_width="75px"
+                android:layout_height="wrap_content"
+                android:src="@drawable/gold100" />
+
+            <TextView
+                android:id="@+id/silverLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="#FFFFFF" />
+
+            <ImageView
+                android:id="@+id/imageView3"
+                android:layout_width="75px"
+                android:layout_height="wrap_content"
+                android:src="@drawable/silver100" />
+
+            <TextView
+                android:id="@+id/bronzeLabel"
+                android:layout_width="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:layout_height="wrap_content"
+                android:textColor="#FFFFFF" />
+
+            <ImageView
+                android:id="@+id/imageView4"
+                android:layout_width="75px"
+                android:layout_height="wrap_content"
+                android:src="@drawable/bronze100" />
+        </LinearLayout>
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="#181AB5" 
+        android:orientation="vertical" 
+        android:layout_weight="1">
+        	<ListView
+            android:id="@+id/gamesList"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" 
+            android:divider="@android:color/transparent"
+  			android:dividerHeight="10.0sp">
+        	</ListView>
+    </LinearLayout>
+
+</LinearLayout>

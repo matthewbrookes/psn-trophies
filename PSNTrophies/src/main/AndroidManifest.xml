@@ -16,18 +16,15 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:permission="android.permission.INTERNET"
-        android:screenOrientation="portrait"
         android:theme="@style/AppTheme" >
         <activity
             android:name="com.brookes.psntrophies.Home"
-            android:label="@string/app_name"
-            android:screenOrientation="portrait" >
+            android:label="@string/app_name" >
         </activity>
         <activity
             android:name="com.brookes.psntrophies.LogIn"
             android:icon="@drawable/ic_launcher"
-            android:label="@string/app_name"
-            android:screenOrientation="portrait" >
+            android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -37,8 +34,7 @@
         <activity
             android:name="com.brookes.psntrophies.TrophiesList"
             android:label="@string/title_activity_trophies_list"
-            android:parentActivityName="com.brookes.psntrophies.Home"
-            android:screenOrientation="portrait" >
+            android:parentActivityName="com.brookes.psntrophies.Home" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.brookes.psntrophies.Home" />
@@ -46,8 +42,7 @@
         <activity
             android:name="com.brookes.psntrophies.SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName="com.brookes.psntrophies.Home"
-            android:screenOrientation="portrait" >
+            android:parentActivityName="com.brookes.psntrophies.Home" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.brookes.psntrophies.Home" />

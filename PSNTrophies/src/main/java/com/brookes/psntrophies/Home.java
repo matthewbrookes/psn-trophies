@@ -78,6 +78,7 @@ public class Home extends Activity implements AsyncTaskListener{
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_home);
+
         //Checks if external storage is mounted and what access rights the app has
         if (Environment.MEDIA_MOUNTED.equals(storageState)) {
             // We can read and write the media
@@ -143,6 +144,32 @@ public class Home extends Activity implements AsyncTaskListener{
         Date currentDate = Calendar.getInstance().getTime();
         Long currentTime = currentDate.getTime();
 
+        games = (ArrayList<Game>) getLastNonConfigurationInstance(); //Attempt to retrieve games if screen was rotated
+        if (games != null) { //If games were retrieved
+            gamesDownloaded = true; //Change flag
+
+            //Change the update label on home screen
+            DateFormat f = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
+            Date d = new Date(lastUpdated);
+            String displayDate = f.format(d);
+            updateText.setText(displayDate);
+
+            XMLParser parser = new XMLParser();
+            profile = parser.getProfile(profileXML); //Parses XML into Profile Object
+
+            //Draw profile
+            setProfileColor();
+            setProfileInformation();
+            setProfilePicture();
+
+            //Filter and draw list
+            filteredGamesList = filterGames(games);
+            gamesList.setAdapter(new GamesAdapter(filteredGamesList, this));
+            setGamesListener();
+
+            return; //Break out of function
+        }
+
         if(deleteFrequency != -1){ //If the user wants images to be deleted automatically
             automaticDelete(currentTime);
         }
@@ -174,22 +201,29 @@ public class Home extends Activity implements AsyncTaskListener{
             }
         }
 	}
-		@Override
-		protected void onResume(){ //When the activity regains focus
-			super.onResume();
-			if(gamesDownloaded){ //If the games have been downloaded
-				//The filter setting is retrieved
-				SharedPreferences savedInformation = getSharedPreferences("com.brookes.psntrophies_preferences", 0);
-				gamesFilter = savedInformation.getString("filter_games", "all");
-				gamesSort = savedInformation.getString("sort_games", "recent");
-				downloadImages = savedInformation.getBoolean("download_images", true);
-                saveImages = savedInformation.getBoolean("save_images", true);
-				//The list is filtered then drawn
-				filteredGamesList = filterGames(games);
-                gamesList.setAdapter(new GamesAdapter(filteredGamesList, this));
-				setGamesListener();
-			}
-		}
+    @Override
+    protected void onResume(){ //When the activity regains focus
+        super.onResume();
+        if(gamesDownloaded){ //If the games have been downloaded
+            //The filter setting is retrieved
+            SharedPreferences savedInformation = getSharedPreferences("com.brookes.psntrophies_preferences", 0);
+            gamesFilter = savedInformation.getString("filter_games", "all");
+            gamesSort = savedInformation.getString("sort_games", "recent");
+            downloadImages = savedInformation.getBoolean("download_images", true);
+            saveImages = savedInformation.getBoolean("save_images", true);
+            //The list is filtered then drawn
+            filteredGamesList = filterGames(games);
+            gamesList.setAdapter(new GamesAdapter(filteredGamesList, this));
+            setGamesListener();
+        }
+    }
+
+    @Override
+    public Object onRetainNonConfigurationInstance() { //Save games when screen rotates
+        final ArrayList<Game> listToSave = games;
+        return listToSave;
+    }
+
 	private void sync(){
         //Save new update time
         Date currentDate = Calendar.getInstance().getTime();

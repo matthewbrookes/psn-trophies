@@ -141,6 +141,16 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
         String displayDate = f.format(d);
         updateText.setText(displayDate);
 
+        trophies = (ArrayList<Trophy>) getLastNonConfigurationInstance(); //Attempt to retrieve trophies if screen was rotated
+        if (trophies != null) { //If trophies were retrieved
+
+            //List filtered and drawn
+            ArrayList<Trophy> filteredList = hideTrophies(trophies, showSecretTrophies, showCompletedTrophies, showUnearnedTrophies);
+            trophiesList.setAdapter(new TrophiesAdapter(filteredList, this));
+
+            return; //Break out of function
+        }
+
         if(lastUpdated == 0L || trophiesXML.isEmpty()){ //If information hasn't been synced or there is no saved XML
             //Save the new update time
             savedUpdateEditor.putLong(gameId, currentTime);
@@ -192,6 +202,12 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
             }
         }
 	}
+
+    @Override
+    public Object onRetainNonConfigurationInstance() { //Save trophies when screen rotates
+        final ArrayList<Trophy> listToSave = trophies;
+        return listToSave;
+    }
 	
 	@Override
 	public void onPSNTrophiesDownloaded(String trophiesXML) {
