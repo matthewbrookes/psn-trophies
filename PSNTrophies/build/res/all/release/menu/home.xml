@@ -3,7 +3,10 @@
     <item
         android:id="@+id/action_sync"
         android:orderInCategory="1"
-        android:title="@string/action_sync"/>
+        android:icon="@drawable/sync"
+        android:title="@string/action_sync"
+        android:showAsAction="ifRoom|withText" />
+
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="2"
