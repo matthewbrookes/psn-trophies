@@ -1,5 +1,8 @@
 package com.brookes.psntrophies;
 
+import android.text.Html;
+import android.text.Spanned;
+
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -31,7 +34,10 @@ public class XMLParser{
                     break;
  
                 case XmlPullParser.TEXT:
-                    text = parser.getText(); //Stores node value in variable
+                    //Convert html encoding
+                    String rawText = parser.getText();
+                    Spanned escapedText = Html.fromHtml(rawText);
+                    text = escapedText.toString();
                     break;
  
                 case XmlPullParser.END_TAG:
@@ -110,7 +116,10 @@ public class XMLParser{
 		                break;
 		
 		            case XmlPullParser.TEXT:
-		                text = parser.getText();
+                        //Convert html encoding
+                        String rawText = parser.getText();
+                        Spanned escapedText = Html.fromHtml(rawText);
+                        text = escapedText.toString();
 		                break;
 		
 		            case XmlPullParser.END_TAG:
@@ -185,8 +194,11 @@ public class XMLParser{
 		                break;
 		
 		            case XmlPullParser.TEXT:
-		                text = parser.getText();
-		                break;
+                        //Convert html encoding
+		                String rawText = parser.getText();
+                        Spanned escapedText = Html.fromHtml(rawText);
+                        text = escapedText.toString();
+                        break;
 		
 		            case XmlPullParser.END_TAG:
 		            	if (tagname.equalsIgnoreCase("trophy")) {
