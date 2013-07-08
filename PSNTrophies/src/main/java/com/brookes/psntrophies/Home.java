@@ -13,6 +13,8 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -73,12 +75,25 @@ public class Home extends Activity implements AsyncTaskListener{
     long deleteFrequency;
 	ProgressDialog pDialog;
 	ArrayList<AsyncTask <String, Void, Bitmap>> imageProcesses = new ArrayList<AsyncTask <String, Void, Bitmap>>();
+    Account account;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_home);
 
+        //Create account manager and list of accounts
+        AccountManager mAccountManager = AccountManager.get(getBaseContext());
+        Account[] accounts = mAccountManager.getAccounts();
+
+        for(int i=0; i<accounts.length;i++){ //Iterate through accounts
+            Account tempAccount = accounts[i]; //Create a temporary account variable
+            if(tempAccount.type.equals(AccountGeneral.ACCOUNT_TYPE)){ //If it is a PSN Account
+                username = tempAccount.name; //Set the username
+                account = tempAccount; //Set this account as one to be used throughout program
+            }
+        }
+        //mAccountManager.getAuthToken(null, null, null);
         //Checks if external storage is mounted and what access rights the app has
         if (Environment.MEDIA_MOUNTED.equals(storageState)) {
             // We can read and write the media
@@ -106,16 +121,17 @@ public class Home extends Activity implements AsyncTaskListener{
         savedXMLEditor = savedXML.edit();
 
         //Retrieves saved settings
-		username = savedInformation.getString("username", "");
 		gamesFilter = savedInformation.getString("filter_games", "all");
 		gamesSort = savedInformation.getString("sort_games", "recent");
 		downloadImages = savedInformation.getBoolean("download_images", true);
         saveImages = savedInformation.getBoolean("save_images", true);
         lastUpdated = savedInformation.getLong("last_updated", 0L);
         deleteFrequency = Long.parseLong(savedInformation.getString("delete_frequency", "-1"));
+
         //Retrieves saved XML
         gamesXML = savedXML.getString("games_xml", "");
         profileXML = savedXML.getString("profile_xml", "");
+
 		//Assigns variables to widgets
 		profileLayout = findViewById(R.id.profileLayout);
 		profileLayout.setVisibility(View.INVISIBLE);
@@ -594,11 +610,12 @@ public class Home extends Activity implements AsyncTaskListener{
          
         switch (item.getItemId()){
         	case R.id.action_logout:
-    	        savedInformationEditor.putString("username", ""); //Delete saved username
+                //Delete account
+                AccountManager accountManager = AccountManager.get(this);
+                accountManager.removeAccount(account, null, null);
+
     	        savedXMLEditor.clear(); //Delete saved XML
-    	        // Commit the edits!
-    	        savedInformationEditor.commit();
-                savedXMLEditor.commit();
+                savedXMLEditor.commit(); // Commit the edits!
 
                 if(mExternalStorageWriteable){ //If can write from SD Card
                     //Delete profile picture

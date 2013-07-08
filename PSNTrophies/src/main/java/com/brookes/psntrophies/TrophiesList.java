@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -49,7 +51,7 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
     boolean mExternalStorageWriteable = false;
     String storageState = Environment.getExternalStorageState();
 	String gameId;
-	String savedName;
+	String username;
 	int imagesDownloadedCounter = 0;
 	ProgressDialog pDialog;
 	ArrayList<AsyncTask <String, Void, Bitmap>> imageProcesses = new ArrayList<AsyncTask <String, Void, Bitmap>>();
@@ -86,6 +88,17 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
 		TextView goldLabel = (TextView) findViewById(R.id.goldLabel);
 		TextView platinumLabel = (TextView) findViewById(R.id.platinumLabel);
 
+        //Create account manager and list of accounts
+        AccountManager mAccountManager = AccountManager.get(getBaseContext());
+        Account[] accounts = mAccountManager.getAccounts();
+
+        for(int i=0; i<accounts.length;i++){ //Iterate through accounts
+            Account tempAccount = accounts[i]; //Create a temporary account variable
+            if(tempAccount.type.equals(AccountGeneral.ACCOUNT_TYPE)){ //If it is a PSN Account
+                username = tempAccount.name; //Set the username
+            }
+        }
+
         //Create shared preferences and editor
         savedInformation = getSharedPreferences("com.brookes.psntrophies_preferences", 0);
         savedInformationEditor = savedInformation.edit();
@@ -105,7 +118,6 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
         //Retrieves saved settings
         String trophiesXML = savedXML.getString(gameId, "");
         Long lastUpdated = savedUpdateTimes.getLong(gameId, 0L);
-		savedName = savedInformation.getString("username", "");
 		downloadImages = savedInformation.getBoolean("download_images", true);
         saveImages = savedInformation.getBoolean("save_images", true);
 		showSecretTrophies = savedInformation.getBoolean("show_secret_trophies", true);
@@ -161,7 +173,7 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
             displayDate = f.format(d);
             updateText.setText(displayDate);
 
-            new GetXML(this).execute("http://psntrophies.net16.net/getTrophies.php?psnid="+ savedName + "&gameid=" + gameId); //Downloads trophies xml for this game
+            new GetXML(this).execute("http://psntrophies.net16.net/getTrophies.php?psnid="+ username + "&gameid=" + gameId); //Downloads trophies xml for this game
         }
         else{
             if(timeSinceSync > 3600000){ //If information is over an hour old
@@ -174,7 +186,7 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
                 displayDate = f.format(d);
                 updateText.setText(displayDate);
 
-                new GetXML(this).execute("http://psntrophies.net16.net/getTrophies.php?psnid="+ savedName + "&gameid=" + gameId); //Downloads trophies xml for this game
+                new GetXML(this).execute("http://psntrophies.net16.net/getTrophies.php?psnid="+ username + "&gameid=" + gameId); //Downloads trophies xml for this game
             }
             else{
                 //Create trophies from saved xml
@@ -392,7 +404,7 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
                 String displayDate = f.format(d);
                 updateText.setText(displayDate);
 
-                new GetXML(this).execute("http://psntrophies.net16.net/getTrophies.php?psnid="+ savedName + "&gameid=" + gameId); //Downloads trophies xml for this game
+                new GetXML(this).execute("http://psntrophies.net16.net/getTrophies.php?psnid="+ username + "&gameid=" + gameId); //Downloads trophies xml for this game
                 return true;
         	case R.id.action_secretTrophies:
         		showSecretTrophies = !showSecretTrophies; //Flip boolean value

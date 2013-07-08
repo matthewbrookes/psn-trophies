@@ -1,5 +1,7 @@
 package com.brookes.psntrophies;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -14,26 +16,33 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 public class LogIn extends Activity implements AsyncTaskListener {
+    //Create variables to be modified/accessed throughout activity
 	private EditText psnName;
 	private Button loginButton;
 	private TextView errorField;
 	private String filteredUsername;
+    AccountManager accountManager;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_log_in);
+
+        accountManager = AccountManager.get(getBaseContext()); //Link variable to account manager
 		
-		SharedPreferences savedInformation = getSharedPreferences("com.brookes.psntrophies_preferences", 0);
-		String savedName = savedInformation.getString("username", "");
-		if (!savedName.equals("")){
-			Intent i = new Intent(this, Home.class);
-			startActivity(i);
-			finish();
-		}
-		
+		Account[] accounts = accountManager.getAccounts(); //Create list of accounts
+        for(int i=0; i<accounts.length; i++){ //Iterate through accounts
+            if(accounts[i].type.equals(AccountGeneral.ACCOUNT_TYPE)){ //If it is a PSN account
+                //Start Home activity
+                Intent intent = new Intent(this, Home.class);
+                startActivity(intent);
+            }
+        }
+		//If we reach this point a user must be added
+
 		psnName = (EditText) findViewById(R.id.psnLogin);
 		loginButton = (Button) findViewById(R.id.loginButton);
 		errorField = (TextView) findViewById(R.id.errorField);
+        accountManager = AccountManager.get(getBaseContext());
 		
 		loginButton.setOnClickListener(new View.OnClickListener() {
 			
@@ -42,10 +51,12 @@ public class LogIn extends Activity implements AsyncTaskListener {
 				//Hide keyboard
 				InputMethodManager inputManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 	            inputManager.hideSoftInputFromWindow(psnName.getWindowToken(), 0);
+                //Filter username
 				String username = psnName.getText().toString();
 				filteredUsername = username.replaceAll(" ", "");
-				if(filteredUsername.equalsIgnoreCase("")){
-					errorField.setText("Username cannot be empty");
+
+				if(filteredUsername.isEmpty()){
+					errorField.setText("Username cannot be empty"); //Set error field text
 				}
 				else{
 					new GetXML(v.getContext()).execute("http://psntrophies.net16.net/getProfile.php?psnid="+filteredUsername); //Attempts to download profile with given name
@@ -65,18 +76,15 @@ public class LogIn extends Activity implements AsyncTaskListener {
 	@Override
 	public void onProfileDownloaded(String profileXML) {
 		// TODO Auto-generated method stub
-		if(profileXML.contains("<level></level>") || profileXML.contains("<level/>")){
-			errorField.setText("Please enter a valid PSN ID");
+		if(profileXML.contains("<level></level>") || profileXML.contains("<level/>")){ //If invalid user
+			errorField.setText("Please enter a valid PSN ID"); //Set error field text
 		}
 		else{
-			//Save username
-			SharedPreferences savedInformation = getSharedPreferences("com.brookes.psntrophies_preferences", 0);
-	        SharedPreferences.Editor editor = savedInformation.edit();
-	        editor.putString("username", filteredUsername);
-	
-	        // Commit the edits!
-	        editor.commit();
-	        
+            //Create new account and add to account manager
+            Account account = new Account(filteredUsername, AccountGeneral.ACCOUNT_TYPE);
+            accountManager.addAccountExplicitly(account, "", null);
+
+            //Start Home Activity
 	        Intent i = new Intent(this, Home.class);
 			startActivity(i);
 			finish();

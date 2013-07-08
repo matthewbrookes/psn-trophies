@@ -6,6 +6,10 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
+
 
     <uses-sdk
         android:minSdkVersion="9"
@@ -47,6 +51,18 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.brookes.psntrophies.Home" />
         </activity>
+        <activity
+            android:name="com.brookes.psntrophies.AuthenticatorActivity"
+            android:label="@string/title_activity_authenticator" >
+        </activity>
+
+        <service android:name="com.brookes.psntrophies.AuthenticatorService">
+            <intent-filter>
+                <action android:name="android.accounts.AccountAuthenticator" />
+            </intent-filter>
+            <meta-data android:name="android.accounts.AccountAuthenticator"
+                       android:resource="@xml/authenticator" />
+        </service>
     </application>
 
 </manifest>

@@ -11,5 +11,6 @@
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_log_in">Log In</string>
     <string name="title_activity_trophies_list">Trophies</string>
+    <string name="title_activity_authenticator">Sign In</string>
 
 </resources>
