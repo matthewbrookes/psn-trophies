@@ -1,0 +1,5 @@
+<sync-adapter xmlns:android="http://schemas.android.com/apk/res/android"
+              android:accountType="com.brookes.psntrophies.account"
+              android:contentAuthority="com.brookes.psntrophies.provider"
+              android:supportsUploading="false"
+        />

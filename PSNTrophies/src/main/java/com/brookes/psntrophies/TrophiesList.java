@@ -53,7 +53,8 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
 	String gameId;
 	String username;
 	int imagesDownloadedCounter = 0;
-	ProgressDialog pDialog;
+	ProgressDialog imagesDialog;
+    ProgressDialog trophiesDialog;
 	ArrayList<AsyncTask <String, Void, Bitmap>> imageProcesses = new ArrayList<AsyncTask <String, Void, Bitmap>>();
 
 	@Override
@@ -87,6 +88,8 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
 		TextView silverLabel = (TextView) findViewById(R.id.silverLabel);
 		TextView goldLabel = (TextView) findViewById(R.id.goldLabel);
 		TextView platinumLabel = (TextView) findViewById(R.id.platinumLabel);
+
+        trophiesDialog = createDialog(DownloadType.PSNAPITROPHIES); //Create dialog
 
         //Create account manager and list of accounts
         AccountManager mAccountManager = AccountManager.get(getBaseContext());
@@ -173,6 +176,8 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
             displayDate = f.format(d);
             updateText.setText(displayDate);
 
+            trophiesDialog.show();
+
             new GetXML(this).execute("http://psntrophies.net16.net/getTrophies.php?psnid="+ username + "&gameid=" + gameId); //Downloads trophies xml for this game
         }
         else{
@@ -185,6 +190,8 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
                 d = new Date(currentTime);
                 displayDate = f.format(d);
                 updateText.setText(displayDate);
+
+                trophiesDialog.show();
 
                 new GetXML(this).execute("http://psntrophies.net16.net/getTrophies.php?psnid="+ username + "&gameid=" + gameId); //Downloads trophies xml for this game
             }
@@ -223,6 +230,7 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
 	
 	@Override
 	public void onPSNTrophiesDownloaded(String trophiesXML) {
+        trophiesDialog.cancel();
         savedXMLEditor.putString(gameId, trophiesXML);
         savedXMLEditor.commit();
 		trophies = new XMLParser().getPSNAPITrophies(trophiesXML);
@@ -253,13 +261,13 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
             //Resets the progress dialog, the counter and the list of processes
             imagesDownloadedCounter = 0;
             imageProcesses.clear();
-            pDialog = createDialog();
+            imagesDialog = createDialog(DownloadType.GAMESTROPHIES);
             int newMax = 0;
 			for(int i=0; i<trophies.size(); i++){ //For each Trophy Object
 				if(trophies.get(i).getBitmap() == null){ //If there is no image
                     newMax++;
-                    pDialog.setMax(newMax);
-                    pDialog.show();
+                    imagesDialog.setMax(newMax);
+                    imagesDialog.show();
 					imageProcesses.add(new GetImage(this).execute(trophies.get(i).getImage())); //Download the image
 				}
                 //If no images need downloaded
@@ -280,7 +288,7 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
 	@Override
 	public void onGameImageDownloaded(String url, Bitmap image) {
 	    imagesDownloadedCounter++; //Increment counter
-		pDialog.setProgress(imagesDownloadedCounter); //Update the progress dialog
+		imagesDialog.setProgress(imagesDownloadedCounter); //Update the progress dialog
 		//Saves Bitmap Image to Trophy Object
 		for(int i=0; i<trophies.size(); i++){ //Iterates over each Trophy
 			if(trophies.get(i).getImage().equals(url)){ //If this image matches this Trophy
@@ -305,7 +313,7 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
                 }
                 if(imagesDownloadedCounter == imageProcesses.size()){ //If all images downloaded
                     //Hide progress dialog and change flag
-                    pDialog.dismiss();
+                    imagesDialog.dismiss();
                     //List filtered and drawn
                     ArrayList<Trophy> filteredList = hideTrophies(trophies, showSecretTrophies, showCompletedTrophies, showUnearnedTrophies);
                     trophiesList.setAdapter(new TrophiesAdapter(filteredList, this));
@@ -469,30 +477,43 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
         		return true;       	
         }
 	}
+    private ProgressDialog createDialog(DownloadType type){
+        ProgressDialog dialog = new ProgressDialog(this);
+        switch (type) {
+            case GAMESTROPHIES:
+                //Creates a horizontal percentage progress dialog
+                dialog.setMessage("Downloading images...");
+                dialog.setIndeterminate(false);
+                dialog.setMax(0);
+                dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL); //Displays a progress bar
+                dialog.setCancelable(false); //The back button will not cancel image download
+                //Creates a cancel button
+                dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        for(int i=0; i<imageProcesses.size();i++){
+                            imageProcesses.get(i).cancel(true); //Cancel each outstanding image process
+                        }
+                        ArrayList<Trophy> filteredList = hideTrophies(trophies, showSecretTrophies, showCompletedTrophies, showUnearnedTrophies);
 
-    private ProgressDialog createDialog(){
-        //Creates the progress dialog for downloading images
-        pDialog = new ProgressDialog(this);
-        pDialog.setMessage("Downloading images...");
-        pDialog.setIndeterminate(false);
-        pDialog.setMax(0);
-        pDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL); //Displays a progress bar
-        pDialog.setCancelable(false); //The back button will not cancel image download
-        //Creates a cancel button
-        pDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                for(int i=0; i<imageProcesses.size();i++){
-                    imageProcesses.get(i).cancel(true); //Cancel each outstanding image process
-                }
-                ArrayList<Trophy> filteredList = hideTrophies(trophies, showSecretTrophies, showCompletedTrophies, showUnearnedTrophies);
-
-                trophiesList.setAdapter(new TrophiesAdapter(filteredList, getApplicationContext())); //Draws list based upon new data
-                dialog.dismiss();
-            }
-        });
-        return pDialog;
+                        trophiesList.setAdapter(new TrophiesAdapter(filteredList, getApplicationContext())); //Draws list based upon new data
+                        dialog.dismiss();
+                    }
+                });
+                return dialog;
+            case PROFILE:
+                return dialog;
+            case PSNAPIGAMES:
+                return dialog;
+            case PSNAPITROPHIES:
+                dialog.setMessage("Downloading trophies");
+                dialog.setIndeterminate(true); //Starts spinning wheel dialog
+                dialog.setCancelable(false);
+                return dialog;
+        }
+        return dialog;
     }
+
 	
 	@Override
 	public void onProfileDownloaded(String profileXML) {

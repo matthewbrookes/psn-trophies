@@ -73,7 +73,10 @@ public class Home extends Activity implements AsyncTaskListener{
 	int imagesDownloadedCounter = 0;
     long lastUpdated = 0L;
     long deleteFrequency;
-	ProgressDialog pDialog;
+	ProgressDialog imagesDialog;
+    ProgressDialog profileDialog;
+    ProgressDialog gamesDialog;
+
 	ArrayList<AsyncTask <String, Void, Bitmap>> imageProcesses = new ArrayList<AsyncTask <String, Void, Bitmap>>();
     Account account;
 
@@ -93,6 +96,8 @@ public class Home extends Activity implements AsyncTaskListener{
                 account = tempAccount; //Set this account as one to be used throughout program
             }
         }
+
+        //getContentResolver().requestSync(account, null, new Bundle());
         //mAccountManager.getAuthToken(null, null, null);
         //Checks if external storage is mounted and what access rights the app has
         if (Environment.MEDIA_MOUNTED.equals(storageState)) {
@@ -155,6 +160,10 @@ public class Home extends Activity implements AsyncTaskListener{
 		platinumLabel = (TextView) findViewById(R.id.platinumLabel);
 		profileTable = findViewById(R.id.profileInformationTable);
 		gamesList = (ListView) findViewById(R.id.gamesList);
+
+        //Create progress dialogs
+        gamesDialog = createDialog(DownloadType.PSNAPIGAMES);
+        profileDialog = createDialog(DownloadType.PROFILE);
 
         //Calculate time now
         Date currentDate = Calendar.getInstance().getTime();
@@ -254,11 +263,14 @@ public class Home extends Activity implements AsyncTaskListener{
         updateText.setText(displayDate);
 
 		new GetXML(this).execute("http://psntrophies.net16.net/getProfile.php?psnid=" + username); //Downloads profile
+        profileDialog.show();
 		new GetXML(this).execute("http://psntrophies.net16.net/getGames.php?psnid=" + username); //Downloads games
+        gamesDialog.show();
 	}
 	
 	@Override
 	public void onProfileDownloaded(String profileXML) {
+        profileDialog.cancel();
 		XMLParser parser = new XMLParser();
 		profile = parser.getProfile(profileXML); //Parses XML into Profile Object
         //Store XML
@@ -272,6 +284,7 @@ public class Home extends Activity implements AsyncTaskListener{
 	
 	@Override
 	public void onPSNGamesDownloaded(String gamesXML) {
+        gamesDialog.cancel();
         //StoreXML
         savedXMLEditor.putString("games_xml", gamesXML);
         savedXMLEditor.commit();
@@ -284,13 +297,13 @@ public class Home extends Activity implements AsyncTaskListener{
 			//Resets the progress dialog, the counter and the list of processes
 			imagesDownloadedCounter = 0;
 			imageProcesses.clear();
-			pDialog = createDialog();
+			imagesDialog = createDialog(DownloadType.GAMESTROPHIES);
 			int newMax = 0;
 			for(int i=0; i<games.size(); i++){
 				if(games.get(i).getBitmap() == null){ //Only download images which haven't been downloaded
 					newMax++;
-					pDialog.setMax(newMax);
-					pDialog.show();
+					imagesDialog.setMax(newMax);
+					imagesDialog.show();
 					imageProcesses.add(new GetImage(this).execute(games.get(i).getImage())); //Download game image and add it to list
 				}
                 //If no images need downloaded
@@ -314,7 +327,7 @@ public class Home extends Activity implements AsyncTaskListener{
 	@Override
 	public void onGameImageDownloaded(String url, Bitmap image) {
 		imagesDownloadedCounter++; //Increment counter
-		pDialog.setProgress(imagesDownloadedCounter); //Set the new progress level
+		imagesDialog.setProgress(imagesDownloadedCounter); //Set the new progress level
 		// Attaches image to Object
 		for(int i=0; i<games.size(); i++){
 			if(games.get(i).getImage().equals(url)){
@@ -339,7 +352,7 @@ public class Home extends Activity implements AsyncTaskListener{
                 }
                 if(imagesDownloadedCounter == imageProcesses.size()){ //If all images downloaded
                     //Hide progress dialog and change flag
-                    pDialog.dismiss();
+                    imagesDialog.dismiss();
                     gamesDownloaded = true;
                     //List filtered and drawn
                     filteredGamesList = filterGames(games);
@@ -542,30 +555,46 @@ public class Home extends Activity implements AsyncTaskListener{
 		}
 	}
 	
-	private ProgressDialog createDialog(){
-		//Creates a horizontal percentage progress dialog
-		ProgressDialog dialog = new ProgressDialog(this);
-        dialog.setMessage("Downloading images...");
-        dialog.setIndeterminate(false);
-        dialog.setMax(0);
-        dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        dialog.setCancelable(false);
-        dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() { //Draw cancel button
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-            	//When cancel button clicked
-            	for(int i=0; i<imageProcesses.size();i++){
-            		imageProcesses.get(i).cancel(true); //Cancel all processes
-            	}
-            	//Filter list and draw it
-            	filteredGamesList = filterGames(games);
-				gamesList.setAdapter(new GamesAdapter(filteredGamesList, getApplicationContext()));
-				setGamesListener();
-				//Hide dialog and change flag
-				gamesDownloaded = true;
-                dialog.dismiss();
-            }
-        });
+	private ProgressDialog createDialog(DownloadType type){
+        ProgressDialog dialog = new ProgressDialog(this);
+        switch (type) {
+            case GAMESTROPHIES:
+                //Creates a horizontal percentage progress dialog
+                dialog.setMessage("Downloading images...");
+                dialog.setIndeterminate(false);
+                dialog.setMax(0);
+                dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+                dialog.setCancelable(false);
+                dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() { //Draw cancel button
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //When cancel button clicked
+                        for (int i = 0; i < imageProcesses.size(); i++) {
+                            imageProcesses.get(i).cancel(true); //Cancel all processes
+                        }
+                        //Filter list and draw it
+                        filteredGamesList = filterGames(games);
+                        gamesList.setAdapter(new GamesAdapter(filteredGamesList, getApplicationContext()));
+                        setGamesListener();
+                        //Hide dialog and change flag
+                        gamesDownloaded = true;
+                        dialog.dismiss();
+                    }
+                });
+                return dialog;
+            case PROFILE:
+                dialog.setMessage("Downloading profile");
+                dialog.setIndeterminate(true); //Starts spinning wheel dialog
+                dialog.setCancelable(false);
+                return dialog;
+            case PSNAPIGAMES:
+                dialog.setMessage("Downloading games");
+                dialog.setIndeterminate(true); //Starts spinning wheel dialog
+                dialog.setCancelable(false);
+                return dialog;
+            case PSNAPITROPHIES:
+                return dialog;
+        }
         return dialog;
 	}
 	

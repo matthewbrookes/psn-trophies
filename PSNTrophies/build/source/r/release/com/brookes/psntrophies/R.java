@@ -38,8 +38,9 @@ public final class R {
         public static final int ps3=0x7f02000a;
         public static final int silver=0x7f02000b;
         public static final int silver100=0x7f02000c;
-        public static final int sync=0x7f02000d;
-        public static final int vita=0x7f02000e;
+        public static final int small_icon=0x7f02000d;
+        public static final int sync=0x7f02000e;
+        public static final int vita=0x7f02000f;
     }
     public static final class id {
         public static final int accountName=0x7f0a0000;
@@ -176,5 +177,6 @@ public final class R {
         public static final int pref_headers=0x7f040005;
         public static final int pref_notification=0x7f040006;
         public static final int pref_trophies=0x7f040007;
+        public static final int syncadapter=0x7f040008;
     }
 }

@@ -16,23 +16,17 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 public class GetXML extends AsyncTask <String, Void, String> {
-	private ProgressDialog mProgressDialog;
 	private Context context;
 	private AsyncTaskListener callback; //Will be called to tell activity download has finished
 	private DownloadType downloadType;
 	
 	public GetXML(Context context){
 		this.context = context;
-		mProgressDialog = new ProgressDialog(this.context);
-	    mProgressDialog.setMessage("Downloading data");
-	    mProgressDialog.setIndeterminate(true); //Starts spinning wheel dialog
-	    mProgressDialog.setCancelable(false);
 	    this.callback = (AsyncTaskListener)context;
 	}
 	@Override
 	protected void onPreExecute() {
 	    super.onPreExecute();
-	    mProgressDialog.show();
 	}
 	@Override
 	protected String doInBackground(String... params) {
@@ -66,7 +60,6 @@ public class GetXML extends AsyncTask <String, Void, String> {
          return result;
 	}	
 	protected void onPostExecute(String resultOfComputation){
-		mProgressDialog.dismiss();
 		switch(downloadType){
 			case PROFILE:
 				callback.onProfileDownloaded(resultOfComputation); //Returns the profile

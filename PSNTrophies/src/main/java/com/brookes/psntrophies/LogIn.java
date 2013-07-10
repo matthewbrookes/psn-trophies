@@ -3,6 +3,7 @@ package com.brookes.psntrophies;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -22,10 +23,17 @@ public class LogIn extends Activity implements AsyncTaskListener {
 	private TextView errorField;
 	private String filteredUsername;
     AccountManager accountManager;
+    ProgressDialog pDialog;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_log_in);
+
+        //Create dialog
+        pDialog = new ProgressDialog(this);
+        pDialog.setMessage("Downloading data");
+        pDialog.setIndeterminate(true); //Starts spinning wheel dialog
+        pDialog.setCancelable(false);
 
         accountManager = AccountManager.get(getBaseContext()); //Link variable to account manager
 		
@@ -59,6 +67,7 @@ public class LogIn extends Activity implements AsyncTaskListener {
 					errorField.setText("Username cannot be empty"); //Set error field text
 				}
 				else{
+                    pDialog.show();
 					new GetXML(v.getContext()).execute("http://psntrophies.net16.net/getProfile.php?psnid="+filteredUsername); //Attempts to download profile with given name
 				}
 			}
@@ -75,6 +84,7 @@ public class LogIn extends Activity implements AsyncTaskListener {
 
 	@Override
 	public void onProfileDownloaded(String profileXML) {
+        pDialog.cancel();
 		// TODO Auto-generated method stub
 		if(profileXML.contains("<level></level>") || profileXML.contains("<level/>")){ //If invalid user
 			errorField.setText("Please enter a valid PSN ID"); //Set error field text
