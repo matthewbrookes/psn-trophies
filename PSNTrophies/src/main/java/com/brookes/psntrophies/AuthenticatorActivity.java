@@ -4,6 +4,8 @@ import android.accounts.Account;
 
 import android.accounts.AccountManager;
 import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -33,12 +35,19 @@ public class AuthenticatorActivity extends Activity implements AsyncTaskListener
     private String filteredUsername = "";
     private String userPass = "";
     private TextView errorField = null;
+    ProgressDialog pDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_log_in);
         mAccountManager = AccountManager.get(getBaseContext()); //Link variable to account manager
+
+        //Create dialog
+        pDialog = new ProgressDialog(this);
+        pDialog.setMessage("Downloading data");
+        pDialog.setIndeterminate(true); //Starts spinning wheel dialog
+        pDialog.setCancelable(false);
 
         errorField = (TextView) findViewById(R.id.errorField);
 
@@ -87,6 +96,7 @@ public class AuthenticatorActivity extends Activity implements AsyncTaskListener
             errorField.setText("Username cannot be empty"); //Set error field text
         }
         else{
+            pDialog.show();
             new GetXML(this).execute("http://psntrophies.net16.net/getProfile.php?psnid=" + filteredUsername); //Attempts to download profile with given name
         }
 
@@ -95,6 +105,7 @@ public class AuthenticatorActivity extends Activity implements AsyncTaskListener
 
     @Override
     public void onProfileDownloaded(String profileXML) {
+        pDialog.cancel();
         if(profileXML.contains("<level></level>") || profileXML.contains("<level/>")){ //If invalid profile
             errorField.setText("Please enter a valid PSN ID"); //Set error field text
         }
@@ -150,6 +161,8 @@ public class AuthenticatorActivity extends Activity implements AsyncTaskListener
             String authtoken = intent.getStringExtra(AccountManager.KEY_AUTHTOKEN);
             String authtokenType = mAuthTokenType;
 
+            //Make account sync automatically
+            getContentResolver().setSyncAutomatically(account, "com.brookes.psntrophies.provider", true);
             // Creating the account on the device and setting the auth token we got
             // (Not setting the auth token will cause another call to the server to authenticate the user)
             mAccountManager.addAccountExplicitly(account, accountPassword, null);

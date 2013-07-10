@@ -17,6 +17,7 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -73,6 +74,7 @@ public class Home extends Activity implements AsyncTaskListener{
 	int imagesDownloadedCounter = 0;
     long lastUpdated = 0L;
     long deleteFrequency;
+    long syncFrequency;
 	ProgressDialog imagesDialog;
     ProgressDialog profileDialog;
     ProgressDialog gamesDialog;
@@ -97,8 +99,6 @@ public class Home extends Activity implements AsyncTaskListener{
             }
         }
 
-        //getContentResolver().requestSync(account, null, new Bundle());
-        //mAccountManager.getAuthToken(null, null, null);
         //Checks if external storage is mounted and what access rights the app has
         if (Environment.MEDIA_MOUNTED.equals(storageState)) {
             // We can read and write the media
@@ -125,13 +125,13 @@ public class Home extends Activity implements AsyncTaskListener{
         savedXML = getSharedPreferences("com.brookes.psntrophies_xml", 0);
         savedXMLEditor = savedXML.edit();
 
-        //Retrieves saved settings
-		gamesFilter = savedInformation.getString("filter_games", "all");
-		gamesSort = savedInformation.getString("sort_games", "recent");
-		downloadImages = savedInformation.getBoolean("download_images", true);
-        saveImages = savedInformation.getBoolean("save_images", true);
-        lastUpdated = savedInformation.getLong("last_updated", 0L);
-        deleteFrequency = Long.parseLong(savedInformation.getString("delete_frequency", "-1"));
+		changeSettings(); //Retrieves saved settings
+
+        if(syncFrequency != -1){ //If user wants automatic syncing
+            //Remove old periodic sync and add new one
+            getContentResolver().removePeriodicSync(account, "com.brookes.psntrophies.provider", new Bundle());
+            getContentResolver().addPeriodicSync(account, "com.brookes.psntrophies.provider", new Bundle(), syncFrequency);
+        }
 
         //Retrieves saved XML
         gamesXML = savedXML.getString("games_xml", "");
@@ -205,7 +205,7 @@ public class Home extends Activity implements AsyncTaskListener{
         else{
             //Calculate amount of time since last sync
             Long timeSinceSync = currentTime - lastUpdated;
-            if(timeSinceSync > 3600000){ //If information is over an hour old
+            if(timeSinceSync > (syncFrequency * 1000)){ //If information is older than the user wants
                 sync(); //Starts the process
             }
             else{
@@ -230,16 +230,18 @@ public class Home extends Activity implements AsyncTaskListener{
     protected void onResume(){ //When the activity regains focus
         super.onResume();
         if(gamesDownloaded){ //If the games have been downloaded
-            //The filter setting is retrieved
-            SharedPreferences savedInformation = getSharedPreferences("com.brookes.psntrophies_preferences", 0);
-            gamesFilter = savedInformation.getString("filter_games", "all");
-            gamesSort = savedInformation.getString("sort_games", "recent");
-            downloadImages = savedInformation.getBoolean("download_images", true);
-            saveImages = savedInformation.getBoolean("save_images", true);
+            changeSettings(); //Retrieves saved settings
+
             //The list is filtered then drawn
             filteredGamesList = filterGames(games);
             gamesList.setAdapter(new GamesAdapter(filteredGamesList, this));
             setGamesListener();
+
+            if(syncFrequency != -1){ //If user wants automatic syncing
+                //Remove old periodic sync and add new one
+                getContentResolver().removePeriodicSync(account, "com.brookes.psntrophies.provider", new Bundle());
+                getContentResolver().addPeriodicSync(account, "com.brookes.psntrophies.provider", new Bundle(), syncFrequency);
+            }
         }
     }
 
@@ -597,7 +599,16 @@ public class Home extends Activity implements AsyncTaskListener{
         }
         return dialog;
 	}
-	
+
+    public void changeSettings(){
+        gamesFilter = savedInformation.getString("filter_games", "all");
+        gamesSort = savedInformation.getString("sort_games", "recent");
+        downloadImages = savedInformation.getBoolean("download_images", true);
+        saveImages = savedInformation.getBoolean("save_images", true);
+        lastUpdated = savedInformation.getLong("last_updated", 0L);
+        deleteFrequency = Long.parseLong(savedInformation.getString("delete_frequency", "-1"));
+        syncFrequency = Long.parseLong(savedInformation.getString("sync_frequency", "3600"));
+    }
 	private void setGamesListener(){
 		gamesList.setOnItemClickListener(new OnItemClickListener() {
 			 @SuppressWarnings("rawtypes")

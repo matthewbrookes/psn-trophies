@@ -4,6 +4,7 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -93,6 +94,9 @@ public class LogIn extends Activity implements AsyncTaskListener {
             //Create new account and add to account manager
             Account account = new Account(filteredUsername, AccountGeneral.ACCOUNT_TYPE);
             accountManager.addAccountExplicitly(account, "", null);
+
+            //Make accout sync automatically
+            getContentResolver().setSyncAutomatically(account, "com.brookes.psntrophies.provider", true);
 
             //Start Home Activity
 	        Intent i = new Intent(this, Home.class);

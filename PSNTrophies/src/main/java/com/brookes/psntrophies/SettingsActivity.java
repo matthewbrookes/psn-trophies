@@ -3,6 +3,8 @@ package com.brookes.psntrophies;
 import java.io.File;
 import java.util.List;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Configuration;
@@ -38,8 +40,8 @@ public class SettingsActivity extends PreferenceActivity{
     private static File folder;
 
 	@Override
-	protected void onPostCreate(Bundle savedInstanceState) {
-		super.onPostCreate(savedInstanceState);
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
 		setupSimplePreferencesScreen();
         context = getApplicationContext();
         folder = new File(getExternalFilesDir(null), "/");
@@ -84,6 +86,20 @@ public class SettingsActivity extends PreferenceActivity{
                 }
             });
         }
+        Preference usernamePreference = (Preference)findPreference("username");
+        if (usernamePreference != null) {
+            //Create account manager and list of accounts
+            AccountManager mAccountManager = AccountManager.get(getBaseContext());
+            Account[] accounts = mAccountManager.getAccounts();
+
+            for(int i=0; i<accounts.length;i++){ //Iterate through accounts
+                Account tempAccount = accounts[i]; //Create a temporary account variable
+                if(tempAccount.type.equals(AccountGeneral.ACCOUNT_TYPE)){ //If it is a PSN Account
+                   usernamePreference.setSummary(tempAccount.name);
+                }
+            }
+        }
+
 
         // Add 'games' preferences, and a corresponding header.
 		fakeHeader = new PreferenceCategory(this);
@@ -112,7 +128,6 @@ public class SettingsActivity extends PreferenceActivity{
 		// Bind the summaries of EditText/List/Dialog/Ringtone preferences to
 		// their values. When their values change, their summaries are updated
 		// to reflect the new value, per the Android Design guidelines.
-		bindPreferenceSummaryToValue(findPreference("username"));
 		bindPreferenceSummaryToValue(findPreference("filter_games"));
 		bindPreferenceSummaryToValue(findPreference("sort_games"));
         bindPreferenceSummaryToValue(findPreference("delete_frequency"));
@@ -246,7 +261,6 @@ public class SettingsActivity extends PreferenceActivity{
 			// to their values. When their values change, their summaries are
 			// updated to reflect the new value, per the Android Design
 			// guidelines.
-			bindPreferenceSummaryToValue(findPreference("username"));
             bindPreferenceSummaryToValue(findPreference("delete_frequency"));
             Preference button = (Preference)findPreference("delete_button");
             if (button != null) {
@@ -267,6 +281,22 @@ public class SettingsActivity extends PreferenceActivity{
                     }
                 });
             }
+
+            Preference usernamePreference = (Preference)findPreference("username");
+
+            if (usernamePreference != null) {
+                //Create account manager and list of accounts
+                AccountManager mAccountManager = AccountManager.get(context);
+                Account[] accounts = mAccountManager.getAccounts();
+
+                for(int i=0; i<accounts.length;i++){ //Iterate through accounts
+                    Account tempAccount = accounts[i]; //Create a temporary account variable
+                    if(tempAccount.type.equals(AccountGeneral.ACCOUNT_TYPE)){ //If it is a PSN Account
+                        usernamePreference.setSummary(tempAccount.name);
+                    }
+                }
+            }
+
 		}
 	}
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
