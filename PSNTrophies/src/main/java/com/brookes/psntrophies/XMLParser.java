@@ -124,6 +124,16 @@ public class XMLParser{
 		
 		            case XmlPullParser.END_TAG:
 		            	if (tagname.equalsIgnoreCase("game")) {
+                            //Calculate progress
+                            float progress = 0;
+                            progress += (game.getTrophies()[1] * 90); //Multiply gold trophies by score
+                            progress += (game.getTrophies()[2] * 30); //Multiply silver trophies by score
+                            progress += (game.getTrophies()[3] * 15); //Multiply bronze trophies by score
+
+                            int totalPoints = game.getTotalPoints();
+                            float progressPercent = (progress / totalPoints) * 100;
+                            game.setProgress((int)progressPercent);
+
 		                    // add Game object to list
 		                    games.add(game);
 		            	} else if (tagname.equalsIgnoreCase("id")) {

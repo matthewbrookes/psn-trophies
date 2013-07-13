@@ -127,11 +127,7 @@ public class Home extends Activity implements AsyncTaskListener{
 
 		changeSettings(); //Retrieves saved settings
 
-        if(syncFrequency != -1){ //If user wants automatic syncing
-            //Remove old periodic sync and add new one
-            getContentResolver().removePeriodicSync(account, "com.brookes.psntrophies.provider", new Bundle());
-            getContentResolver().addPeriodicSync(account, "com.brookes.psntrophies.provider", new Bundle(), syncFrequency);
-        }
+        setAutoSync();
 
         //Retrieves saved XML
         gamesXML = savedXML.getString("games_xml", "");
@@ -205,7 +201,7 @@ public class Home extends Activity implements AsyncTaskListener{
         else{
             //Calculate amount of time since last sync
             Long timeSinceSync = currentTime - lastUpdated;
-            if(timeSinceSync > (syncFrequency * 1000)){ //If information is older than the user wants
+            if(timeSinceSync > syncFrequency){ //If information is older than the user wants
                 sync(); //Starts the process
             }
             else{
@@ -237,11 +233,7 @@ public class Home extends Activity implements AsyncTaskListener{
             gamesList.setAdapter(new GamesAdapter(filteredGamesList, this));
             setGamesListener();
 
-            if(syncFrequency != -1){ //If user wants automatic syncing
-                //Remove old periodic sync and add new one
-                getContentResolver().removePeriodicSync(account, "com.brookes.psntrophies.provider", new Bundle());
-                getContentResolver().addPeriodicSync(account, "com.brookes.psntrophies.provider", new Bundle(), syncFrequency);
-            }
+            setAutoSync();
         }
     }
 
@@ -287,9 +279,10 @@ public class Home extends Activity implements AsyncTaskListener{
 	@Override
 	public void onPSNGamesDownloaded(String gamesXML) {
         gamesDialog.cancel();
-        //StoreXML
+        //Store XML
         savedXMLEditor.putString("games_xml", gamesXML);
         savedXMLEditor.commit();
+
 		parseGames(gamesXML); //Parse the games and download images
 	}
 	
@@ -334,6 +327,7 @@ public class Home extends Activity implements AsyncTaskListener{
 		for(int i=0; i<games.size(); i++){
 			if(games.get(i).getImage().equals(url)){
 				games.get(i).setBitmap(image);
+
                 if(mExternalStorageWriteable && saveImages){ //If can write to SD Card & user wants to save images
                     //Save image as 'gameid'.png
                     File gameImage = new File(getExternalFilesDir(null), "/gameImages/" + games.get(i).getId() + ".png");
@@ -352,6 +346,7 @@ public class Home extends Activity implements AsyncTaskListener{
                         e.printStackTrace();
                     }
                 }
+
                 if(imagesDownloadedCounter == imageProcesses.size()){ //If all images downloaded
                     //Hide progress dialog and change flag
                     imagesDialog.dismiss();
@@ -367,17 +362,8 @@ public class Home extends Activity implements AsyncTaskListener{
 	private void parseGames(String gamesXML){
         if(!gamesDownloaded){ //If games being downloaded for first time
             games = new XMLParser().getPSNAPIGames(gamesXML); //Parses XML into Game Object
-            //This loop generates the percentage completion and assigns it to game
+            //This loop reads the images from SD card and applies them
             for(int i=0;i<games.size();i++){
-                float progress = 0;
-                progress += (games.get(i).getTrophies()[1] * 90);
-                progress += (games.get(i).getTrophies()[2] * 30);
-                progress += (games.get(i).getTrophies()[3] * 15);
-
-                int totalPoints = games.get(i).getTotalPoints();
-                float progressPercent = (progress / totalPoints) * 100;
-                games.get(i).setProgress((int)progressPercent);
-
                 if(mExternalStorageAvailable){ //If can read from SD Card
                     File savedImageFile = new File(getExternalFilesDir(null), "/gameImages/" + games.get(i).getId() + ".png");
                     if(savedImageFile.exists()){
@@ -392,17 +378,8 @@ public class Home extends Activity implements AsyncTaskListener{
         }
         else{
             ArrayList<Game> newGames = new XMLParser().getPSNAPIGames(gamesXML); //Parses XML into Game Object
-            //This loop generates the percentage completion and assigns it to game
+            //This loop iterate through games which have just been downloaded
             for(int i=0;i<newGames.size();i++){
-                float progress = 0;
-                progress += (newGames.get(i).getTrophies()[1] * 90);
-                progress += (newGames.get(i).getTrophies()[2] * 30);
-                progress += (newGames.get(i).getTrophies()[3] * 15);
-
-                int totalPoints = newGames.get(i).getTotalPoints();
-                float progressPercent = (progress / totalPoints) * 100;
-                newGames.get(i).setProgress((int)progressPercent);
-
                 //This loop iterates through old list to match game images and assign them to new ones
                 for(int j =0; j<games.size(); j++){
                     if(games.get(j).getId().equals(newGames.get(i).getId())){
@@ -450,6 +427,8 @@ public class Home extends Activity implements AsyncTaskListener{
 			}
 		}
 		backgroundColor = color;
+
+        savedInformationEditor.putString("bg_color", backgroundColor).commit(); //Save background color
 		profileLayout.setBackgroundColor(Color.parseColor(color)); //Set background to this color
 	}
 	private void setProfilePicture(){
@@ -616,11 +595,24 @@ public class Home extends Activity implements AsyncTaskListener{
 	                 //When item pressed trophy page is opened
 			         Intent trophiesIntent = new Intent(v.getContext(), TrophiesList.class);
 			         trophiesIntent.putExtra("game", filteredGamesList.get(position));
-			         trophiesIntent.putExtra("color",backgroundColor);
 			         startActivity(trophiesIntent);
             }
 	     });
 	}
+
+    private void setAutoSync(){
+        //Retrieve sync setting from settings
+        boolean autoSync = getContentResolver().getSyncAutomatically(account, "com.brookes.psntrophies.provider");
+
+        if(syncFrequency != -1 && autoSync){ //If user wants automatic syncing
+            //Update periodic sync
+            getContentResolver().addPeriodicSync(account, "com.brookes.psntrophies.provider", new Bundle(), syncFrequency);
+        }
+        else{
+            //Delete periodic sync
+            getContentResolver().removePeriodicSync(account, "com.brookes.psntrophies.provider", new Bundle());
+        }
+    }
 	
 	public Bitmap drawBlankProfileImage(){
 		Bitmap image = Bitmap.createBitmap(240, 240, Bitmap.Config.ARGB_8888);

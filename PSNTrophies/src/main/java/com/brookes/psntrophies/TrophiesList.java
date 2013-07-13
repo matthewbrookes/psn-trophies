@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -31,6 +32,14 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
+
 public class TrophiesList extends Activity implements AsyncTaskListener{
     SharedPreferences savedInformation;
     SharedPreferences savedUpdateTimes;
@@ -56,8 +65,11 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
 	ProgressDialog imagesDialog;
     ProgressDialog trophiesDialog;
 	ArrayList<AsyncTask <String, Void, Bitmap>> imageProcesses = new ArrayList<AsyncTask <String, Void, Bitmap>>();
+    ImageView gameImage;
+    Game game;
 
-	@Override
+
+    @Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_trophies_list);
@@ -83,8 +95,8 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
 		TextView trophyTotal = (TextView) findViewById(R.id.trophyTotal);
 		ProgressBar completionBar = (ProgressBar) findViewById(R.id.completionProgressBar1);
 		TextView completionLabel = (TextView) findViewById(R.id.completionPercentageLabel);
-		ImageView gameImage = (ImageView) findViewById(R.id.gamePicture);
-		TextView bronzeLabel = (TextView) findViewById(R.id.bronzeLabel);
+        gameImage = (ImageView) findViewById(R.id.gamePicture);
+        TextView bronzeLabel = (TextView) findViewById(R.id.bronzeLabel);
 		TextView silverLabel = (TextView) findViewById(R.id.silverLabel);
 		TextView goldLabel = (TextView) findViewById(R.id.goldLabel);
 		TextView platinumLabel = (TextView) findViewById(R.id.platinumLabel);
@@ -112,11 +124,10 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
         savedUpdateTimes = getSharedPreferences("com.brookes.psntrophies_updates", 0);
         savedUpdateEditor = savedUpdateTimes.edit();
 
-        //Retrieve Game Object and Background Color from intent
+        //Retrieve Game Object from intent
         Intent receivedIntent = getIntent();
-        Game game = receivedIntent.getExtras().getParcelable("game");
+        game = receivedIntent.getExtras().getParcelable("game");
         gameId = game.getId();
-        String backgroundcolor = receivedIntent.getStringExtra("color");
 
         //Retrieves saved settings
         String trophiesXML = savedXML.getString(gameId, "");
@@ -126,6 +137,8 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
 		showSecretTrophies = savedInformation.getBoolean("show_secret_trophies", true);
 		showCompletedTrophies = savedInformation.getBoolean("show_completed_trophies", true);
 		showUnearnedTrophies = savedInformation.getBoolean("show_unearned_trophies", true);
+        String backgroundcolor = savedInformation.getString("bg_color", "#989898");
+        long syncFrequency = Long.parseLong(savedInformation.getString("sync_frequency", "3600"));
 
 		//Sets information in top layout bases upon received Game Object and color
 		gameLayout.setBackgroundColor(Color.parseColor(backgroundcolor));
@@ -143,6 +156,23 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
             //Create the folder where the images for the trophies will be stored
             File trophyImagesFolder = new File(getExternalFilesDir(null), "/" + gameId);
             trophyImagesFolder.mkdir();
+        }
+
+        //If there is no game image and can read from SD Card
+        if(game.getBitmap() == null && mExternalStorageAvailable){
+            File savedImageFile = new File(getExternalFilesDir(null), "/gameImages/" + game.getId() + ".png");
+            if(savedImageFile.exists()){ //If an image for this game exists
+                //Retrieve it
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+                Bitmap bitmap = BitmapFactory.decodeFile(savedImageFile.toString(), options);
+
+                game.setBitmap(bitmap); //Apply to game object
+                gameImage.setImageBitmap(bitmap); //Draw on screen
+            }
+            else if(downloadImages){ //If no image exists and user wants to download images
+                new GetImage(this).execute(game.getImage());
+            }
         }
 
         //Calculate amount of time since last sync
@@ -181,7 +211,7 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
             new GetXML(this).execute("http://psntrophies.net16.net/getTrophies.php?psnid="+ username + "&gameid=" + gameId); //Downloads trophies xml for this game
         }
         else{
-            if(timeSinceSync > 3600000){ //If information is over an hour old
+            if(timeSinceSync > (syncFrequency*1000)){ //If information is older than user wants
                 //Save the new update time
                 savedUpdateEditor.putLong(gameId, currentTime);
                 savedUpdateEditor.commit();
@@ -287,39 +317,88 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
 	
 	@Override
 	public void onGameImageDownloaded(String url, Bitmap image) {
-	    imagesDownloadedCounter++; //Increment counter
-		imagesDialog.setProgress(imagesDownloadedCounter); //Update the progress dialog
 		//Saves Bitmap Image to Trophy Object
-		for(int i=0; i<trophies.size(); i++){ //Iterates over each Trophy
-			if(trophies.get(i).getImage().equals(url)){ //If this image matches this Trophy
-				trophies.get(i).setBitmap(image); //Save it
-                if(mExternalStorageWriteable && saveImages){ //If can write to SD Card & user wants to save images
-                    //Save image as 'id'.png
-                    File gameImage = new File(getExternalFilesDir(null), "/" + gameId + "/" + trophies.get(i).getId() + ".png");
-                    FileOutputStream fOut = null;
-                    try {
-                        fOut = new FileOutputStream(gameImage);
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    }
+        if(trophies != null){ //If trophies list has been created
+            for(int i=0; i<trophies.size(); i++){ //Iterates over each Trophy
+                if(trophies.get(i).getImage().equals(url)){ //If this image matches this Trophy
+                    imagesDownloadedCounter++; //Increment counter
+                    imagesDialog.setProgress(imagesDownloadedCounter); //Update the progress dialog
+                    trophies.get(i).setBitmap(image); //Save it
+                    if(mExternalStorageWriteable && saveImages){ //If can write to SD Card & user wants to save images
+                        //Save image as 'id'.png
+                        File gameImage = new File(getExternalFilesDir(null), "/" + gameId + "/" + trophies.get(i).getId() + ".png");
+                        FileOutputStream fOut = null;
+                        try {
+                            fOut = new FileOutputStream(gameImage);
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
 
-                    image.compress(Bitmap.CompressFormat.PNG, 0, fOut);
-                    try {
-                        fOut.flush();
-                        fOut.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                        image.compress(Bitmap.CompressFormat.PNG, 0, fOut);
+                        try {
+                            fOut.flush();
+                            fOut.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if(imagesDownloadedCounter == imageProcesses.size()){ //If all images downloaded
+                        //Hide progress dialog and change flag
+                        imagesDialog.dismiss();
+                        //List filtered and drawn
+                        ArrayList<Trophy> filteredList = hideTrophies(trophies, showSecretTrophies, showCompletedTrophies, showUnearnedTrophies);
+                        trophiesList.setAdapter(new TrophiesAdapter(filteredList, this));
+                    }
+                    break;
+                }
+                else if(i == (trophies.size() - 1)){ //The image must be the game image as there are no matches
+                    gameImage.setImageBitmap(image); //So the image is applied
+                    game.setBitmap(image); //The image is added to object
+
+                    if(mExternalStorageWriteable && saveImages){ //If can write to SD Card & user wants to save images
+                        //Save image as 'gameid'.png
+                        File gameImage = new File(getExternalFilesDir(null), "/gameImages/" + game.getId() + ".png");
+                        FileOutputStream fOut = null;
+                        try {
+                            fOut = new FileOutputStream(gameImage);
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
+
+                        image.compress(Bitmap.CompressFormat.PNG, 0, fOut);
+                        try {
+                            fOut.flush();
+                            fOut.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
-                if(imagesDownloadedCounter == imageProcesses.size()){ //If all images downloaded
-                    //Hide progress dialog and change flag
-                    imagesDialog.dismiss();
-                    //List filtered and drawn
-                    ArrayList<Trophy> filteredList = hideTrophies(trophies, showSecretTrophies, showCompletedTrophies, showUnearnedTrophies);
-                    trophiesList.setAdapter(new TrophiesAdapter(filteredList, this));
+            }
+        }
+        else{ //If it hasn't then this must be the game image
+            gameImage.setImageBitmap(image); //So the image is applied
+            game.setBitmap(image); //The image is added to object
+
+            if(mExternalStorageWriteable && saveImages){ //If can write to SD Card & user wants to save images
+                //Save image as 'gameid'.png
+                File gameImage = new File(getExternalFilesDir(null), "/gameImages/" + game.getId() + ".png");
+                FileOutputStream fOut = null;
+                try {
+                    fOut = new FileOutputStream(gameImage);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
                 }
-			}
-		}
+
+                image.compress(Bitmap.CompressFormat.PNG, 0, fOut);
+                try {
+                    fOut.flush();
+                    fOut.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
 	}
 	
 	private ArrayList<Trophy> hideTrophies(ArrayList<Trophy> trophies, boolean showSecretTrophies, boolean showCompletedTrophies, boolean showUnearnedTrophies){
@@ -513,7 +592,6 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
         }
         return dialog;
     }
-
 	
 	@Override
 	public void onProfileDownloaded(String profileXML) {

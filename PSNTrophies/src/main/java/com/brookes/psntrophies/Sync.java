@@ -2,8 +2,6 @@ package com.brookes.psntrophies;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.annotation.TargetApi;
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -11,11 +9,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.os.Build;
+import android.net.Uri;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -25,37 +23,15 @@ import java.util.Date;
  * Created by matt on 09/07/13.
  */
 public class Sync extends Service implements AsyncTaskListener{
+    Account account = null;
+    ArrayList<Game> changedGames = new ArrayList<Game>();
+
     public void onStart(Intent intent, int startId) {
         super.onStart(intent, startId);
 
         //Create shared preferences and editor
         SharedPreferences savedInformation = getSharedPreferences("com.brookes.psntrophies_preferences", 0);
         SharedPreferences.Editor savedInformationEditor = savedInformation.edit();
-
-        /*
-        // Prepare intent which is triggered if the
-        // notification is selected
-        Intent newIntent = new Intent(this, Home.class);
-        PendingIntent pIntent = PendingIntent.getActivity(this, 0, newIntent, 0);
-
-        // Build notification
-        Notification noti = new Notification.Builder(this)
-                .setContentTitle("Test notification")
-                .setContentText("Sync")
-                .setSmallIcon(R.drawable.small_icon)
-                .setContentIntent(pIntent)
-                .build();
-
-
-        NotificationManager notificationManager =
-                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-
-        // Hide the notification after its selected
-        noti.flags |= Notification.FLAG_AUTO_CANCEL;
-
-        notificationManager.notify(0, noti);
-
-        */
 
         //Save current time in shared preference
         Date currentDate = Calendar.getInstance().getTime();
@@ -67,7 +43,6 @@ public class Sync extends Service implements AsyncTaskListener{
         AccountManager mAccountManager = AccountManager.get(getBaseContext());
         Account[] accounts = mAccountManager.getAccounts();
 
-        Account account = null;
         for(int i=0; i<accounts.length;i++){ //Iterate through accounts
             Account tempAccount = accounts[i]; //Create a temporary account variable
             if(tempAccount.type.equals(AccountGeneral.ACCOUNT_TYPE)){ //If it is a PSN Account
@@ -103,6 +78,9 @@ public class Sync extends Service implements AsyncTaskListener{
 
     @Override
     public void onPSNGamesDownloaded(String gamesXML) {
+        if(gamesXML.isEmpty()){ //If something went wrong during download
+            return; //Quit
+        }
         Log.i("PSN", "Downloaded");
         //Create shared preference for XML
         SharedPreferences savedXML = getSharedPreferences("com.brookes.psntrophies_xml", 0);
@@ -113,26 +91,43 @@ public class Sync extends Service implements AsyncTaskListener{
         //Lists will hold games and there positions in lists
         ArrayList<Game> newGames = new ArrayList<Game>();
         ArrayList<Game> oldGames = new ArrayList<Game>();
-        ArrayList<Game> changedGames = new ArrayList<Game>();
         ArrayList<Integer> changedGamesOldPositions = new ArrayList<Integer>();
+
+        changedGames = new ArrayList<Game>(); //Reset list
 
         if(!oldXML.isEmpty()){ //If there is currently stored XML data
             Log.i("PSN", "XML Exists");
 
             newGames = new XMLParser().getPSNAPIGames(gamesXML); //Parse new XML data
             oldGames = new XMLParser().getPSNAPIGames(oldXML); //Parse old XML data
+
             if(newGames.size() > oldGames.size()){ //If new games have been played
-                Log.i("PSN", "New Games Added");
-                for(int i=0; i<(newGames.size() - oldGames.size()); i++){ //For each new game
-                    //Add game to list
-                    changedGames.add(newGames.get(i));
+                String[] oldIds = new String[oldGames.size()];
+                String[] newIds = new String[newGames.size()];
+                for(int i=0; i<oldGames.size(); i++){
+                    oldIds[i] = oldGames.get(i).getId();
+                }
+
+                for(int i=0; i<newGames.size(); i++){
+                    newIds[i] = newGames.get(i).getId();
+                }
+
+                for(int i=0; i<newIds.length; i++){
+                    for(int j=0; j<oldIds.length; j++){
+                        if(newIds[i].equalsIgnoreCase(oldIds[j])){
+                            break;
+                        }
+                        else if(j == (oldIds.length - 1)){
+                            changedGames.add(newGames.get(i));
+                        }
+                    }
                 }
             }
 
             for(int i=0; i<newGames.size(); i++){ //Iterate over downloaded games
                 for(int j=0; j<oldGames.size(); j++){ //Iterate over old games
                     if(newGames.get(i).getId().equals(oldGames.get(j).getId())){ //If games match
-                        if(!newGames.get(i).getUpdated().equals(oldGames.get(j).getUpdated())){ //If game information has changed
+                        if(newGames.get(i).getTrophiesEarnt() != oldGames.get(j).getTrophiesEarnt()){ //If game information has changed
                             //Add game and position to lists
                             changedGames.add(newGames.get(i));
                             changedGamesOldPositions.add(j);
@@ -150,6 +145,26 @@ public class Sync extends Service implements AsyncTaskListener{
             NotificationManager mNotificationManager =
                     (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
+
+            //Retrieve shared preferences
+            SharedPreferences savedInformation = getSharedPreferences("com.brookes.psntrophies_preferences", 0);
+            String ringtone = savedInformation.getString("notifications_new_message_ringtone", "content://settings/system/notification_sound");
+            boolean vibrate = savedInformation.getBoolean("notifications_new_message_vibrate", true);
+            boolean showNotifications = savedInformation.getBoolean("notifications_new_message", true);
+
+            if(vibrate){ //If user wants notification to vibrate
+                //Create vibrate pattern and apply
+                long[] pattern = {300, 200, 300, 200};
+                mBuilder.setVibrate(pattern);
+            }
+            if(!ringtone.isEmpty()){ //If user wants ringtone to play
+                mBuilder.setSound(Uri.parse(ringtone)); //Set notification sound
+            }
+
+            //Create intents which are launched by notifications
+            Intent homeIntent = new Intent(this, Home.class);
+            Intent trophiesIntent = new Intent(this, TrophiesList.class);
+
             if(changedGames.size() == 1){ //If only one game has changed
                 int oldTrophiesTotal; //Variable will hold number of trophies previously earned
                 try {
@@ -160,27 +175,22 @@ public class Sync extends Service implements AsyncTaskListener{
                 }
                 int newTrophiesTotal = changedGames.get(0).getTrophiesEarnt(); //Get new total
                 int difference = newTrophiesTotal - oldTrophiesTotal; //Calculate difference between totals
+
                 if(difference == 1){ //If only one new trophy has been earned
+                    //Download trophy information for this game
+                    String username = account.name;
+                    String id = changedGames.get(0).getId();
+                    new GetXML(this).execute("http://psntrophies.net16.net/getTrophies.php?psnid="+ username + "&gameid=" + id);
+
                     Log.i("PSN", "One new trophy");
-
-                    //Create notification for one trophy
-                    mBuilder
-                    .setSmallIcon(R.drawable.small_icon)
-                    .setContentTitle("You have earned a trophy!")
-                    .setContentText(changedGames.get(0).getTitle()); //Show title of game
-
-                    mNotificationManager.notify(0, mBuilder.build()); //Display notification
                 }
                 else if(difference > 1){ //If more than one trophy has been earned
                     Log.i("PSN", "Multiple trophies earned");
 
-                    //Create notification for multiple trophies
-                    mBuilder
-                            .setSmallIcon(R.drawable.small_icon)
-                            .setContentTitle("You have earned " + difference + " trophies!")
-                            .setContentText(changedGames.get(0).getTitle()); //Show title of game
-
-                    mNotificationManager.notify(0, mBuilder.build()); //Display notification
+                    //Download trophy information for this game
+                    String username = account.name;
+                    String id = changedGames.get(0).getId();
+                    new GetXML(this).execute("http://psntrophies.net16.net/getTrophies.php?psnid="+ username + "&gameid=" + id);
                 }
 
             }
@@ -199,29 +209,210 @@ public class Sync extends Service implements AsyncTaskListener{
                     int newTrophiesTotal = changedGames.get(i).getTrophiesEarnt(); //Get new total
                     int difference = newTrophiesTotal - oldTrophiesTotal; //Calculate difference
                     trophiesEarned += difference; //Add difference to total
+
+                    //Download trophy information for this game
+                    String username = account.name;
+                    String id = changedGames.get(0).getId();
+                    new GetXML(this).execute("http://psntrophies.net16.net/getTrophies.php?psnid="+ username + "&gameid=" + id);
                 }
+
+                // Prepare intent which is triggered if the notification is selected
+                PendingIntent pIntent = PendingIntent.getActivity(this, 0, homeIntent, 0);
 
                 //Create notification for multiple games
                 mBuilder
-                        .setSmallIcon(R.drawable.small_icon)
-                        .setContentTitle("You have earned "  + trophiesEarned  +" trophies!")
-                        .setContentText("In " + changedGames.size() + " games"); //Show how many games have been changed
+                    .setSmallIcon(R.drawable.small_icon)
+                    .setContentTitle("You have earned "  + trophiesEarned  +" trophies!")
+                    .setContentText("In " + changedGames.size() + " games") //Show how many games have been changed
+                    .setContentIntent(pIntent) //Start new activity when pressed
+                    .setAutoCancel(true); //Cancel notification when pressed
 
                 mNotificationManager.notify(0, mBuilder.build()); //Display notification
             }
         }
-
         //Store XML
         savedXMLEditor.putString("games_xml", gamesXML);
         savedXMLEditor.commit();
-
-
-
     }
 
     @Override
     public void onPSNTrophiesDownloaded(String trophiesXML) {
-        //Not used but required due to implementation
+        //Retrieve shared preferences
+        SharedPreferences savedInformation = getSharedPreferences("com.brookes.psntrophies_preferences", 0);
+        String ringtone = savedInformation.getString("notifications_new_message_ringtone", "content://settings/system/notification_sound");
+        boolean vibrate = savedInformation.getBoolean("notifications_new_message_vibrate", true);
+        boolean showNotifications = savedInformation.getBoolean("notifications_new_message", true);
+
+        //Create notification builder and manager
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(this);
+        NotificationManager mNotificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        if(vibrate){ //If user wants notification to vibrate
+            //Create vibrate pattern and apply
+            long[] pattern = {300, 200, 300, 200};
+            mBuilder.setVibrate(pattern);
+        }
+        if(!ringtone.isEmpty()){ //If user wants ringtone to play
+            mBuilder.setSound(Uri.parse(ringtone)); //Set notification sound
+        }
+
+        //Create shared preference for XML and updates
+        SharedPreferences savedXML = getSharedPreferences("com.brookes.psntrophies_xml", 0);
+        SharedPreferences.Editor savedXMLEditor = savedXML.edit();
+        SharedPreferences savedUpdateTimes = getSharedPreferences("com.brookes.psntrophies_updates", 0);
+        SharedPreferences.Editor savedUpdateEditor = savedUpdateTimes.edit();
+
+        //Calculate the current time
+        Date currentDate = Calendar.getInstance().getTime();
+        Long currentTime = currentDate.getTime();
+
+        if(changedGames.size() == 1){ //If only one game has changed
+            Game game = changedGames.get(0);
+            if(showNotifications){
+                //Create list of old and new trophies
+                ArrayList<Trophy> newTrophies = new XMLParser().getPSNAPITrophies(trophiesXML); //Create list from new XML
+                ArrayList<Trophy> oldTrophies = new ArrayList<Trophy>();
+
+                //Create list of trophies which have been earned since last sync
+                ArrayList<Trophy> earnedTrophies = new ArrayList<Trophy>();
+
+                String oldXML = savedXML.getString(game.getId(), ""); //Attempt to retrieve saved xml
+                if(!oldXML.isEmpty()){ //If saved xml exists
+                    oldTrophies = new XMLParser().getPSNAPITrophies(oldXML); //Parse old XML
+                    for(int i=0; i<newTrophies.size(); i++){ //Iterate over new trophies
+                        for(int j=0; j<oldTrophies.size(); j++){ //Iterate over old trophies
+                            if(newTrophies.get(i).getId() == oldTrophies.get(j).getId()){ //If trophies match
+                                //If this is the trophy which has been earned
+                                if((!newTrophies.get(i).getDateEarned().isEmpty() && oldTrophies.get(j).getDateEarned().isEmpty())){
+                                    earnedTrophies.add(newTrophies.get(i));
+                                }
+                            }
+                        }
+                    }
+                }
+                else{
+                    for(int i=0; i<newTrophies.size(); i++){ //Iterate over trophies
+                        if(!newTrophies.get(i).getDateEarned().isEmpty()){ //If trophy has been earned
+                            earnedTrophies.add(newTrophies.get(i));
+                        }
+                    }
+                }
+
+                if(earnedTrophies.size() == 1){ //If one trophy has been earned
+                    Intent trophiesIntent = new Intent(this, TrophiesList.class);
+                    //Put extras in intent
+                    trophiesIntent.putExtra("game", changedGames.get(0));
+                    /*
+                    The stack builder object will contain an artificial back stack for the
+                    started Activity.
+                    This ensures that navigating backward from the Activity leads out of
+                    the application to the Home screen.
+                    */
+                    TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+                    // Adds the back stack for the Intent (but not the Intent itself)
+                    stackBuilder.addParentStack(TrophiesList.class);
+                    // Adds the Intent that starts the Activity to the top of the stack
+                    stackBuilder.addNextIntent(trophiesIntent);
+                    //Create the pending intent
+                    PendingIntent resultPendingIntent =
+                            stackBuilder.getPendingIntent(
+                                    0,
+                                    PendingIntent.FLAG_UPDATE_CURRENT
+                            );
+                    mBuilder.setContentIntent(resultPendingIntent); //Add pending intent to notification
+
+                    //Create notification for one trophy
+                    mBuilder
+                        .setContentTitle("You have earned a trophy!")
+                        .setContentText(earnedTrophies.get(0).getTitle()) //Show title of trophy
+                        .setAutoCancel(true); //Cancel notification when pressed
+
+                    switch (earnedTrophies.get(0).getType()) {
+                        case PLATINUM:
+                            mBuilder.setSmallIcon(R.drawable.platinum100);
+                            break;
+                        case GOLD:
+                            mBuilder.setSmallIcon(R.drawable.gold100);
+                            break;
+                        case SILVER:
+                            mBuilder.setSmallIcon(R.drawable.silver100);
+                            break;
+                        case BRONZE:
+                            mBuilder.setSmallIcon(R.drawable.bronze100);
+                            break;
+                    }
+
+                    mNotificationManager.notify(0, mBuilder.build()); //Display notification
+                }
+                else if(earnedTrophies.size() > 1){ //If more than one trophy has been earned
+                    Intent trophiesIntent = new Intent(this, TrophiesList.class);
+                    //Put extras in intent
+                    trophiesIntent.putExtra("game", changedGames.get(0));
+
+                    /*
+                    The stack builder object will contain an artificial back stack for the
+                    started Activity.
+                    This ensures that navigating backward from the Activity leads out of
+                    the application to the Home screen.
+                    */
+                    TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+                    // Adds the back stack for the Intent (but not the Intent itself)
+                    stackBuilder.addParentStack(TrophiesList.class);
+                    // Adds the Intent that starts the Activity to the top of the stack
+                    stackBuilder.addNextIntent(trophiesIntent);
+                    //Create the pending intent
+                    PendingIntent resultPendingIntent =
+                            stackBuilder.getPendingIntent(
+                                    0,
+                                    PendingIntent.FLAG_UPDATE_CURRENT
+                            );
+                    mBuilder.setContentIntent(resultPendingIntent); //Add pending intent to notification
+
+                    //Create notification for multiple trophies
+                    mBuilder
+                        .setContentTitle("You have earned " + earnedTrophies.size() + " trophies!")
+                        .setContentText(changedGames.get(0).getTitle()) //Show title of game
+                        .setContentIntent(resultPendingIntent) //Start new activity when pressed
+                        .setSmallIcon(R.drawable.small_icon)
+                        .setAutoCancel(true); //Cancel notification when pressed
+
+                    //Create big view style
+                    NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
+                    inboxStyle.setBigContentTitle(changedGames.get(0).getTitle()); //Set game title as big title
+                    for (int i=0; i<earnedTrophies.size(); i++) { //Iterate over earned trophies
+                        inboxStyle.addLine(earnedTrophies.get(i).getTitle()); //Add trophy titles to big view
+                    }
+                    mBuilder.setStyle(inboxStyle);
+
+                    mNotificationManager.notify(0, mBuilder.build()); //Display notification
+                }
+            }
+            //Save XML
+            savedXMLEditor.putString(game.getId(), trophiesXML);
+            savedUpdateEditor.putString(game.getId(), currentTime.toString());
+
+            //Commit the edits
+            savedXMLEditor.commit();
+            savedUpdateEditor.commit();
+        }
+        else{ //If more than one game has changed
+            for(int i=0; i<changedGames.size(); i++){ //Iterate ove changed game
+                if(trophiesXML.contains(changedGames.get(i).getId())){ //If game matches
+                    Game game = changedGames.get(i); //Create game object
+
+                    //Save XML
+                    savedXMLEditor.putString(game.getId(), trophiesXML);
+                    savedUpdateEditor.putLong(game.getId(), currentTime);
+
+                    //Commit the edits
+                    savedXMLEditor.commit();
+                    savedUpdateEditor.commit();
+                }
+            }
+        }
+
     }
 
     @Override
