@@ -391,7 +391,7 @@ public class Sync extends Service implements AsyncTaskListener{
             }
             //Save XML
             savedXMLEditor.putString(game.getId(), trophiesXML);
-            savedUpdateEditor.putString(game.getId(), currentTime.toString());
+            savedUpdateEditor.putLong(game.getId(), currentTime);
 
             //Commit the edits
             savedXMLEditor.commit();
