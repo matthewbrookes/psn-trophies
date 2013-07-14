@@ -73,8 +73,18 @@ public class LogIn extends Activity implements AsyncTaskListener {
 				}
 			}
 		});
-		
 	}
+    @Override
+    protected void onResume(){
+        Account[] accounts = accountManager.getAccounts(); //Create list of accounts
+        for(int i=0; i<accounts.length; i++){ //Iterate through accounts
+            if(accounts[i].type.equals(AccountGeneral.ACCOUNT_TYPE)){ //If it is a PSN account
+                //Start Home activity
+                Intent intent = new Intent(this, Home.class);
+                startActivity(intent);
+            }
+        }
+    }
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
