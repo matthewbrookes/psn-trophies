@@ -186,6 +186,12 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
         String displayDate = f.format(d);
         updateText.setText(displayDate);
 
+        long timeBetweenSyncs = (syncFrequency * 100); //Amount of time app should wait before downloading data again
+
+        if(syncFrequency == -1){ //If user doesn't want app to sync automatically
+            timeBetweenSyncs = 3600000; //Set sync period to one hour to stop data being re-downloaded all the time
+        }
+
         trophies = (ArrayList<Trophy>) getLastNonConfigurationInstance(); //Attempt to retrieve trophies if screen was rotated
         if (trophies != null) { //If trophies were retrieved
 
@@ -211,7 +217,7 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
             new GetXML(this).execute("http://psntrophies.net16.net/getTrophies.php?psnid="+ username + "&gameid=" + gameId); //Downloads trophies xml for this game
         }
         else{
-            if(timeSinceSync > (syncFrequency*1000)){ //If information is older than user wants
+            if(timeSinceSync > timeBetweenSyncs){ //If information is older than user wants
                 //Save the new update time
                 savedUpdateEditor.putLong(gameId, currentTime);
                 savedUpdateEditor.commit();

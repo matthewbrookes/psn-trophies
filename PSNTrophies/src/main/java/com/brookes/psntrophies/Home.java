@@ -191,6 +191,11 @@ public class Home extends Activity implements AsyncTaskListener{
             return; //Break out of function
         }
 
+        long timeBetweenSyncs = (syncFrequency * 100); //Amount of time app should wait before downloading data again
+
+        if(syncFrequency == -1){ //If user doesn't want app to sync automatically
+            timeBetweenSyncs = 3600000; //Set sync period to one hour to stop data being re-downloaded all the time
+        }
         if(deleteFrequency != -1){ //If the user wants images to be deleted automatically
             automaticDelete(currentTime);
         }
@@ -201,7 +206,7 @@ public class Home extends Activity implements AsyncTaskListener{
         else{
             //Calculate amount of time since last sync
             Long timeSinceSync = currentTime - lastUpdated;
-            if(timeSinceSync > syncFrequency){ //If information is older than the user wants
+            if(timeSinceSync > timeBetweenSyncs){ //If information is old
                 sync(); //Starts the process
             }
             else{
@@ -226,7 +231,20 @@ public class Home extends Activity implements AsyncTaskListener{
     protected void onResume(){ //When the activity regains focus
         super.onResume();
         if(gamesDownloaded){ //If the games have been downloaded
+            long previousUpdate = lastUpdated;
             changeSettings(); //Retrieves saved settings
+
+            if(previousUpdate != lastUpdated){
+                String newGamesXML = savedXML.getString("games_xml", "");
+                if(!newGamesXML.isEmpty()){
+                    parseGames(newGamesXML);
+                    //Change the update label on home screen
+                    DateFormat f = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
+                    Date d = new Date(lastUpdated);
+                    String displayDate = f.format(d);
+                    updateText.setText(displayDate);
+                }
+            }
 
             //The list is filtered then drawn
             filteredGamesList = filterGames(games);
