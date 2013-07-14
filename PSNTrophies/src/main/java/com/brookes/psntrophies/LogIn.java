@@ -76,6 +76,7 @@ public class LogIn extends Activity implements AsyncTaskListener {
 	}
     @Override
     protected void onResume(){
+        super.onResume();
         Account[] accounts = accountManager.getAccounts(); //Create list of accounts
         for(int i=0; i<accounts.length; i++){ //Iterate through accounts
             if(accounts[i].type.equals(AccountGeneral.ACCOUNT_TYPE)){ //If it is a PSN account
