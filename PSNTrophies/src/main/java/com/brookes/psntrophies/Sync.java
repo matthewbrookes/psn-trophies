@@ -25,6 +25,7 @@ import java.util.Date;
 public class Sync extends Service implements AsyncTaskListener{
     Account account = null;
     ArrayList<Game> changedGames = new ArrayList<Game>();
+    ArrayList<Game> oldGames  = new ArrayList<Game>();
 
     public void onStart(Intent intent, int startId) {
         super.onStart(intent, startId);
@@ -90,10 +91,11 @@ public class Sync extends Service implements AsyncTaskListener{
 
         //Lists will hold games and there positions in lists
         ArrayList<Game> newGames = new ArrayList<Game>();
-        ArrayList<Game> oldGames = new ArrayList<Game>();
         ArrayList<Integer> changedGamesOldPositions = new ArrayList<Integer>();
 
-        changedGames = new ArrayList<Game>(); //Reset list
+        ////Reset lists
+        changedGames = new ArrayList<Game>();
+        oldGames = new ArrayList<Game>();
 
         if(!oldXML.isEmpty()){ //If there is currently stored XML data
             Log.i("PSN", "XML Exists");
@@ -102,22 +104,28 @@ public class Sync extends Service implements AsyncTaskListener{
             oldGames = new XMLParser().getPSNAPIGames(oldXML); //Parse old XML data
 
             if(newGames.size() > oldGames.size()){ //If new games have been played
+                //Create array of ids in old and new games lists
                 String[] oldIds = new String[oldGames.size()];
                 String[] newIds = new String[newGames.size()];
-                for(int i=0; i<oldGames.size(); i++){
-                    oldIds[i] = oldGames.get(i).getId();
+                for(int i=0; i<oldGames.size(); i++){ //Iterate over old games
+                    oldIds[i] = oldGames.get(i).getId(); //Add id to array
                 }
 
-                for(int i=0; i<newGames.size(); i++){
-                    newIds[i] = newGames.get(i).getId();
+                for(int i=0; i<newGames.size(); i++){ //Iterate over new games
+                    newIds[i] = newGames.get(i).getId(); //Add id to array
                 }
 
-                for(int i=0; i<newIds.length; i++){
-                    for(int j=0; j<oldIds.length; j++){
-                        if(newIds[i].equalsIgnoreCase(oldIds[j])){
-                            break;
+                for(int i=0; i<newIds.length; i++){ //Iterate over new games
+                    for(int j=0; j<oldIds.length; j++){ //Iterate over old games
+                        if(newIds[i].equalsIgnoreCase(oldIds[j])){ //If ids match
+                            break; //Exit inner loop
                         }
                         else if(j == (oldIds.length - 1)){
+                            /*
+                            If we reach the end of the loop without having matched
+                            the ids then the game was not in the old xml so it must be added
+                            as a changed game
+                             */
                             changedGames.add(newGames.get(i));
                         }
                     }
@@ -293,9 +301,15 @@ public class Sync extends Service implements AsyncTaskListener{
                     }
                 }
                 else{
-                    for(int i=0; i<newTrophies.size(); i++){ //Iterate over trophies
-                        if(!newTrophies.get(i).getDateEarned().isEmpty()){ //If trophy has been earned
-                            earnedTrophies.add(newTrophies.get(i));
+                    for(int i=0; i<oldGames.size(); i++){ //Iterate over trophies
+                        if(changedGames.get(0).getId().equals(oldGames.get(i).getId())){ //If ids match
+                            //Calculate number of trophies which have been earned
+                            int trophiesEarned = changedGames.get(0).getTrophiesEarnt() - oldGames.get(i).getTrophiesEarnt();
+
+                            Trophy trophy = new Trophy(); //Create a blank trophy
+                            for(int j=0; j<trophiesEarned; j++){ //For each trophy earned
+                                earnedTrophies.add(trophy); //Add blank trophy to list
+                            }
                         }
                     }
                 }
@@ -323,25 +337,35 @@ public class Sync extends Service implements AsyncTaskListener{
                             );
                     mBuilder.setContentIntent(resultPendingIntent); //Add pending intent to notification
 
-                    //Create notification for one trophy
-                    mBuilder
-                        .setContentTitle("You have earned a trophy!")
-                        .setContentText(earnedTrophies.get(0).getTitle()) //Show title of trophy
-                        .setAutoCancel(true); //Cancel notification when pressed
+                    if(!oldXML.isEmpty()){ //If old xml exists
+                        //Create notification for one trophy using information
+                        mBuilder
+                            .setContentTitle("You have earned a trophy!")
+                            .setContentText(earnedTrophies.get(0).getTitle()) //Show title of trophy
+                            .setAutoCancel(true); //Cancel notification when pressed
 
-                    switch (earnedTrophies.get(0).getType()) {
-                        case PLATINUM:
-                            mBuilder.setSmallIcon(R.drawable.platinum100);
-                            break;
-                        case GOLD:
-                            mBuilder.setSmallIcon(R.drawable.gold100);
-                            break;
-                        case SILVER:
-                            mBuilder.setSmallIcon(R.drawable.silver100);
-                            break;
-                        case BRONZE:
-                            mBuilder.setSmallIcon(R.drawable.bronze100);
-                            break;
+                        switch (earnedTrophies.get(0).getType()) {
+                            case PLATINUM:
+                                mBuilder.setSmallIcon(R.drawable.platinum100);
+                                break;
+                            case GOLD:
+                                mBuilder.setSmallIcon(R.drawable.gold100);
+                                break;
+                            case SILVER:
+                                mBuilder.setSmallIcon(R.drawable.silver100);
+                                break;
+                            case BRONZE:
+                                mBuilder.setSmallIcon(R.drawable.bronze100);
+                                break;
+                        }
+                    }
+                    else{ //If there was no xml so we don't know which trophy was earned
+                        //Create a stock notification
+                        mBuilder
+                            .setContentTitle("You have earned a trophy!")
+                            .setContentText("Playing " + changedGames.get(0).getTitle()) //Show title of game
+                            .setSmallIcon(R.drawable.small_icon) //Show app icon
+                            .setAutoCancel(true); //Cancel notification when pressed
                     }
 
                     mNotificationManager.notify(0, mBuilder.build()); //Display notification
@@ -370,21 +394,33 @@ public class Sync extends Service implements AsyncTaskListener{
                             );
                     mBuilder.setContentIntent(resultPendingIntent); //Add pending intent to notification
 
-                    //Create notification for multiple trophies
-                    mBuilder
-                        .setContentTitle("You have earned " + earnedTrophies.size() + " trophies!")
-                        .setContentText(changedGames.get(0).getTitle()) //Show title of game
-                        .setContentIntent(resultPendingIntent) //Start new activity when pressed
-                        .setSmallIcon(R.drawable.small_icon)
-                        .setAutoCancel(true); //Cancel notification when pressed
+                    if(!oldXML.isEmpty()){ //If old xml exists
+                        //Create notification for multiple trophies using information
+                        mBuilder
+                            .setContentTitle("You have earned " + earnedTrophies.size() + " trophies!")
+                            .setContentText("Playing " + changedGames.get(0).getTitle()) //Show title of game
+                            .setContentIntent(resultPendingIntent) //Start new activity when pressed
+                            .setSmallIcon(R.drawable.small_icon)
+                            .setAutoCancel(true); //Cancel notification when pressed
 
-                    //Create big view style
-                    NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
-                    inboxStyle.setBigContentTitle(changedGames.get(0).getTitle()); //Set game title as big title
-                    for (int i=0; i<earnedTrophies.size(); i++) { //Iterate over earned trophies
-                        inboxStyle.addLine(earnedTrophies.get(i).getTitle()); //Add trophy titles to big view
+                        //Create big view style
+                        NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
+                        inboxStyle.setBigContentTitle("You have earned " + earnedTrophies.size() + " trophies!");
+                        for (int i=0; i<earnedTrophies.size(); i++) { //Iterate over earned trophies
+                            inboxStyle.addLine(earnedTrophies.get(i).getTitle()); //Add trophy titles to big view
+                        }
+                        mBuilder.setStyle(inboxStyle);
                     }
-                    mBuilder.setStyle(inboxStyle);
+                    else{ //If there was no xml so we don't know which trophy was earned
+                        //Create a stock notification
+                        mBuilder
+                            .setContentTitle("You have earned " + earnedTrophies.size() + " trophies!")
+                            .setContentText("Playing " + changedGames.get(0).getTitle()) //Show title of game
+                            .setContentIntent(resultPendingIntent) //Start new activity when pressed
+                            .setSmallIcon(R.drawable.small_icon)
+                            .setAutoCancel(true); //Cancel notification when pressed
+                    }
+
 
                     mNotificationManager.notify(0, mBuilder.build()); //Display notification
                 }
@@ -398,7 +434,7 @@ public class Sync extends Service implements AsyncTaskListener{
             savedUpdateEditor.commit();
         }
         else{ //If more than one game has changed
-            for(int i=0; i<changedGames.size(); i++){ //Iterate ove changed game
+            for(int i=0; i<changedGames.size(); i++){ //Iterate over changed game
                 if(trophiesXML.contains(changedGames.get(i).getId())){ //If game matches
                     Game game = changedGames.get(i); //Create game object
 
