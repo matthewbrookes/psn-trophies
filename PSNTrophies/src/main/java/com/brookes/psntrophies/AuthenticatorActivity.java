@@ -4,18 +4,20 @@ import android.accounts.Account;
 
 import android.accounts.AccountManager;
 import android.app.Activity;
-import android.app.ProgressDialog;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-public class AuthenticatorActivity extends Activity implements AsyncTaskListener {
+
+import java.util.Locale;
+import java.util.concurrent.ExecutionException;
+
+public class AuthenticatorActivity extends Activity implements AuthenticatorListener{
     //Create constants
     public final static String ARG_ACCOUNT_TYPE = AccountGeneral.ACCOUNT_TYPE;
     public final static String ARG_AUTH_TYPE = "AUTH_TYPE";
@@ -32,24 +34,22 @@ public class AuthenticatorActivity extends Activity implements AsyncTaskListener
     private AccountManager mAccountManager;
     private String mAuthTokenType;
 
-    private String filteredUsername = "";
+    private String filteredEmail = "";
     private String userPass = "";
     private TextView errorField = null;
-    ProgressDialog pDialog;
+    private EditText psnEmail = null;
+    private EditText psnPassword = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_log_in);
         mAccountManager = AccountManager.get(getBaseContext()); //Link variable to account manager
 
-        //Create dialog
-        pDialog = new ProgressDialog(this);
-        pDialog.setMessage("Downloading data");
-        pDialog.setIndeterminate(true); //Starts spinning wheel dialog
-        pDialog.setCancelable(false);
-
         errorField = (TextView) findViewById(R.id.errorField);
+        psnEmail = (EditText) findViewById(R.id.psnEmail);
+        psnPassword = (EditText) findViewById(R.id.psnPassword);
 
         //Retrieve extras from intent
         String accountName = getIntent().getStringExtra(ARG_ACCOUNT_NAME);
@@ -58,16 +58,13 @@ public class AuthenticatorActivity extends Activity implements AsyncTaskListener
         if (mAuthTokenType == null)
             mAuthTokenType = AccountGeneral.AUTHTOKEN_TYPE_FULL_ACCESS;
 
-        if (accountName != null) { //If a username is already saved
-            ((TextView)findViewById(R.id.psnLogin)).setText(accountName); //Set the username
-        }
-
         findViewById(R.id.loginButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 submit();
             }
         }); //When button pressed submit form
+
     }
 
     @Override
@@ -81,78 +78,35 @@ public class AuthenticatorActivity extends Activity implements AsyncTaskListener
     }
 
     public void submit() {
-
         //Retrieve username and default password
-        final String userName = ((TextView) findViewById(R.id.psnLogin)).getText().toString();
-        userPass = "";
+        final String email = psnEmail.getText().toString();
+        userPass = psnPassword.getText().toString();
 
         //Hide keyboard
         InputMethodManager inputManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        inputManager.hideSoftInputFromWindow(findViewById(R.id.psnLogin).getWindowToken(), 0);
+        inputManager.hideSoftInputFromWindow(psnEmail.getWindowToken(), 0);
 
 
-        filteredUsername = userName.replaceAll(" ", ""); //Filter username
-        if(filteredUsername.isEmpty()){ //If username is empty
+        filteredEmail = email.replaceAll(" ", "").toLowerCase(Locale.ENGLISH); //Filter username
+        if(filteredEmail.isEmpty()){ //If username is empty
             errorField.setText("Username cannot be empty"); //Set error field text
         }
-        else{
-            pDialog.show();
-            new GetXML(this).execute("http://psntrophies.net16.net/getProfile.php?psnid=" + filteredUsername); //Attempts to download profile with given name
-        }
-
-
-    }
-
-    @Override
-    public void onProfileDownloaded(String profileXML) {
-        pDialog.cancel();
-        if(profileXML.contains("<level></level>") || profileXML.contains("<level/>")){ //If invalid profile
-            errorField.setText("Please enter a valid PSN ID"); //Set error field text
+        else if(userPass.isEmpty()){ //If password is empty
+            errorField.setText("Password cannot be empty"); //Set error field text
         }
         else{
-            //Save username
-            final String accountType = getIntent().getStringExtra(ARG_ACCOUNT_TYPE);
-
-            new AsyncTask<String, Void, Intent>() {
-
-                @Override
-                protected Intent doInBackground(String... params) {
-
-
-                    String authtoken = null;
-                    Bundle data = new Bundle();
-                    try {
-                        authtoken = "user:pass";
-
-                        data.putString(AccountManager.KEY_ACCOUNT_NAME, filteredUsername);
-                        data.putString(AccountManager.KEY_ACCOUNT_TYPE, accountType);
-                        data.putString(AccountManager.KEY_AUTHTOKEN, authtoken);
-                        data.putString(PARAM_USER_PASS, userPass);
-
-                    } catch (Exception e) {
-                        data.putString(KEY_ERROR_MESSAGE, e.getMessage());
-                    }
-
-                    final Intent res = new Intent();
-                    res.putExtras(data);
-                    return res;
-                }
-
-                @Override
-                protected void onPostExecute(Intent intent) {
-                    if (intent.hasExtra(KEY_ERROR_MESSAGE)) {
-                        Toast.makeText(getBaseContext(), intent.getStringExtra(KEY_ERROR_MESSAGE), Toast.LENGTH_SHORT).show();
-                    } else {
-                        finishLogin(intent);
-                    }
-                }
-            }.execute();
+            try {
+                new ServerAuthenticate(this).authenticateUser(filteredEmail, userPass);
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     private void finishLogin(Intent intent) {
         //After login return account
-
         String accountName = intent.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
         String accountPassword = intent.getStringExtra(PARAM_USER_PASS);
         final Account account = new Account(accountName, intent.getStringExtra(AccountManager.KEY_ACCOUNT_TYPE));
@@ -174,26 +128,44 @@ public class AuthenticatorActivity extends Activity implements AsyncTaskListener
         finish();
     }
 
-
-
-
     @Override
-    public void onProfileImageDownloaded(Bitmap image) {
-        // Not used but is required due to implementations
-    }
+    public void onAccountAuthenticated(String username) {
+        if(username.isEmpty()){
+            errorField.setText("Username/Password is incorrect");
+        }
+        else{
+            //Save username
+            final String accountType = getIntent().getStringExtra(ARG_ACCOUNT_TYPE);
+            final String finalUsername = username;
+            new AsyncTask<String, Void, Intent>() {
 
-    @Override
-    public void onGameImageDownloaded(String url, Bitmap image) {
-        // Not used but is required due to implementations
-    }
+                @Override
+                protected Intent doInBackground(String... params) {
+                    Bundle data = new Bundle();
+                    try {
+                        data.putString(AccountManager.KEY_ACCOUNT_NAME, filteredEmail);
+                        data.putString(AccountManager.KEY_ACCOUNT_TYPE, accountType);
+                        data.putString(AccountManager.KEY_AUTHTOKEN, finalUsername);
+                        data.putString(PARAM_USER_PASS, userPass);
 
-    @Override
-    public void onPSNGamesDownloaded(String gamesXML) {
-        // Not used but is required due to implementations
-    }
+                    } catch (Exception e) {
+                        data.putString(KEY_ERROR_MESSAGE, e.getMessage());
+                    }
 
-    @Override
-    public void onPSNTrophiesDownloaded(String trophiesXML) {
-        // Not used but is required due to implementations
+                    final Intent res = new Intent();
+                    res.putExtras(data);
+                    return res;
+                }
+
+                @Override
+                protected void onPostExecute(Intent intent) {
+                    if (intent.hasExtra(KEY_ERROR_MESSAGE)) {
+                        Toast.makeText(getBaseContext(), intent.getStringExtra(KEY_ERROR_MESSAGE), Toast.LENGTH_SHORT).show();
+                    } else {
+                        finishLogin(intent);
+                    }
+                }
+            }.execute();
+        }
     }
 }

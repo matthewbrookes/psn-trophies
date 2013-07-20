@@ -15,6 +15,9 @@ import java.util.Set;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.accounts.AccountManagerFuture;
+import android.accounts.AuthenticatorException;
+import android.accounts.OperationCanceledException;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
@@ -88,14 +91,14 @@ public class Home extends Activity implements AsyncTaskListener{
 		setContentView(R.layout.activity_home);
 
         //Create account manager and list of accounts
-        AccountManager mAccountManager = AccountManager.get(getBaseContext());
+        final AccountManager mAccountManager = AccountManager.get(getBaseContext());
         Account[] accounts = mAccountManager.getAccounts();
 
         for(int i=0; i<accounts.length;i++){ //Iterate through accounts
             Account tempAccount = accounts[i]; //Create a temporary account variable
             if(tempAccount.type.equals(AccountGeneral.ACCOUNT_TYPE)){ //If it is a PSN Account
-                username = tempAccount.name; //Set the username
                 account = tempAccount; //Set this account as one to be used throughout program
+                username = mAccountManager.peekAuthToken(account, ""); //Set the username
             }
         }
 

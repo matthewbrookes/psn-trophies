@@ -24,6 +24,7 @@ import java.util.Date;
  */
 public class Sync extends Service implements AsyncTaskListener{
     Account account = null;
+    String username = "";
     ArrayList<Game> changedGames = new ArrayList<Game>();
     ArrayList<Game> oldGames  = new ArrayList<Game>();
 
@@ -48,13 +49,14 @@ public class Sync extends Service implements AsyncTaskListener{
             Account tempAccount = accounts[i]; //Create a temporary account variable
             if(tempAccount.type.equals(AccountGeneral.ACCOUNT_TYPE)){ //If it is a PSN Account
                 account = tempAccount; //Set this account as one to be used throughout program
+                username = mAccountManager.peekAuthToken(account, "");
             }
         }
 
         if(account != null){ //If account exists
             Log.i("PSN", "Downloading");
-            new GetXML(this).execute("http://psntrophies.net16.net/getProfile.php?psnid=" + account.name); //Downloads profile
-            new GetXML(this).execute("http://psntrophies.net16.net/getGames.php?psnid=" + account.name); //Downloads games
+            new GetXML(this).execute("http://psntrophies.net16.net/getProfile.php?psnid=" + username); //Downloads profile
+            new GetXML(this).execute("http://psntrophies.net16.net/getGames.php?psnid=" + username); //Downloads games
         }
 
 
@@ -186,7 +188,6 @@ public class Sync extends Service implements AsyncTaskListener{
 
                 if(difference == 1){ //If only one new trophy has been earned
                     //Download trophy information for this game
-                    String username = account.name;
                     String id = changedGames.get(0).getId();
                     new GetXML(this).execute("http://psntrophies.net16.net/getTrophies.php?psnid="+ username + "&gameid=" + id);
 
@@ -196,7 +197,6 @@ public class Sync extends Service implements AsyncTaskListener{
                     Log.i("PSN", "Multiple trophies earned");
 
                     //Download trophy information for this game
-                    String username = account.name;
                     String id = changedGames.get(0).getId();
                     new GetXML(this).execute("http://psntrophies.net16.net/getTrophies.php?psnid="+ username + "&gameid=" + id);
                 }

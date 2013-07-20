@@ -6,13 +6,16 @@ import java.util.List;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.annotation.TargetApi;
+import android.content.ContentResolver;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.preference.EditTextPreference;
 import android.util.Log;
 import android.os.Bundle;
 import android.preference.ListPreference;
@@ -86,19 +89,100 @@ public class SettingsActivity extends PreferenceActivity{
                 }
             });
         }
-        Preference usernamePreference = (Preference)findPreference("username");
-        if (usernamePreference != null) {
-            //Create account manager and list of accounts
-            AccountManager mAccountManager = AccountManager.get(getBaseContext());
-            Account[] accounts = mAccountManager.getAccounts();
 
+        //Create account manager and list of accounts
+        final AccountManager mAccountManager = AccountManager.get(getBaseContext());
+        Account[] accounts = mAccountManager.getAccounts();
+
+        final EditTextPreference emailPreference = (EditTextPreference)findPreference("email");
+        if (emailPreference != null) {
+            Account account = null; //Account to use
             for(int i=0; i<accounts.length;i++){ //Iterate through accounts
                 Account tempAccount = accounts[i]; //Create a temporary account variable
                 if(tempAccount.type.equals(AccountGeneral.ACCOUNT_TYPE)){ //If it is a PSN Account
-                   usernamePreference.setSummary(tempAccount.name);
+                    account = tempAccount;
                 }
             }
+
+            emailPreference.setPersistent(false); //Don't save email in shared preference
+            emailPreference.setSummary(account.name);
+            emailPreference.setText(account.name);
+
+            //Create listener for change in email
+            final Account finalAccount = account;
+            Preference.OnPreferenceChangeListener listener = new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    //When preference is changed
+                    String newEmail = (String)newValue; //Cast object to string
+                    //Retrieve old username & password
+                    String password = mAccountManager.getPassword(finalAccount);
+                    String username = mAccountManager.peekAuthToken(finalAccount, "");
+
+                    mAccountManager.removeAccount(finalAccount, null, null); //Delete old account
+                    Account newAccount = new Account(newEmail, AccountGeneral.ACCOUNT_TYPE); //Create new account
+                    mAccountManager.addAccountExplicitly(newAccount, password, new Bundle()); //Add account
+                    mAccountManager.setAuthToken(newAccount, "", username); //Set username as authtoken
+
+                    //Make account sync automatically
+                    getContentResolver().setSyncAutomatically(newAccount, "com.brookes.psntrophies.provider", true);
+
+                    //Update text and summary
+                    emailPreference.setText(newEmail);
+                    emailPreference.setSummary(newEmail);
+                    return false;
+                }
+            };
+            emailPreference.setOnPreferenceChangeListener(listener); //Apply listener
         }
+
+        final EditTextPreference passwordPreference = (EditTextPreference)findPreference("password");
+        if(passwordPreference != null){
+            Account account = null; //Account to use
+            for(int i=0; i<accounts.length;i++){ //Iterate through accounts
+                Account tempAccount = accounts[i]; //Create a temporary account variable
+                if(tempAccount.type.equals(AccountGeneral.ACCOUNT_TYPE)){ //If it is a PSN Account
+                    account = tempAccount;
+                }
+            }
+            passwordPreference.setPersistent(false); //Make sure password is not saved in shared preference
+
+            String password = mAccountManager.getPassword(account); //Retrieve password
+
+            //Create a masked password same length as proper password
+            int passwordLength = password.length();
+            String maskedPassword = "";
+            for(int j=0; j<passwordLength; j++){
+                maskedPassword += "*";
+            }
+
+            passwordPreference.setSummary(maskedPassword); //Set masked password as summary
+            passwordPreference.setText(password); //Set actual password as text to be changed
+
+            //Create listener for change in password
+            final Account finalAccount = account;
+            Preference.OnPreferenceChangeListener listener = new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    //When preference is changed
+                    String newPassword = (String)newValue; //Cast object to string
+                    mAccountManager.setPassword(finalAccount, newPassword); //Set password in account manager
+                    passwordPreference.setText(newPassword);
+
+                    //Create masked password
+                    int passwordLength = newPassword.length();
+                    String maskedPassword = "";
+                    for(int j=0; j<passwordLength; j++){
+                        maskedPassword += "*";
+                    }
+
+                    passwordPreference.setSummary(maskedPassword); //Set masked password as summary
+                    return false;
+                }
+            };
+            passwordPreference.setOnPreferenceChangeListener(listener); //Apply listener
+        }
+
 
 
         // Add 'games' preferences, and a corresponding header.
@@ -284,19 +368,98 @@ public class SettingsActivity extends PreferenceActivity{
 
             Preference usernamePreference = (Preference)findPreference("username");
 
-            if (usernamePreference != null) {
-                //Create account manager and list of accounts
-                AccountManager mAccountManager = AccountManager.get(context);
-                Account[] accounts = mAccountManager.getAccounts();
+            //Create account manager and list of accounts
+            final AccountManager mAccountManager = AccountManager.get(context);
+            Account[] accounts = mAccountManager.getAccounts();
 
+            final EditTextPreference emailPreference = (EditTextPreference)findPreference("email");
+            if (emailPreference != null) {
+                Account account = null; //Account to use
                 for(int i=0; i<accounts.length;i++){ //Iterate through accounts
                     Account tempAccount = accounts[i]; //Create a temporary account variable
                     if(tempAccount.type.equals(AccountGeneral.ACCOUNT_TYPE)){ //If it is a PSN Account
-                        usernamePreference.setSummary(tempAccount.name);
+                        account = tempAccount;
                     }
                 }
+
+                emailPreference.setPersistent(false); //Don't save email in shared preference
+                emailPreference.setSummary(account.name);
+                emailPreference.setText(account.name);
+
+                //Create listener for change in email
+                final Account finalAccount = account;
+                Preference.OnPreferenceChangeListener listener = new Preference.OnPreferenceChangeListener() {
+                    @Override
+                    public boolean onPreferenceChange(Preference preference, Object newValue) {
+                        //When preference is changed
+                        String newEmail = (String)newValue; //Cast object to string
+                        //Retrieve old username & password
+                        String password = mAccountManager.getPassword(finalAccount);
+                        String username = mAccountManager.peekAuthToken(finalAccount, "");
+
+                        mAccountManager.removeAccount(finalAccount, null, null); //Delete old account
+                        Account newAccount = new Account(newEmail, AccountGeneral.ACCOUNT_TYPE); //Create new account
+                        mAccountManager.addAccountExplicitly(newAccount, password, new Bundle()); //Add account
+                        mAccountManager.setAuthToken(newAccount, "", username); //Set username as authtoken
+
+                        //Make account sync automatically
+                        ContentResolver.setSyncAutomatically(newAccount, "com.brookes.psntrophies.provider", true);
+
+                        //Update text and summary
+                        emailPreference.setText(newEmail);
+                        emailPreference.setSummary(newEmail);
+                        return false;
+                    }
+                };
+                emailPreference.setOnPreferenceChangeListener(listener); //Apply listener
             }
 
+            final EditTextPreference passwordPreference = (EditTextPreference)findPreference("password");
+            if(passwordPreference != null){
+                Account account = null; //Account to use
+                for(int i=0; i<accounts.length;i++){ //Iterate through accounts
+                    Account tempAccount = accounts[i]; //Create a temporary account variable
+                    if(tempAccount.type.equals(AccountGeneral.ACCOUNT_TYPE)){ //If it is a PSN Account
+                        account = tempAccount;
+                    }
+                }
+                passwordPreference.setPersistent(false); //Make sure password is not saved in shared preference
+
+                String password = mAccountManager.getPassword(account); //Retrieve password
+
+                //Create a masked password same length as proper password
+                int passwordLength = password.length();
+                String maskedPassword = "";
+                for(int j=0; j<passwordLength; j++){
+                    maskedPassword += "*";
+                }
+
+                passwordPreference.setSummary(maskedPassword); //Set masked password as summary
+                passwordPreference.setText(password); //Set actual password as text to be changed
+
+                //Create listener for change in password
+                final Account finalAccount = account;
+                Preference.OnPreferenceChangeListener listener = new Preference.OnPreferenceChangeListener() {
+                    @Override
+                    public boolean onPreferenceChange(Preference preference, Object newValue) {
+                        //When preference is changed
+                        String newPassword = (String)newValue; //Cast object to string
+                        mAccountManager.setPassword(finalAccount, newPassword); //Set password in account manager
+                        passwordPreference.setText(newPassword);
+
+                        //Create masked password
+                        int passwordLength = newPassword.length();
+                        String maskedPassword = "";
+                        for(int j=0; j<passwordLength; j++){
+                            maskedPassword += "*";
+                        }
+
+                        passwordPreference.setSummary(maskedPassword); //Set masked password as summary
+                        return false;
+                    }
+                };
+                passwordPreference.setOnPreferenceChangeListener(listener); //Apply listener
+            }
 		}
 	}
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)

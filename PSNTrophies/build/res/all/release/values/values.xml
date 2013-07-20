@@ -73,8 +73,10 @@
     <string name="pref_title_delete_frequency">Delete images automatically</string>
     <string name="pref_title_delete_images">Delete images</string>
     <string name="pref_title_download_images">Download images</string>
+    <string name="pref_title_email">Email</string>
     <string name="pref_title_filter_games">Filter games</string>
     <string name="pref_title_new_message_notifications">New message notifications</string>
+    <string name="pref_title_password">Password</string>
     <string name="pref_title_ringtone">Ringtone</string>
     <string name="pref_title_save_images">Save images to SD Card</string>
     <string name="pref_title_show_completed_trophies">Show completed trophies</string>
@@ -83,7 +85,6 @@
     <string name="pref_title_sort_games">Sort games</string>
     <string name="pref_title_sync_frequency">Sync frequency</string>
     <string name="pref_title_system_sync_settings">System sync settings</string>
-    <string name="pref_title_username">Username</string>
     <string name="pref_title_vibrate">Vibrate</string>
     <string name="title_activity_authenticator">Sign In</string>
     <string name="title_activity_log_in">Log In</string>

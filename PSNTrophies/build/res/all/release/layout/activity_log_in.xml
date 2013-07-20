@@ -14,12 +14,12 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="Please enter your PSN username"
+        android:text="Please enter your PSN information"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="#FFFFFF" />
 
     <EditText
-        android:id="@+id/psnLogin"
+        android:id="@+id/psnEmail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/textView1"
@@ -27,18 +27,32 @@
         android:layout_below="@+id/textView1"
         android:layout_marginTop="38dp"
         android:ems="10"
-        android:hint="Username"
+        android:hint="Email Address"
         android:inputType="textNoSuggestions"
         android:textColor="#FFFFFF" >
 
         <requestFocus />
     </EditText>
 
+    <EditText
+            android:id="@+id/psnPassword"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/textView1"
+            android:layout_alignRight="@+id/textView1"
+            android:layout_below="@+id/psnEmail"
+            android:layout_marginTop="20dp"
+            android:ems="10"
+            android:hint="Password"
+            android:inputType="textPassword"
+            android:textColor="#FFFFFF" >
+    </EditText>
+
     <Button
         android:id="@+id/loginButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/psnLogin"
+        android:layout_below="@+id/psnPassword"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="35dp"
         android:text="Login"

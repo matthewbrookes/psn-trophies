@@ -110,7 +110,7 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
         for(int i=0; i<accounts.length;i++){ //Iterate through accounts
             Account tempAccount = accounts[i]; //Create a temporary account variable
             if(tempAccount.type.equals(AccountGeneral.ACCOUNT_TYPE)){ //If it is a PSN Account
-                username = tempAccount.name; //Set the username
+                username = mAccountManager.peekAuthToken(tempAccount, "");
             }
         }
 
