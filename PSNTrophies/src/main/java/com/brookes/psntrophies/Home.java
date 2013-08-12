@@ -98,7 +98,7 @@ public class Home extends Activity implements AsyncTaskListener{
             Account tempAccount = accounts[i]; //Create a temporary account variable
             if(tempAccount.type.equals(AccountGeneral.ACCOUNT_TYPE)){ //If it is a PSN Account
                 account = tempAccount; //Set this account as one to be used throughout program
-                username = mAccountManager.peekAuthToken(account, ""); //Set the username
+                username = account.name; //Set the username
             }
         }
 

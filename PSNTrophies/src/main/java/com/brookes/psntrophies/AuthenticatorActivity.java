@@ -95,13 +95,7 @@ public class AuthenticatorActivity extends Activity implements AuthenticatorList
             errorField.setText("Password cannot be empty"); //Set error field text
         }
         else{
-            try {
-                new ServerAuthenticate(this).authenticateUser(filteredEmail, userPass);
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            new ServerAuthenticate(this).authenticateUser(filteredEmail, userPass);
         }
     }
 
@@ -121,6 +115,7 @@ public class AuthenticatorActivity extends Activity implements AuthenticatorList
             // (Not setting the auth token will cause another call to the server to authenticate the user)
             mAccountManager.addAccountExplicitly(account, accountPassword, null);
             mAccountManager.setAuthToken(account, authtokenType, authtoken);
+            mAccountManager.setUserData(account, "email", authtoken);
         } else {
             mAccountManager.setPassword(account, accountPassword);
         }
@@ -143,9 +138,9 @@ public class AuthenticatorActivity extends Activity implements AuthenticatorList
                 protected Intent doInBackground(String... params) {
                     Bundle data = new Bundle();
                     try {
-                        data.putString(AccountManager.KEY_ACCOUNT_NAME, filteredEmail);
+                        data.putString(AccountManager.KEY_ACCOUNT_NAME, finalUsername);
                         data.putString(AccountManager.KEY_ACCOUNT_TYPE, accountType);
-                        data.putString(AccountManager.KEY_AUTHTOKEN, finalUsername);
+                        data.putString(AccountManager.KEY_AUTHTOKEN, filteredEmail);
                         data.putString(PARAM_USER_PASS, userPass);
 
                     } catch (Exception e) {

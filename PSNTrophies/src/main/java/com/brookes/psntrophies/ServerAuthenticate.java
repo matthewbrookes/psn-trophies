@@ -28,7 +28,7 @@ public class ServerAuthenticate {
         this.callback = (AuthenticatorListener)context;
     }
 
-    public void authenticateUser(final String email, String pass) throws ExecutionException, InterruptedException {
+    public void authenticateUser(final String email, String pass){
         //This method attempts to retrieve the psn id for given arguments
         String username = "";
 

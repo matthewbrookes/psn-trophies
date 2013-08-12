@@ -45,23 +45,24 @@ public final class R {
     public static final class id {
         public static final int accountName=0x7f0a0000;
         public static final int accountPassword=0x7f0a0001;
-        public static final int action_completedTrophies=0x7f0a003b;
-        public static final int action_logout=0x7f0a0039;
-        public static final int action_secretTrophies=0x7f0a003a;
-        public static final int action_settings=0x7f0a0038;
-        public static final int action_sync=0x7f0a0037;
-        public static final int action_unearnedTrophies=0x7f0a003c;
+        public static final int action_completedTrophies=0x7f0a003d;
+        public static final int action_logout=0x7f0a003b;
+        public static final int action_secretTrophies=0x7f0a003c;
+        public static final int action_settings=0x7f0a003a;
+        public static final int action_sync=0x7f0a0039;
+        public static final int action_unearnedTrophies=0x7f0a003e;
         public static final int bronzeLabel=0x7f0a001a;
         public static final int completionPercentageLabel=0x7f0a0029;
         public static final int completionProgressBar1=0x7f0a002a;
         public static final int completionTable=0x7f0a0028;
         public static final int earnedLabel=0x7f0a002b;
+        public static final int email=0x7f0a002d;
         public static final int errorField=0x7f0a0020;
         public static final int gameImage=0x7f0a0017;
         public static final int gameLayout=0x7f0a0021;
         public static final int gameName=0x7f0a0024;
         public static final int gamePicture=0x7f0a0022;
-        public static final int gameTrophiesAchievable=0x7f0a002e;
+        public static final int gameTrophiesAchievable=0x7f0a0030;
         public static final int gamesList=0x7f0a001c;
         public static final int goldLabel=0x7f0a0016;
         public static final int imageView2=0x7f0a0015;
@@ -69,7 +70,8 @@ public final class R {
         public static final int imageView4=0x7f0a001b;
         public static final int information=0x7f0a0023;
         public static final int loginButton=0x7f0a001f;
-        public static final int platformImage=0x7f0a0030;
+        public static final int password=0x7f0a002e;
+        public static final int platformImage=0x7f0a0032;
         public static final int platinumLabel=0x7f0a0014;
         public static final int profileInformationTable=0x7f0a0007;
         public static final int profileLayout=0x7f0a0003;
@@ -91,17 +93,17 @@ public final class R {
         public static final int textView1=0x7f0a000f;
         public static final int textView2=0x7f0a0012;
         public static final int totalLayout=0x7f0a0025;
-        public static final int trophiesAchievableLabel=0x7f0a002d;
-        public static final int trophiesEarnedLayout=0x7f0a002f;
+        public static final int trophiesAchievableLabel=0x7f0a002f;
+        public static final int trophiesEarnedLayout=0x7f0a0031;
         public static final int trophiesList=0x7f0a002c;
-        public static final int trophyDateEarned=0x7f0a0036;
-        public static final int trophyDateLabel=0x7f0a0035;
-        public static final int trophyDescription=0x7f0a0034;
-        public static final int trophyImage=0x7f0a0031;
-        public static final int trophyName=0x7f0a0032;
+        public static final int trophyDateEarned=0x7f0a0038;
+        public static final int trophyDateLabel=0x7f0a0037;
+        public static final int trophyDescription=0x7f0a0036;
+        public static final int trophyImage=0x7f0a0033;
+        public static final int trophyName=0x7f0a0034;
         public static final int trophyTotal=0x7f0a0027;
         public static final int trophyTotalLabel=0x7f0a0026;
-        public static final int trophyTypeImage=0x7f0a0033;
+        public static final int trophyTypeImage=0x7f0a0035;
         public static final int updateLabel=0x7f0a0006;
         public static final int updateText=0x7f0a0005;
     }
@@ -110,8 +112,9 @@ public final class R {
         public static final int activity_home=0x7f030001;
         public static final int activity_log_in=0x7f030002;
         public static final int activity_trophies_list=0x7f030003;
-        public static final int list_item_game=0x7f030004;
-        public static final int list_item_trophy=0x7f030005;
+        public static final int dialog_signin=0x7f030004;
+        public static final int list_item_game=0x7f030005;
+        public static final int list_item_trophy=0x7f030006;
     }
     public static final class menu {
         public static final int home=0x7f090000;

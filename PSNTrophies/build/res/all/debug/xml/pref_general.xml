@@ -1,13 +1,11 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
-    <EditTextPreference
+    <Preference
             android:title="@string/pref_title_email"
             android:key="email" />
 
-    <EditTextPreference
+    <Preference
             android:title="@string/pref_title_password"
-            android:key="password"
-            android:inputType="textPassword"
-            android:password="true" />
+            android:key="password" />
 
     <CheckBoxPreference
             android:defaultValue="true"
