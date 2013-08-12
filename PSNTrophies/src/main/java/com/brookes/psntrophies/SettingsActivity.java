@@ -91,17 +91,33 @@ public class SettingsActivity extends PreferenceActivity implements Authenticato
             deleteButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() { //When user clicks button to delete images
                 @Override
                 public boolean onPreferenceClick(Preference arg0) {
-                    //TODO Create a dialog checking user wants to proceed
-                    boolean deletedImages = deleteImages(); //Try to delete images from SD Card
-                    //Create a successful and error message
-                    Toast errorMsg = Toast.makeText(context, "Unable to access SD Card", Toast.LENGTH_SHORT);
-                    Toast successMsg = Toast.makeText(context, "Images have been deleted", Toast.LENGTH_SHORT);
-                    if(deletedImages){ //If images successfully deleted
-                        successMsg.show(); //Show a success message
-                    }
-                    else{
-                        errorMsg.show(); //Show an error message
-                    }
+                    // Dialog checks user wants to delete all images
+                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                    builder.setMessage("Are you sure you want to delete all saved images?")
+                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    boolean deletedImages = deleteImages(); //Try to delete images from SD Card
+                                    //Create a successful and error message
+                                    Toast errorMsg = Toast.makeText(context, "Unable to access SD Card", Toast.LENGTH_SHORT);
+                                    Toast successMsg = Toast.makeText(context, "Images have been deleted", Toast.LENGTH_SHORT);
+                                    if(deletedImages){ //If images successfully deleted
+                                        successMsg.show(); //Show a success message
+                                    }
+                                    else{
+                                        errorMsg.show(); //Show an error message
+                                    }
+                                }
+                            })
+                            .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    dialogInterface.cancel();
+                                }
+                            });
+
+                    // Create the AlertDialog object and show it
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
                     return true;
                 }
             });
@@ -159,57 +175,6 @@ public class SettingsActivity extends PreferenceActivity implements Authenticato
                 }
             });
         }
-        /*
-
-        final EditTextPreference passwordPreference = (EditTextPreference)findPreference("password");
-        if(passwordPreference != null){
-            Account account = null; //Account to use
-            for(int i=0; i<accounts.length;i++){ //Iterate through accounts
-                Account tempAccount = accounts[i]; //Create a temporary account variable
-                if(tempAccount.type.equals(AccountGeneral.ACCOUNT_TYPE)){ //If it is a PSN Account
-                    account = tempAccount;
-                }
-            }
-            passwordPreference.setPersistent(false); //Make sure password is not saved in shared preference
-
-            String password = mAccountManager.getPassword(account); //Retrieve password
-
-            //Create a masked password same length as proper password
-            int passwordLength = password.length();
-            String maskedPassword = "";
-            for(int j=0; j<passwordLength; j++){
-                maskedPassword += "*";
-            }
-
-            passwordPreference.setSummary(maskedPassword); //Set masked password as summary
-            passwordPreference.setText(password); //Set actual password as text to be changed
-
-            //Create listener for change in password
-            final Account finalAccount = account;
-            Preference.OnPreferenceChangeListener listener = new Preference.OnPreferenceChangeListener() {
-                @Override
-                public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    //When preference is changed
-                    String newPassword = (String)newValue; //Cast object to string
-                    mAccountManager.setPassword(finalAccount, newPassword); //Set password in account manager
-                    passwordPreference.setText(newPassword);
-
-                    //Create masked password
-                    int passwordLength = newPassword.length();
-                    String maskedPassword = "";
-                    for(int j=0; j<passwordLength; j++){
-                        maskedPassword += "*";
-                    }
-
-                    passwordPreference.setSummary(maskedPassword); //Set masked password as summary
-                    return false;
-                }
-            };
-            passwordPreference.setOnPreferenceChangeListener(listener); //Apply listener
-        }
-        */
-
-
 
         // Add 'games' preferences, and a corresponding header.
         fakeHeader = new PreferenceCategory(this);
@@ -479,17 +444,33 @@ public class SettingsActivity extends PreferenceActivity implements Authenticato
                 deleteButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() { //When user clicks button to delete images
                     @Override
                     public boolean onPreferenceClick(Preference arg0) {
-                        //TODO Create a dialog checking user wants to proceed
-                        boolean deletedImages = deleteImages(); //Try to delete images from SD Card
-                        //Create a successful and error message
-                        Toast errorMsg = Toast.makeText(context, "Unable to access SD Card", Toast.LENGTH_SHORT);
-                        Toast successMsg = Toast.makeText(context, "Images have been deleted", Toast.LENGTH_SHORT);
-                        if(deletedImages){ //If images successfully deleted
-                            successMsg.show(); //Show a success message
-                        }
-                        else{
-                            errorMsg.show(); //Show an error message
-                        }
+                        // Dialog checks user wants to delete all images
+                        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                        builder.setMessage("Are you sure you want to delete all saved images?")
+                                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        boolean deletedImages = deleteImages(); //Try to delete images from SD Card
+                                        //Create a successful and error message
+                                        Toast errorMsg = Toast.makeText(context, "Unable to access SD Card", Toast.LENGTH_SHORT);
+                                        Toast successMsg = Toast.makeText(context, "Images have been deleted", Toast.LENGTH_SHORT);
+                                        if(deletedImages){ //If images successfully deleted
+                                            successMsg.show(); //Show a success message
+                                        }
+                                        else{
+                                            errorMsg.show(); //Show an error message
+                                        }
+                                    }
+                                })
+                                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        dialogInterface.cancel();
+                                    }
+                                });
+
+                        // Create the AlertDialog object and show it
+                        AlertDialog dialog = builder.create();
+                        dialog.show();
                         return true;
                     }
                 });
