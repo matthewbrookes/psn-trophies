@@ -217,44 +217,28 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
             new GetXML(this).execute("http://psntrophies.net16.net/getTrophies.php?psnid="+ username + "&gameid=" + gameId); //Downloads trophies xml for this game
         }
         else{
-            if(timeSinceSync > timeBetweenSyncs){ //If information is older than user wants
-                //Save the new update time
-                savedUpdateEditor.putLong(gameId, currentTime);
-                savedUpdateEditor.commit();
-
-                //Change the update label on home screen
-                d = new Date(currentTime);
-                displayDate = f.format(d);
-                updateText.setText(displayDate);
-
-                trophiesDialog.show();
-
-                new GetXML(this).execute("http://psntrophies.net16.net/getTrophies.php?psnid="+ username + "&gameid=" + gameId); //Downloads trophies xml for this game
-            }
-            else{
-                //Create trophies from saved xml
-                trophies = new XMLParser().getPSNAPITrophies(trophiesXML);
-                //Iterates through list creating dates in local format without "seconds" information
-                DateFormat format = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT);
-                for(int j=0;j<trophies.size();j++){
-                    if(!trophies.get(j).getDateEarned().isEmpty()){ //If the trophy has been earned
-                        //Seconds since epoch converted to milliseconds and formatted to a date
-                        Date date = new Date(Long.parseLong(trophies.get(j).getDateEarned()) * 1000L);
-                        String trophyDisplayDate = format.format(date);
-                        trophies.get(j).setDisplayDate(trophyDisplayDate);
-                    }
-                    if(mExternalStorageAvailable){ //If can read from SD Card
-                        File savedImageFile = new File(getExternalFilesDir(null), "/" + gameId + "/" + trophies.get(j).getId() + ".png");
-                        if(savedImageFile.exists()){
-                            BitmapFactory.Options options = new BitmapFactory.Options();
-                            options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-                            Bitmap bitmap = BitmapFactory.decodeFile(savedImageFile.toString(), options);
-                            trophies.get(j).setBitmap(bitmap);
-                        }
+            //Create trophies from saved xml
+            trophies = new XMLParser().getPSNAPITrophies(trophiesXML);
+            //Iterates through list creating dates in local format without "seconds" information
+            DateFormat format = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT);
+            for(int j=0;j<trophies.size();j++){
+                if(!trophies.get(j).getDateEarned().isEmpty()){ //If the trophy has been earned
+                    //Seconds since epoch converted to milliseconds and formatted to a date
+                    Date date = new Date(Long.parseLong(trophies.get(j).getDateEarned()) * 1000L);
+                    String trophyDisplayDate = format.format(date);
+                    trophies.get(j).setDisplayDate(trophyDisplayDate);
+                }
+                if(mExternalStorageAvailable){ //If can read from SD Card
+                    File savedImageFile = new File(getExternalFilesDir(null), "/" + gameId + "/" + trophies.get(j).getId() + ".png");
+                    if(savedImageFile.exists()){
+                        BitmapFactory.Options options = new BitmapFactory.Options();
+                        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+                        Bitmap bitmap = BitmapFactory.decodeFile(savedImageFile.toString(), options);
+                        trophies.get(j).setBitmap(bitmap);
                     }
                 }
-                downloadTrophyImages(trophies);
             }
+            downloadTrophyImages(trophies);
         }
 	}
 
