@@ -449,7 +449,7 @@ public class FriendsFragment extends Fragment implements AsyncTaskListener, Auth
             }
         }
         psnTrophyLevel.setText(Integer.toString(profile.getLevel()));
-        psnTrophyProgress.setText(Integer.toString(profile.getProgess()) + "%");
+        psnTrophyProgress.setText(Integer.toString(profile.getProgress()) + "%");
         platinumLabel.setText(Integer.toString(profile.getTrophies()[0]));
         goldLabel.setText(Integer.toString(profile.getTrophies()[1]));
         silverLabel.setText(Integer.toString(profile.getTrophies()[2]));

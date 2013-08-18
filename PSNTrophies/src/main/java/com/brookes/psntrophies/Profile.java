@@ -48,7 +48,7 @@ public class Profile implements Parcelable{
 		this.Level = level;
 	}
 	
-	public int getProgess(){
+	public int getProgress(){
 		return this.ProgresstoNextLevel;
 	}
 	public void setProgress(int progress){
