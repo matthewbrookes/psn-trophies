@@ -30,4 +30,4 @@
             android:negativeButtonText="@null"
             android:positiveButtonText="@null"
             android:title="@string/pref_title_delete_frequency" />
-</PreferenceScreen>
+</PreferenceScreen><!-- From: file:/home/matt/PSN%20Trophies/PSNTrophiesProject/PSNTrophies/src/main/res/xml/pref_general.xml -->

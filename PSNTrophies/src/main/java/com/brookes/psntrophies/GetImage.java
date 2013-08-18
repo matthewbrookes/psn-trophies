@@ -15,17 +15,19 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.support.v4.app.Fragment;
 
 public class GetImage extends AsyncTask <String, Void, Bitmap> {
-	private Context context;
 	private AsyncTaskListener callback; //Will be called to tell activity download has finished
 	private DownloadType downloadType;
 	private String uri = "";
 
-	public GetImage(Context context){
-		this.context = context;
+	public GetImage(Context context){ //This constructor is used if called from an activity
 	    this.callback = (AsyncTaskListener)context;
 	}
+    public GetImage(Fragment fragment){ //This constructor is used if called from a fragment
+        this.callback = (AsyncTaskListener)fragment;
+    }
 	@Override
 	protected void onPreExecute() {
 	    super.onPreExecute();
@@ -64,7 +66,7 @@ public class GetImage extends AsyncTask <String, Void, Bitmap> {
 	protected void onPostExecute(Bitmap resultOfComputation){
 		switch(downloadType){
 			case PROFILE:
-				callback.onProfileImageDownloaded(resultOfComputation); //Returns the profile
+				callback.onProfileImageDownloaded(uri, resultOfComputation); //Returns the image
 				break;
 			case GAMESTROPHIES:
 				callback.onGameImageDownloaded(uri, resultOfComputation);

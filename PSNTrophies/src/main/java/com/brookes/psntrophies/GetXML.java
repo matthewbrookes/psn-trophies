@@ -14,16 +14,18 @@ import org.apache.http.util.EntityUtils;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.support.v4.app.Fragment;
 
 public class GetXML extends AsyncTask <String, Void, String> {
-	private Context context;
 	private AsyncTaskListener callback; //Will be called to tell activity download has finished
 	private DownloadType downloadType;
-	
-	public GetXML(Context context){
-		this.context = context;
-	    this.callback = (AsyncTaskListener)context;
-	}
+
+    public GetXML(Context context){ //This constructor is used if called from an activity
+        this.callback = (AsyncTaskListener)context;
+    }
+    public GetXML(Fragment fragment){ //This constructor is used if called from a fragment
+        this.callback = (AsyncTaskListener)fragment;
+    }
 	@Override
 	protected void onPreExecute() {
 	    super.onPreExecute();
@@ -42,6 +44,9 @@ public class GetXML extends AsyncTask <String, Void, String> {
          }
          else if(params[0].contains("getTrophies.php")){ 
         	 downloadType = DownloadType.PSNAPITROPHIES;
+         }
+         else if(params[0].contains("getFriends.php")){
+             downloadType = DownloadType.FRIENDS;
          }
          String result = "";
          try {
@@ -70,6 +75,8 @@ public class GetXML extends AsyncTask <String, Void, String> {
 			case PSNAPITROPHIES:
 				callback.onPSNTrophiesDownloaded(resultOfComputation);
 				break;
+            case FRIENDS:
+                callback.onFriendsDownloaded(resultOfComputation);
 			default:
 				break;
 		}

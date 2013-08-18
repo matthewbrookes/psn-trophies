@@ -26,4 +26,4 @@
         android:key="notifications_new_message_vibrate"
         android:title="@string/pref_title_vibrate" />
 
-</PreferenceScreen>
+</PreferenceScreen><!-- From: file:/home/matt/PSN%20Trophies/PSNTrophiesProject/PSNTrophies/src/main/res/xml/pref_notification.xml -->

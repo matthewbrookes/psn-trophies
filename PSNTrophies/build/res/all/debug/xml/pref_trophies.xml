@@ -19,4 +19,4 @@
         android:key="show_unearned_trophies"
         android:title="@string/pref_title_show_unearned_trophies" />
 
-</PreferenceScreen>
+</PreferenceScreen><!-- From: file:/home/matt/PSN%20Trophies/PSNTrophiesProject/PSNTrophies/src/main/res/xml/pref_trophies.xml -->

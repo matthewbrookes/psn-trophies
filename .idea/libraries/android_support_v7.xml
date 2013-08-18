@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="android-support-v7">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/PSNTrophies/libs/android-support-v7.jar!/" />
+      <root url="jar://$PROJECT_DIR$/PSNTrophies/libs/android-support-v7.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

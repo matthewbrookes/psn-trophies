@@ -4,6 +4,7 @@ import android.accounts.Account;
 
 import android.accounts.AccountManager;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -39,6 +40,7 @@ public class AuthenticatorActivity extends Activity implements AuthenticatorList
     private TextView errorField = null;
     private EditText psnEmail = null;
     private EditText psnPassword = null;
+    private ProgressDialog pDialog = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,6 +97,11 @@ public class AuthenticatorActivity extends Activity implements AuthenticatorList
             errorField.setText("Password cannot be empty"); //Set error field text
         }
         else{
+            pDialog = new ProgressDialog(this);
+            pDialog.setIndeterminate(true);
+            pDialog.setMessage("Authenticating " + filteredEmail);
+            pDialog.setCancelable(false);
+            pDialog.show();
             new ServerAuthenticate(this).authenticateUser(filteredEmail, userPass);
         }
     }
@@ -125,6 +132,7 @@ public class AuthenticatorActivity extends Activity implements AuthenticatorList
 
     @Override
     public void onAccountAuthenticated(String username) {
+        pDialog.cancel();
         if(username.isEmpty()){
             errorField.setText("Username/Password is incorrect");
         }

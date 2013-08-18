@@ -3,6 +3,7 @@ package com.brookes.psntrophies;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.support.v4.app.Fragment;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -19,13 +20,14 @@ import java.util.concurrent.ExecutionException;
  * Created by matt on 20/07/13.
  */
 public class ServerAuthenticate {
-    private Context mContext;
     private AuthenticatorListener callback;
-    private ProgressDialog pDialog;
 
     public ServerAuthenticate(Context context){
-        this.mContext = context;
         this.callback = (AuthenticatorListener)context;
+    }
+
+    public ServerAuthenticate(Fragment fragment){
+        this.callback = (AuthenticatorListener)fragment;
     }
 
     public void authenticateUser(final String email, String pass){
@@ -39,11 +41,6 @@ public class ServerAuthenticate {
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
-                pDialog = new ProgressDialog(mContext);
-                pDialog.setIndeterminate(true);
-                pDialog.setMessage("Authenticating " + email);
-                pDialog.setCancelable(false);
-                pDialog.show();
             }
             @Override
             protected String doInBackground(Void... voids) {
@@ -63,7 +60,6 @@ public class ServerAuthenticate {
                 return result;
             }
             protected void onPostExecute(String username){
-                pDialog.cancel();
                 if(username.contains("hosting24")){ //If extra content
                     int pos = username.indexOf("\r"); //Position of character following username
                     String finalUsername = username.substring(0, pos); //Retrieve username from string

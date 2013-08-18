@@ -24,4 +24,4 @@
         android:title="@string/pref_title_sort_games" />
 
 
-</PreferenceScreen>
+</PreferenceScreen><!-- From: file:/home/matt/PSN%20Trophies/PSNTrophiesProject/PSNTrophies/src/main/res/xml/pref_games.xml -->

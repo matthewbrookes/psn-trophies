@@ -18,4 +18,4 @@
         android:fragment="com.brookes.psntrophies.SettingsActivity$DataSyncPreferenceFragment"
         android:title="@string/pref_header_data_sync" />
 
-</preference-headers>
+</preference-headers><!-- From: file:/home/matt/PSN%20Trophies/PSNTrophiesProject/PSNTrophies/src/main/res/xml/pref_headers.xml -->

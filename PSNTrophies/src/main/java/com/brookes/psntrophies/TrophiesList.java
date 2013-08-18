@@ -291,8 +291,8 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
 		}
 		downloadTrophyImages(trophies);
 	}
-	
-	private void downloadTrophyImages(ArrayList<Trophy> trophies){
+
+    private void downloadTrophyImages(ArrayList<Trophy> trophies){
 		if(downloadImages){
             //Resets the progress dialog, the counter and the list of processes
             imagesDownloadedCounter = 0;
@@ -545,7 +545,7 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
         		}
 				
 				//Saves new setting
-        		savedInformationEditor.putBoolean("show_completed_trophies", showCompletedTrophies);
+        		savedInformationEditor.putBoolean("show_unearned_trophies", showCompletedTrophies);
     	
     	        // Commit the edits!
     	        savedInformationEditor.commit();
@@ -605,7 +605,7 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
 	}
 
 	@Override
-	public void onProfileImageDownloaded(Bitmap image) {
+	public void onProfileImageDownloaded(String url, Bitmap image) {
 		// Not used but is required due to implementations
 	}
 
@@ -614,6 +614,9 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
 		// Not used but is required due to implementations
 	}
 
-	
+    @Override
+    public void onFriendsDownloaded(String friendsXML) {
+        // Not used but is required due to implementations
+    }
 
 }

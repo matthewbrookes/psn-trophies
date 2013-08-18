@@ -113,4 +113,4 @@
             android:layout_height="20px"
             android:layout_alignParentRight="true"
             android:layout_below="@id/trophiesEarnedLayout" />
-</RelativeLayout>
+</RelativeLayout><!-- From: file:/home/matt/PSN%20Trophies/PSNTrophiesProject/PSNTrophies/src/main/res/layout/list_item_game.xml -->

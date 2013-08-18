@@ -22,4 +22,4 @@
         <intent android:action="android.settings.SYNC_SETTINGS" />
     </Preference>
 
-</PreferenceScreen>
+</PreferenceScreen><!-- From: file:/home/matt/PSN%20Trophies/PSNTrophiesProject/PSNTrophies/src/main/res/xml/pref_data_sync.xml -->

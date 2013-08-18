@@ -15,77 +15,77 @@ import org.xmlpull.v1.XmlPullParserFactory;
 public class XMLParser{
 	public Profile getProfile(String xmlString){ //Returns a Profile object from the XML string with Profile data
 	Profile profile = null;
-		profile = new Profile();
-        String text = "";
-		XmlPullParserFactory factory = null;
-        XmlPullParser parser = null;
-        try {
-            factory = XmlPullParserFactory.newInstance();
-            factory.setNamespaceAware(true);
-            parser = factory.newPullParser();
- 
-            parser.setInput(new StringReader(xmlString.replaceAll("&", "&amp;")));
- 
-            int eventType = parser.getEventType();
-            while (eventType != XmlPullParser.END_DOCUMENT) {
-                String tagname = parser.getName();
-                switch (eventType) {
-                case XmlPullParser.START_TAG:
-                    break;
- 
-                case XmlPullParser.TEXT:
-                    //Convert html encoding
-                    String rawText = parser.getText();
-                    Spanned escapedText = Html.fromHtml(rawText);
-                    text = escapedText.toString();
-                    break;
- 
-                case XmlPullParser.END_TAG:
-                    if (tagname.equalsIgnoreCase("id")) {
-                        profile.setName(text);
-                    } else if (tagname.equalsIgnoreCase("level")) {
-                        profile.setLevel(Integer.parseInt(text));
-                    } else if (tagname.equalsIgnoreCase("aboutme")) {
-                        profile.setAboutMe(text);
-                    } else if (tagname.equalsIgnoreCase("avatar")) {
-                        profile.setAvatar(text);
-                    } else if (tagname.equalsIgnoreCase("progress")) {
-                        profile.setProgress(Integer.parseInt(text));
-                    } else if (tagname.equalsIgnoreCase("Platinum")) {
-                    	profile.setPlatium(Integer.parseInt(text));
-                    } else if (tagname.equalsIgnoreCase("Gold")) {
-                    	profile.setGold(Integer.parseInt(text));
-                    } else if (tagname.equalsIgnoreCase("Silver")) {
-                    	profile.setSilver(Integer.parseInt(text));
-                    } else if (tagname.equalsIgnoreCase("Bronze")) {
-                    	profile.setBronze(Integer.parseInt(text));
-                    } else if (tagname.equalsIgnoreCase("Plus")) {
-                    	if(text.equalsIgnoreCase("1")){
-                    		profile.setPlus(true);
-                    	}
-                    	else{
-                    		profile.setPlus(false);
-                    	}
-                    } else if (tagname.equalsIgnoreCase("R")) {
-                    	profile.setBackgroundRed(Integer.parseInt(text.replaceFirst("#", ""), 16)); // To convert hexadecimal to integer and remove #
-                    } else if (tagname.equalsIgnoreCase("G")) {
-                    	profile.setBackgroundGreen(Integer.parseInt(text.replaceFirst("#", ""), 16));
-                    } else if (tagname.equalsIgnoreCase("B")) {
-                    	profile.setBackgroundBlue(Integer.parseInt(text.replaceFirst("#", ""), 16));
-                    }  
-                    break;
- 
-                default:
-                    break;
+    profile = new Profile();
+    String text = "";
+    XmlPullParserFactory factory = null;
+    XmlPullParser parser = null;
+    try {
+        factory = XmlPullParserFactory.newInstance();
+        factory.setNamespaceAware(true);
+        parser = factory.newPullParser();
+
+        parser.setInput(new StringReader(xmlString.replaceAll("&", "&amp;")));
+
+        int eventType = parser.getEventType();
+        while (eventType != XmlPullParser.END_DOCUMENT) {
+            String tagname = parser.getName();
+            switch (eventType) {
+            case XmlPullParser.START_TAG:
+                break;
+
+            case XmlPullParser.TEXT:
+                //Convert html encoding
+                String rawText = parser.getText();
+                Spanned escapedText = Html.fromHtml(rawText);
+                text = escapedText.toString();
+                break;
+
+            case XmlPullParser.END_TAG:
+                if (tagname.equalsIgnoreCase("id")) {
+                    profile.setName(text);
+                } else if (tagname.equalsIgnoreCase("level")) {
+                    profile.setLevel(Integer.parseInt(text));
+                } else if (tagname.equalsIgnoreCase("aboutme")) {
+                    profile.setAboutMe(text);
+                } else if (tagname.equalsIgnoreCase("avatar")) {
+                    profile.setAvatar(text);
+                } else if (tagname.equalsIgnoreCase("progress")) {
+                    profile.setProgress(Integer.parseInt(text));
+                } else if (tagname.equalsIgnoreCase("Platinum")) {
+                    profile.setPlatium(Integer.parseInt(text));
+                } else if (tagname.equalsIgnoreCase("Gold")) {
+                    profile.setGold(Integer.parseInt(text));
+                } else if (tagname.equalsIgnoreCase("Silver")) {
+                    profile.setSilver(Integer.parseInt(text));
+                } else if (tagname.equalsIgnoreCase("Bronze")) {
+                    profile.setBronze(Integer.parseInt(text));
+                } else if (tagname.equalsIgnoreCase("Plus")) {
+                    if(text.equalsIgnoreCase("1")){
+                        profile.setPlus(true);
+                    }
+                    else{
+                        profile.setPlus(false);
+                    }
+                } else if (tagname.equalsIgnoreCase("R")) {
+                    profile.setBackgroundRed(Integer.parseInt(text.replaceFirst("#", ""), 16)); // To convert hexadecimal to integer and remove #
+                } else if (tagname.equalsIgnoreCase("G")) {
+                    profile.setBackgroundGreen(Integer.parseInt(text.replaceFirst("#", ""), 16));
+                } else if (tagname.equalsIgnoreCase("B")) {
+                    profile.setBackgroundBlue(Integer.parseInt(text.replaceFirst("#", ""), 16));
                 }
-                eventType = parser.next();
+                break;
+
+            default:
+                break;
             }
- 
-        } catch (XmlPullParserException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+            eventType = parser.next();
         }
+
+    } catch (XmlPullParserException e) {
+        e.printStackTrace();
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
 
 	
 	return profile;
@@ -266,5 +266,87 @@ public class XMLParser{
 		return trophies;
 		
 	}
+
+    public ArrayList<Friend> getFriends(String xmlString){
+        ArrayList<Friend> friends = new ArrayList<Friend>();
+        Friend friend = null;
+        String text = "";
+        XmlPullParserFactory factory = null;
+        XmlPullParser parser = null;
+
+        try {
+            factory = XmlPullParserFactory.newInstance();
+            factory.setNamespaceAware(true);
+            parser = factory.newPullParser();
+            //Here we give our file object in the form of a stream to the parser
+            parser.setInput(new StringReader(xmlString.replaceAll("&", "&amp;")));
+            int eventType = parser.getEventType();
+            while (eventType != XmlPullParser.END_DOCUMENT) {
+                String tagname = parser.getName();
+                switch (eventType) {
+                    case XmlPullParser.START_TAG:
+                        if (tagname.equalsIgnoreCase("Friend")) {
+                            // create a new instance of Trophy
+                            friend = new Friend();
+                        }
+                        break;
+
+                    case XmlPullParser.TEXT:
+                        //Convert html encoding
+                        String rawText = parser.getText();
+                        Spanned escapedText = Html.fromHtml(rawText);
+                        text = escapedText.toString();
+                        break;
+
+                    case XmlPullParser.END_TAG:
+                        if (tagname.equalsIgnoreCase("Friend")) {
+                            // add trophy object to list
+                            friends.add(friend);
+                        } else if (tagname.equalsIgnoreCase("id")) {
+                            friend.setUsername(text);
+                        } else if (tagname.equalsIgnoreCase("level")) {
+                            friend.setLevel(Integer.parseInt(text));
+                        } else if (tagname.equalsIgnoreCase("avatar")) {
+                            friend.setAvatar(text);
+                        } else if (tagname.equalsIgnoreCase("Platinum")) {
+                            friend.setPlatium(Integer.parseInt(text));
+                        } else if (tagname.equalsIgnoreCase("Gold")) {
+                            friend.setGold(Integer.parseInt(text));
+                        } else if (tagname.equalsIgnoreCase("Silver")) {
+                            friend.setSilver(Integer.parseInt(text));
+                        } else if (tagname.equalsIgnoreCase("Bronze")) {
+                            friend.setBronze(Integer.parseInt(text));
+                        } else if (tagname.equalsIgnoreCase("R")) {
+                            friend.setBackgroundRed(Integer.parseInt(text.replaceFirst("#", ""), 16)); // To convert hexadecimal to integer and remove #
+                        } else if (tagname.equalsIgnoreCase("G")) {
+                            friend.setBackgroundGreen(Integer.parseInt(text.replaceFirst("#", ""), 16));
+                        } else if (tagname.equalsIgnoreCase("B")) {
+                            friend.setBackgroundBlue(Integer.parseInt(text.replaceFirst("#", ""), 16));
+                        } else if (tagname.equalsIgnoreCase("presence")) {
+                            if(text.equalsIgnoreCase("offline")){
+                                friend.setOnline(false);
+                            }
+                            else{
+                                friend.setOnline(true);
+                            }
+                        } else if (tagname.equalsIgnoreCase("game")) {
+                            friend.setGame(text);
+                        }
+                        break;
+
+                    default:
+                        break;
+                }
+                eventType = parser.next();
+            }
+
+
+        } catch (XmlPullParserException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return friends;
+    }
 }
 

@@ -12,6 +12,7 @@ import android.accounts.OperationCanceledException;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -57,6 +58,7 @@ public class SettingsActivity extends PreferenceActivity implements Authenticato
     private static String newPass = "";
     private static String oldEmail = "";
     private static String oldPass = "";
+    private static ProgressDialog authenticationDialog = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -346,6 +348,11 @@ public class SettingsActivity extends PreferenceActivity implements Authenticato
                         newEmail = email;
                         newPass = password;
                         if((!newEmail.equalsIgnoreCase(oldEmail)) || (!newPass.equalsIgnoreCase(oldPass))){ //If data changed
+                            authenticationDialog = new ProgressDialog(context);
+                            authenticationDialog.setIndeterminate(true);
+                            authenticationDialog.setMessage("Authenticating " + email);
+                            authenticationDialog.setCancelable(false);
+                            authenticationDialog.show();
                             //Authenticate with new data
                             new ServerAuthenticate(context).authenticateUser(email, password);
                         }
@@ -364,10 +371,11 @@ public class SettingsActivity extends PreferenceActivity implements Authenticato
 
     @Override
     public void onAccountAuthenticated(String username) {
+        authenticationDialog.cancel();
         if(username.isEmpty()){
             // Use the Builder class for convenient dialog construction
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
-            builder.setMessage("Username/Password is incorrect")
+            builder.setMessage("Email/Password is incorrect")
                     .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                         }

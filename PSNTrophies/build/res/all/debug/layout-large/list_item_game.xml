@@ -112,4 +112,4 @@
 	    android:layout_toRightOf="@id/gameImage"
 	    android:layout_below="@id/trophiesEarnedLayout" />
 
-</RelativeLayout>
+</RelativeLayout><!-- From: file:/home/matt/PSN%20Trophies/PSNTrophiesProject/PSNTrophies/src/main/res/layout-large/list_item_game.xml -->

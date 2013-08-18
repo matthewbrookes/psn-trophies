@@ -452,7 +452,12 @@ public class Sync extends Service implements AsyncTaskListener{
     }
 
     @Override
-    public void onProfileImageDownloaded(Bitmap image) {
+    public void onFriendsDownloaded(String friendsXML) {
+
+    }
+
+    @Override
+    public void onProfileImageDownloaded(String url, Bitmap image) {
         //Not used but required due to implementation
     }
 

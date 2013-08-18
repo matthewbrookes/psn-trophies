@@ -1,6 +1,10 @@
 package com.brookes.psntrophies;
 
-public class Profile {
+import android.graphics.Bitmap;
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class Profile implements Parcelable{
 	private String Username; //PSN name
 	private String Avatar; //Holds URL to user's avatar
 	private String AboutMe; //Holds short description of user
@@ -9,7 +13,13 @@ public class Profile {
 	private int[] Trophies = new int[4]; //Array of trophies in form (Platinum, Gold, Silver, Bronze)
 	private boolean PlaystationPlus; //Is the user a Plus member
 	private int[] BackgroundColor = new int[3]; //Array of background color in form RGB
-	
+
+    public Profile(){}
+
+    public Profile(Parcel in) { //Create parcel from object
+        readFromParcel(in);
+    }
+
 	public String getName(){
 		return this.Username;
 	}
@@ -93,4 +103,45 @@ public class Profile {
 	public void setBackgroundBlue(int blue){
 		this.BackgroundColor[2] = blue;
 	}
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        // Writes variables to parcel
+        dest.writeString(this.Username);
+        dest.writeString(this.Avatar);
+        dest.writeString(this.AboutMe);
+        dest.writeByte((byte) (this.PlaystationPlus ? 1 : 0));//if PlaystationPlus == true, byte == 1
+        dest.writeInt(this.Level);
+        dest.writeInt(this.ProgresstoNextLevel);
+        dest.writeIntArray(this.Trophies);
+        dest.writeIntArray(this.BackgroundColor);
+    }
+    private void readFromParcel(Parcel in) {
+        // Stores variables from parcel
+        this.Username = in.readString();
+        this.Avatar = in.readString();
+        this.AboutMe = in.readString();
+        this.PlaystationPlus = in.readByte() == 1; //PlaystationPlus == true if byte == 1
+        this.Level = in.readInt();
+        this.ProgresstoNextLevel = in.readInt();
+        this.Trophies = in.createIntArray();
+        this.BackgroundColor = in.createIntArray();
+
+    }
+
+    @SuppressWarnings("rawtypes")
+    public static final Parcelable.Creator CREATOR =
+            new Parcelable.Creator() {
+                public Game createFromParcel(Parcel in) {
+                    return new Game(in);
+                }
+
+                public Game[] newArray(int size) {
+                    return new Game[size];
+                }
+            };
 }
