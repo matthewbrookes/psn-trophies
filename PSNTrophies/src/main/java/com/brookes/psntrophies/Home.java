@@ -52,6 +52,19 @@ public class Home extends ActionBarActivity implements ActionBar.TabListener{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        mAccountManager = AccountManager.get(this);
+        Account[] accounts = mAccountManager.getAccounts();
+        for(int i=0; i<accounts.length; i++){
+            if(accounts[i].type.equalsIgnoreCase(AccountGeneral.ACCOUNT_TYPE)){
+                mAccount = accounts[i];
+                break;
+            }
+            else if(i == (accounts.length - 1)){ //If no accounts on device
+                startActivity(new Intent(this, LogIn.class)); //Start log in activity
+                return; //Break out of activity
+            }
+        }
+
         // Set up the action bar.
         final ActionBar actionBar = getSupportActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
@@ -85,15 +98,6 @@ public class Home extends ActionBarActivity implements ActionBar.TabListener{
                             .setText(mSectionsPagerAdapter.getPageTitle(i))
                             .setTabListener(this)
             );
-        }
-
-        mAccountManager = AccountManager.get(this);
-        Account[] accounts = mAccountManager.getAccounts();
-        for(int i=0; i<accounts.length; i++){
-            if(accounts[i].type.equalsIgnoreCase(AccountGeneral.ACCOUNT_TYPE)){
-                mAccount = accounts[i];
-                break;
-            }
         }
 
         //Checks if external storage is mounted and what access rights the app has

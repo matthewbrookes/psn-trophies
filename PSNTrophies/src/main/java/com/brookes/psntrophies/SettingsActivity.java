@@ -323,7 +323,7 @@ public class SettingsActivity extends PreferenceActivity implements Authenticato
                         ""));
     }
 
-    private AlertDialog createLogInDialog(){
+    private static AlertDialog createLogInDialog(){
         final AlertDialog.Builder builder = new AlertDialog.Builder(context);
         // Get the layout inflater
         final LayoutInflater inflater = (LayoutInflater) context.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
@@ -502,7 +502,7 @@ public class SettingsActivity extends PreferenceActivity implements Authenticato
                 emailButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        //createLogInDialog().show();
+                        createLogInDialog().show();
                         return false;
                     }
                 });
@@ -531,7 +531,7 @@ public class SettingsActivity extends PreferenceActivity implements Authenticato
                 passwordButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        //createLogInDialog().show();
+                        createLogInDialog().show();
                         return false;
                     }
                 });
