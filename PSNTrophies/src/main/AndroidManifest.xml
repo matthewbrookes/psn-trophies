@@ -83,6 +83,14 @@
             android:name="com.brookes.psntrophies.DefaultProvider"
             android:authorities="com.brookes.psntrophies.provider" />
 
+        <activity
+            android:name="com.brookes.psntrophies.FriendsGames"
+            android:label="@string/title_activity_friends_games"
+            android:parentActivityName="com.brookes.psntrophies.Home">
+            <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value="com.brookes.psntrophies.Home" />
+        </activity>
     </application>
 
 </manifest>

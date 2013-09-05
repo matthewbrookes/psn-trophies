@@ -1067,24 +1067,26 @@ containing a value of this type.
         public static final int abc_search_dropdown_item_icons_2line=0x7f030016;
         public static final int abc_search_view=0x7f030017;
         public static final int activity_authenticator=0x7f030018;
-        public static final int activity_home=0x7f030019;
-        public static final int activity_log_in=0x7f03001a;
-        public static final int activity_trophies_list=0x7f03001b;
-        public static final int dialog_signin=0x7f03001c;
-        public static final int fragment_friends=0x7f03001d;
-        public static final int fragment_games=0x7f03001e;
-        public static final int list_item_friend=0x7f03001f;
-        public static final int list_item_game=0x7f030020;
-        public static final int list_item_trophy=0x7f030021;
-        public static final int support_simple_spinner_dropdown_item=0x7f030022;
+        public static final int activity_friendsgames=0x7f030019;
+        public static final int activity_home=0x7f03001a;
+        public static final int activity_log_in=0x7f03001b;
+        public static final int activity_trophies_list=0x7f03001c;
+        public static final int dialog_signin=0x7f03001d;
+        public static final int fragment_friends=0x7f03001e;
+        public static final int fragment_games=0x7f03001f;
+        public static final int list_item_friend=0x7f030020;
+        public static final int list_item_game=0x7f030021;
+        public static final int list_item_trophy=0x7f030022;
+        public static final int support_simple_spinner_dropdown_item=0x7f030023;
     }
     public static final class menu {
         public static final int friends=0x7f0e0000;
-        public static final int games=0x7f0e0001;
-        public static final int home=0x7f0e0002;
-        public static final int log_in=0x7f0e0003;
-        public static final int main=0x7f0e0004;
-        public static final int trophies_list=0x7f0e0005;
+        public static final int friends_games=0x7f0e0001;
+        public static final int games=0x7f0e0002;
+        public static final int home=0x7f0e0003;
+        public static final int log_in=0x7f0e0004;
+        public static final int main=0x7f0e0005;
+        public static final int trophies_list=0x7f0e0006;
     }
     public static final class string {
         public static final int abc_action_bar_home_description=0x7f0c0000;
@@ -1138,18 +1140,19 @@ containing a value of this type.
         /**  From: file:/home/matt/PSN%20Trophies/PSNTrophiesProject/PSNTrophies/src/main/res/values/strings.xml 
          */
         public static final int title_activity_authenticator=0x7f0c002c;
-        public static final int title_activity_log_in=0x7f0c002d;
-        public static final int title_activity_main=0x7f0c002e;
+        public static final int title_activity_friends_games=0x7f0c002d;
+        public static final int title_activity_log_in=0x7f0c002e;
+        public static final int title_activity_main=0x7f0c002f;
         /**  From: file:/home/matt/PSN%20Trophies/PSNTrophiesProject/PSNTrophies/src/main/res/values/strings_activity_settings.xml 
          */
-        public static final int title_activity_settings=0x7f0c002f;
+        public static final int title_activity_settings=0x7f0c0030;
         /**  From: file:/home/matt/PSN%20Trophies/PSNTrophiesProject/PSNTrophies/src/main/res/values/strings.xml 
          */
-        public static final int title_activity_test=0x7f0c0030;
-        public static final int title_activity_trophies_list=0x7f0c0031;
-        public static final int title_section1=0x7f0c0032;
-        public static final int title_section2=0x7f0c0033;
-        public static final int title_section3=0x7f0c0034;
+        public static final int title_activity_test=0x7f0c0031;
+        public static final int title_activity_trophies_list=0x7f0c0032;
+        public static final int title_section1=0x7f0c0033;
+        public static final int title_section2=0x7f0c0034;
+        public static final int title_section3=0x7f0c0035;
     }
     public static final class style {
         /**  From: file:/home/matt/PSN%20Trophies/PSNTrophiesProject/PSNTrophies/src/main/res/values/styles.xml 

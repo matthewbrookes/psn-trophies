@@ -6,6 +6,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -16,12 +17,14 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -210,6 +213,7 @@ public class FriendsFragment extends Fragment implements AsyncTaskListener, Auth
                 new GetXML(currentFragment).execute("http://psntrophies.net16.net/getProfile.php?psnid=" + account.name); //Downloads profile
             }
             friendsList.setAdapter(new FriendsAdapter(friends, context)); //Draw list
+            setListener();
 
             //Show update time
             DateFormat f = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
@@ -372,6 +376,7 @@ public class FriendsFragment extends Fragment implements AsyncTaskListener, Auth
                     if(imagesDownloadedCounter == imageProcesses.size()){ //If all images downloaded
                         //Draw list
                         friendsList.setAdapter(new FriendsAdapter(friends, context));
+                        setListener();
                     }
                 }
             }
@@ -387,12 +392,14 @@ public class FriendsFragment extends Fragment implements AsyncTaskListener, Auth
                 if(i == (friends.size() - 1)){
                     //Draw list
                     friendsList.setAdapter(new FriendsAdapter(friends, context));
+                    setListener();
                 }
             }
         }
         else{
             //Draw list without images
             friendsList.setAdapter(new FriendsAdapter(friends, context));
+            setListener();
         }
 
     }
@@ -467,6 +474,17 @@ public class FriendsFragment extends Fragment implements AsyncTaskListener, Auth
         syncFrequency = Long.parseLong(savedInformation.getString("sync_frequency", "3600"));
     }
 
+    public void setListener(){ //This function sets on click listener for list
+        friendsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                //When friend is pressed launch FriendsGames activity with their username
+                Intent intent = new Intent(context, FriendsGames.class);
+                intent.putExtra("username", friends.get(i).getUsername()); //Set the user's name as the user to be downloaded
+                startActivity(intent);
+            }
+        });
+    }
     private ProgressDialog createDialog(DownloadType type){
         ProgressDialog dialog = new ProgressDialog(context);
         switch (type) {
@@ -487,6 +505,7 @@ public class FriendsFragment extends Fragment implements AsyncTaskListener, Auth
 
                         //Draw list
                         friendsList.setAdapter(new FriendsAdapter(friends, context));
+                        setListener();
 
                         //Hide dialog
                         dialog.dismiss();

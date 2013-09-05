@@ -17,5 +17,6 @@
     <string name="title_section2">Friends</string>
     <string name="title_activity_main">MainActivity</string>
     <string name="title_section3">Section 3</string>
+    <string name="title_activity_friends_games">Games</string>
 
 </resources>
