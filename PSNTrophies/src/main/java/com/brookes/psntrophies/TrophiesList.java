@@ -456,6 +456,7 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
                 String displayDate = f.format(d);
                 updateText.setText(displayDate);
 
+                trophiesDialog.show();
                 new GetXML(this).execute("http://psntrophies.net16.net/getTrophies.php?psnid="+ username + "&gameid=" + gameId); //Downloads trophies xml for this game
                 return true;
         	case R.id.action_secretTrophies:
