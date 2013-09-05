@@ -130,7 +130,7 @@ public class FriendsFragment extends Fragment implements AsyncTaskListener, Auth
         savedInformation = context.getSharedPreferences("com.brookes.psntrophies_preferences", 0);
         savedInformationEditor = savedInformation.edit();
 
-        savedXML = context.getSharedPreferences("com.brookes.psntrophies_xml", 0);
+        savedXML = context.getSharedPreferences(account.name + "_xml", 0);
         savedXMLEditor = savedXML.edit();
 
         profileXML = savedXML.getString("profile_xml", "");

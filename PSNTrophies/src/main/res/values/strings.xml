@@ -15,5 +15,7 @@
     <string name="title_activity_test">PSN Trophies</string>
     <string name="title_section1">Games</string>
     <string name="title_section2">Friends</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="title_section3">Section 3</string>
 
 </resources>

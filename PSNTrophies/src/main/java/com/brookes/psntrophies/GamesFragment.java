@@ -1,8 +1,6 @@
 package com.brookes.psntrophies;
 
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -45,7 +43,7 @@ public class GamesFragment extends Fragment implements AsyncTaskListener {
     SharedPreferences savedXML;
     SharedPreferences.Editor savedInformationEditor;
     SharedPreferences.Editor savedXMLEditor;
-    String username;
+    String username = "";
     String gamesFilter;
     String gamesSort;
     View profileLayout = null;
@@ -80,7 +78,6 @@ public class GamesFragment extends Fragment implements AsyncTaskListener {
     ProgressDialog gamesDialog;
 
     ArrayList<AsyncTask<String, Void, Bitmap>> imageProcesses = new ArrayList<AsyncTask <String, Void, Bitmap>>();
-    Account account;
 
     Fragment currentFragment;
 
@@ -105,16 +102,10 @@ public class GamesFragment extends Fragment implements AsyncTaskListener {
 
         View rootView = inflater.inflate(R.layout.fragment_games, container, false);
 
-        //Create account manager and list of accounts
-        final AccountManager mAccountManager = AccountManager.get(context);
-        Account[] accounts = mAccountManager.getAccounts();
-
-        for(int i=0; i<accounts.length;i++){ //Iterate through accounts
-            Account tempAccount = accounts[i]; //Create a temporary account variable
-            if(tempAccount.type.equals(AccountGeneral.ACCOUNT_TYPE)){ //If it is a PSN Account
-                account = tempAccount; //Set this account as one to be used throughout program
-                username = account.name; //Set the username
-            }
+        username = getArguments().getString("username");
+        if(username.isEmpty()){ //If didn't retrieve username
+            startActivity(new Intent(context, Home.class)); //Start Home activity
+            return rootView; //Return default view
         }
 
         //Checks if external storage is mounted and what access rights the app has
@@ -140,12 +131,10 @@ public class GamesFragment extends Fragment implements AsyncTaskListener {
         savedInformation = context.getSharedPreferences("com.brookes.psntrophies_preferences", 0);
         savedInformationEditor = savedInformation.edit();
 
-        savedXML = context.getSharedPreferences("com.brookes.psntrophies_xml", 0);
+        savedXML = context.getSharedPreferences(username + "_xml", 0);
         savedXMLEditor = savedXML.edit();
 
         changeSettings(); //Retrieves saved settings
-
-        setAutoSync();
 
         //Retrieves saved XML
         gamesXML = savedXML.getString("games_xml", "");
@@ -302,8 +291,6 @@ public class GamesFragment extends Fragment implements AsyncTaskListener {
             filteredGamesList = filterGames(games);
             gamesList.setAdapter(new GamesAdapter(filteredGamesList, context));
             setGamesListener();
-
-            setAutoSync();
         }
     }
 
@@ -459,7 +446,7 @@ public class GamesFragment extends Fragment implements AsyncTaskListener {
 
     private void automaticDelete(Long now){
         //Retrieve all information from saved updates
-        SharedPreferences savedUpdateTimes = context.getSharedPreferences("com.brookes.psntrophies_updates", 0);
+        SharedPreferences savedUpdateTimes = context.getSharedPreferences(username + "_updates", 0);
         Map<String, Long> allUpdates = (Map<String, Long>) savedUpdateTimes.getAll();
 
         //Create array of keys in update
@@ -656,25 +643,12 @@ public class GamesFragment extends Fragment implements AsyncTaskListener {
                 //When item pressed trophy page is opened
                 Intent trophiesIntent = new Intent(v.getContext(), TrophiesList.class);
                 trophiesIntent.putExtra("game", filteredGamesList.get(position));
+                trophiesIntent.putExtra("username", username);
+                //trophiesIntent.putExtra("bg_color", backgroundColor);
                 startActivity(trophiesIntent);
             }
         });
     }
-
-    private void setAutoSync(){
-        //Retrieve sync setting from settings
-        boolean autoSync = context.getContentResolver().getSyncAutomatically(account, "com.brookes.psntrophies.provider");
-
-        if(syncFrequency != -1 && autoSync){ //If user wants automatic syncing
-            //Update periodic sync
-            context.getContentResolver().addPeriodicSync(account, "com.brookes.psntrophies.provider", new Bundle(), syncFrequency);
-        }
-        else{
-            //Delete periodic sync
-            context.getContentResolver().removePeriodicSync(account, "com.brookes.psntrophies.provider", new Bundle());
-        }
-    }
-
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {

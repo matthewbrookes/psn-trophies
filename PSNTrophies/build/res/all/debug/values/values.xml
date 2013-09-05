@@ -590,6 +590,7 @@
     <!-- From: file:/home/matt/PSN%20Trophies/PSNTrophiesProject/PSNTrophies/src/main/res/values/strings.xml -->
     <string name="title_activity_authenticator">Sign In</string>
     <string name="title_activity_log_in">Log In</string>
+    <string name="title_activity_main">MainActivity</string>
     <!-- From: file:/home/matt/PSN%20Trophies/PSNTrophiesProject/PSNTrophies/src/main/res/values/strings_activity_settings.xml -->
     <string name="title_activity_settings">Settings</string>
     <!-- From: file:/home/matt/PSN%20Trophies/PSNTrophiesProject/PSNTrophies/src/main/res/values/strings.xml -->
@@ -597,6 +598,7 @@
     <string name="title_activity_trophies_list">Trophies</string>
     <string name="title_section1">Games</string>
     <string name="title_section2">Friends</string>
+    <string name="title_section3">Section 3</string>
     <!-- From: file:/home/matt/PSN%20Trophies/PSNTrophiesProject/PSNTrophies/src/main/res/values/styles.xml -->
     <style name="AppBaseTheme" parent="android:Theme.Light">
         <!--

@@ -1083,7 +1083,8 @@ containing a value of this type.
         public static final int games=0x7f0e0001;
         public static final int home=0x7f0e0002;
         public static final int log_in=0x7f0e0003;
-        public static final int trophies_list=0x7f0e0004;
+        public static final int main=0x7f0e0004;
+        public static final int trophies_list=0x7f0e0005;
     }
     public static final class string {
         public static final int abc_action_bar_home_description=0x7f0c0000;
@@ -1138,15 +1139,17 @@ containing a value of this type.
          */
         public static final int title_activity_authenticator=0x7f0c002c;
         public static final int title_activity_log_in=0x7f0c002d;
+        public static final int title_activity_main=0x7f0c002e;
         /**  From: file:/home/matt/PSN%20Trophies/PSNTrophiesProject/PSNTrophies/src/main/res/values/strings_activity_settings.xml 
          */
-        public static final int title_activity_settings=0x7f0c002e;
+        public static final int title_activity_settings=0x7f0c002f;
         /**  From: file:/home/matt/PSN%20Trophies/PSNTrophiesProject/PSNTrophies/src/main/res/values/strings.xml 
          */
-        public static final int title_activity_test=0x7f0c002f;
-        public static final int title_activity_trophies_list=0x7f0c0030;
-        public static final int title_section1=0x7f0c0031;
-        public static final int title_section2=0x7f0c0032;
+        public static final int title_activity_test=0x7f0c0030;
+        public static final int title_activity_trophies_list=0x7f0c0031;
+        public static final int title_section1=0x7f0c0032;
+        public static final int title_section2=0x7f0c0033;
+        public static final int title_section3=0x7f0c0034;
     }
     public static final class style {
         /**  From: file:/home/matt/PSN%20Trophies/PSNTrophiesProject/PSNTrophies/src/main/res/values/styles.xml 

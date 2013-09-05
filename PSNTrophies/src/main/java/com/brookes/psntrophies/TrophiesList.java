@@ -4,16 +4,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.app.Activity;
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -31,14 +27,6 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.HttpContext;
 
 public class TrophiesList extends Activity implements AsyncTaskListener{
     SharedPreferences savedInformation;
@@ -103,31 +91,22 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
 
         trophiesDialog = createDialog(DownloadType.PSNAPITROPHIES); //Create dialog
 
-        //Create account manager and list of accounts
-        AccountManager mAccountManager = AccountManager.get(getBaseContext());
-        Account[] accounts = mAccountManager.getAccounts();
-
-        for(int i=0; i<accounts.length;i++){ //Iterate through accounts
-            Account tempAccount = accounts[i]; //Create a temporary account variable
-            if(tempAccount.type.equals(AccountGeneral.ACCOUNT_TYPE)){ //If it is a PSN Account
-                username = tempAccount.name;
-            }
-        }
+        //Retrieve Game, username and background color from intent
+        Intent receivedIntent = getIntent();
+        game = receivedIntent.getExtras().getParcelable("game");
+        gameId = game.getId();
+        username = receivedIntent.getExtras().getString("username");
+        String backgroundcolor = receivedIntent.getExtras().getString("bg_color");
 
         //Create shared preferences and editor
         savedInformation = getSharedPreferences("com.brookes.psntrophies_preferences", 0);
         savedInformationEditor = savedInformation.edit();
 
-        savedXML = getSharedPreferences("com.brookes.psntrophies_xml", 0);
+        savedXML = getSharedPreferences(username + "_xml", 0);
         savedXMLEditor = savedXML.edit();
 
-        savedUpdateTimes = getSharedPreferences("com.brookes.psntrophies_updates", 0);
+        savedUpdateTimes = getSharedPreferences(username + "_updates", 0);
         savedUpdateEditor = savedUpdateTimes.edit();
-
-        //Retrieve Game Object from intent
-        Intent receivedIntent = getIntent();
-        game = receivedIntent.getExtras().getParcelable("game");
-        gameId = game.getId();
 
         //Retrieves saved settings
         String trophiesXML = savedXML.getString(gameId, "");
@@ -137,8 +116,11 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
 		showSecretTrophies = savedInformation.getBoolean("show_secret_trophies", true);
 		showCompletedTrophies = savedInformation.getBoolean("show_completed_trophies", true);
 		showUnearnedTrophies = savedInformation.getBoolean("show_unearned_trophies", true);
-        String backgroundcolor = savedInformation.getString("bg_color", "#989898");
-        long syncFrequency = Long.parseLong(savedInformation.getString("sync_frequency", "3600"));
+
+        if(backgroundcolor == null){ //If background color was not retrieved
+            //Get it from shared preferences
+            backgroundcolor = savedInformation.getString("bg_color", "#989898");
+        }
 
 		//Sets information in top layout bases upon received Game Object and color
 		gameLayout.setBackgroundColor(Color.parseColor(backgroundcolor));
@@ -178,19 +160,12 @@ public class TrophiesList extends Activity implements AsyncTaskListener{
         //Calculate amount of time since last sync
         Date currentDate = Calendar.getInstance().getTime();
         Long currentTime = currentDate.getTime();
-        Long timeSinceSync = currentTime - lastUpdated;
 
         //Change the update label on home screen
         DateFormat f = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
         Date d = new Date(lastUpdated);
         String displayDate = f.format(d);
         updateText.setText(displayDate);
-
-        long timeBetweenSyncs = (syncFrequency * 100); //Amount of time app should wait before downloading data again
-
-        if(syncFrequency == -1){ //If user doesn't want app to sync automatically
-            timeBetweenSyncs = 3600000; //Set sync period to one hour to stop data being re-downloaded all the time
-        }
 
         trophies = (ArrayList<Trophy>) getLastNonConfigurationInstance(); //Attempt to retrieve trophies if screen was rotated
         if (trophies != null) { //If trophies were retrieved

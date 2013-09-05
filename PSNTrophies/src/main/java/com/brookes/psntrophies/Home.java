@@ -114,6 +114,9 @@ public class Home extends ActionBarActivity implements ActionBar.TabListener{
             mExternalStorageAvailable = mExternalStorageWriteable = false;
         }
 
+        if(mAccount != null){
+            setAutoSync(); //Add or delete automatic sync
+        }
     }
 
     @Override
@@ -131,7 +134,7 @@ public class Home extends ActionBarActivity implements ActionBar.TabListener{
                 //Delete account
                 mAccountManager.removeAccount(mAccount, null, null);
 
-                SharedPreferences savedXML = getSharedPreferences("com.brookes.psntrophies_xml", 0);
+                SharedPreferences savedXML = getSharedPreferences(mAccount.name + "_xml", 0);
                 SharedPreferences.Editor savedXMLEditor = savedXML.edit();
                 savedXMLEditor.clear(); //Delete saved XML
                 savedXMLEditor.commit(); // Commit the edits!
@@ -187,6 +190,9 @@ public class Home extends ActionBarActivity implements ActionBar.TabListener{
             switch(position){
                 case 0:
                     fragment = new GamesFragment();
+                    Bundle args = new Bundle();
+                    args.putString("username", mAccount.name); //Set the user's name as the user to be downloaded
+                    fragment.setArguments(args);
                     break;
                 case 1:
                     fragment = new FriendsFragment();
@@ -210,6 +216,22 @@ public class Home extends ActionBarActivity implements ActionBar.TabListener{
                     return getString(R.string.title_section2).toUpperCase(l);
             }
             return null;
+        }
+    }
+
+    private void setAutoSync(){
+        SharedPreferences savedInformation = getSharedPreferences("com.brookes.psntrophies_preferences", 0);
+        long syncFrequency = Long.parseLong(savedInformation.getString("sync_frequency", "3600"));
+        //Retrieve sync setting from settings
+        boolean autoSync = getContentResolver().getSyncAutomatically(mAccount, "com.brookes.psntrophies.provider");
+
+        if(syncFrequency != -1 && autoSync){ //If user wants automatic syncing
+            //Update periodic sync
+            getContentResolver().addPeriodicSync(mAccount, "com.brookes.psntrophies.provider", new Bundle(), syncFrequency);
+        }
+        else{
+            //Delete periodic sync
+            getContentResolver().removePeriodicSync(mAccount, "com.brookes.psntrophies.provider", new Bundle());
         }
     }
 }

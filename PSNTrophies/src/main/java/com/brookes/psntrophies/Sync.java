@@ -70,7 +70,7 @@ public class Sync extends Service implements AsyncTaskListener{
     @Override
     public void onProfileDownloaded(String profileXML) {
         //Create shared preference for XML
-        SharedPreferences savedXML = getSharedPreferences("com.brookes.psntrophies_xml", 0);
+        SharedPreferences savedXML = getSharedPreferences(username + "_xml", 0);
         SharedPreferences.Editor savedXMLEditor = savedXML.edit();
 
         //Store XML
@@ -86,7 +86,7 @@ public class Sync extends Service implements AsyncTaskListener{
         }
         Log.i("PSN", "Downloaded");
         //Create shared preference for XML
-        SharedPreferences savedXML = getSharedPreferences("com.brookes.psntrophies_xml", 0);
+        SharedPreferences savedXML = getSharedPreferences(username + "_xml", 0);
         SharedPreferences.Editor savedXMLEditor = savedXML.edit();
 
         String oldXML = savedXML.getString("games_xml", "");
@@ -173,7 +173,6 @@ public class Sync extends Service implements AsyncTaskListener{
 
             //Create intents which are launched by notifications
             Intent homeIntent = new Intent(this, Home.class);
-            Intent trophiesIntent = new Intent(this, TrophiesList.class);
 
             if(changedGames.size() == 1){ //If only one game has changed
                 int oldTrophiesTotal; //Variable will hold number of trophies previously earned
@@ -267,9 +266,9 @@ public class Sync extends Service implements AsyncTaskListener{
         }
 
         //Create shared preference for XML and updates
-        SharedPreferences savedXML = getSharedPreferences("com.brookes.psntrophies_xml", 0);
+        SharedPreferences savedXML = getSharedPreferences(username + "_xml", 0);
         SharedPreferences.Editor savedXMLEditor = savedXML.edit();
-        SharedPreferences savedUpdateTimes = getSharedPreferences("com.brookes.psntrophies_updates", 0);
+        SharedPreferences savedUpdateTimes = getSharedPreferences(username + "_updates", 0);
         SharedPreferences.Editor savedUpdateEditor = savedUpdateTimes.edit();
 
         //Calculate the current time
@@ -318,6 +317,7 @@ public class Sync extends Service implements AsyncTaskListener{
                     Intent trophiesIntent = new Intent(this, TrophiesList.class);
                     //Put extras in intent
                     trophiesIntent.putExtra("game", changedGames.get(0));
+                    trophiesIntent.putExtra("username", username);
                     /*
                     The stack builder object will contain an artificial back stack for the
                     started Activity.
@@ -374,6 +374,7 @@ public class Sync extends Service implements AsyncTaskListener{
                     Intent trophiesIntent = new Intent(this, TrophiesList.class);
                     //Put extras in intent
                     trophiesIntent.putExtra("game", changedGames.get(0));
+                    trophiesIntent.putExtra("username", username);
 
                     /*
                     The stack builder object will contain an artificial back stack for the
