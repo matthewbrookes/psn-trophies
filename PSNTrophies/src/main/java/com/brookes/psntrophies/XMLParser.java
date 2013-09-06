@@ -346,7 +346,17 @@ public class XMLParser{
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return friends;
+        ArrayList<Friend> sortedFriends = new ArrayList<Friend>(); //List will have online friends first
+        for(int i=0; i<friends.size(); i++){ //Iterate over friends
+            if(friends.get(i).isOnline()){ //If friend is currently online
+                sortedFriends.add(friends.get(i)); //Add friend to new list
+                friends.remove(i);
+            }
+        }
+        for(int i=0; i<friends.size(); i++){ //Iterate over offline friends
+            sortedFriends.add(friends.get(i)); //Add friend to list
+        }
+        return sortedFriends;
     }
 }
 
