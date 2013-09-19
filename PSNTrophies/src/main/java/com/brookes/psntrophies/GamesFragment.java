@@ -644,7 +644,7 @@ public class GamesFragment extends Fragment implements AsyncTaskListener {
                 Intent trophiesIntent = new Intent(v.getContext(), TrophiesList.class);
                 trophiesIntent.putExtra("game", filteredGamesList.get(position));
                 trophiesIntent.putExtra("username", username);
-                //trophiesIntent.putExtra("bg_color", backgroundColor);
+                trophiesIntent.putExtra("bg_color", backgroundColor);
                 startActivity(trophiesIntent);
             }
         });

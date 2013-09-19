@@ -576,7 +576,7 @@
     <string name="pref_title_download_images">Download images</string>
     <string name="pref_title_email">Email</string>
     <string name="pref_title_filter_games">Filter games</string>
-    <string name="pref_title_new_message_notifications">New message notifications</string>
+    <string name="pref_title_new_message_notifications">Trophy notifications</string>
     <string name="pref_title_password">Password</string>
     <string name="pref_title_ringtone">Ringtone</string>
     <string name="pref_title_save_images">Save images to SD Card</string>
